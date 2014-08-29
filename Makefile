@@ -1,11 +1,12 @@
-lex.yy.c: spec.l
-		flex spec.l
+# Limited Initial Makefile
+# Creates "120++" from "lexer.l" and "120++.c"
+#
+LEX=flex
+YACC=bison -y
+YFLAGS=-d
+objects=scan.o parse.o 120++.o
 
-spec.tab.c spec.tab.h:	spec.y
-		bison -vd spec.y
-
-parser: lex.yy.o y.tab.o
-		$(cc) -o parser lex.yy.o y.tab.o
-
-lex.yy.o: lex.yy.c spec.tab.h
-		$(cc) -c lex.yy.c
+120++: $(objects)
+scan.o: scan.l parse.c
+parse.o: parse.y
+120++.o: 120++.c
