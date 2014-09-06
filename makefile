@@ -14,5 +14,5 @@ CFLAGS=-c -g
 lex.yy.o: lex.yy.c
 	$(CC) $(CFLAGS) lex.yy.c
 
-lex.yy.c: lexer.l cgram.tab.h
-	flex lexer.l
+lex.yy.c: mylexer.l cgram.tab.h
+	flex mylexer.l
