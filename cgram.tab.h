@@ -131,7 +131,9 @@
      BREAK = 347,
      RETURN = 348,
      THEN = 349,
-     ELSE = 350
+     ELSE = 350,
+     USING = 351,
+     NAMESP = 352
    };
 #endif
 

@@ -3,7 +3,8 @@ L	[_a-zA-Z]
 H	[a-fA-F0-9]
 
 %{
-#define MAX_STR_CONST 10000 // what practical limit to set?
+#define MAX_STR_CONST 10000 // what practical limits to set?
+#define MAX_INCLUDE_DEPTH 10
 
 #include <stdio.h>
 #include <string.h>
@@ -24,11 +25,16 @@ FILE* saved_yyin;
 
 char string_buf[MAX_STR_CONST];
 char *string_buf_ptr;
+
+YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+int include_stack_ctr = 0;
 %}
 
 %x comment
 %x include
 %x string
+
+%option yylineno
 
 %%
 
@@ -50,6 +56,7 @@ for				return FOR;
 if				return IF;
 int				return INT;
 long			return LONG;
+namespace		return NAMESP;
 return			return RETURN;
 short			return SHORT;
 signed			return SIGNED;
@@ -59,30 +66,40 @@ struct			return STRUCT;
 switch			return SWITCH;
 typedef			return TYPEDEF;
 unsigned		return UNSIGNED;
+using			return USING;
 void			return VOID;
 while			return WHILE;
 
-{L}({L}{D})*		return IDENTIFIER; // TODO add character constants
+{L}({L}|{D})*	return IDENTIFIER;
 
 		/* shamelessly taken from flex man page and tweaked	*/
 
 "#include"[ \t\f]*			BEGIN(include);
 <include>\"[^ \t\n\f]+\"	{
-		char sub_buff[sizeof(yytext)-2];
+		if( include_stack_ctr >= MAX_INCLUDE_DEPTH) {
+			lexerr("Includes nested too deeply\n");
+			exit(1);
+		}
+		include_stack[include_stack_ctr++] = YY_CURRENT_BUFFER;
 		yyin = fopen(yytext, "r");
 
 		if (!yyin)
 			lexerr("Include file could not be found\n");
 
-		yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
+
 		BEGIN(INITIAL);
 }
+<include>\<		BEGIN(INITIAL);
 
 <INITIAL><<EOF>> {
-		yypop_buffer_state();
-
-		if(!YY_CURRENT_BUFFER)
+		if( --include_stack_ctr < 0) {
 			yyterminate();
+		}
+		else {
+			yy_delete_buffer( YY_CURRENT_BUFFER);
+			yy_switch_to_buffer(include_stack[include_stack_ctr]);
+		}
 }
 
 "/*"			{ prev_state = INITIAL; BEGIN(comment);}
@@ -101,6 +118,7 @@ while			return WHILE;
 	\"		{ BEGIN(INITIAL); *string_buf_ptr = '\0';} // TODO return string
 	\n		lexerr("unterminated string constant\n");
 	\\{D}+	lexerr("invalid escape sequence\n");
+	<<EOF>>	lexerr("reached EOF while in string\n");
 	\\n		*string_buf_ptr++ = '\n';
 	\\t		*string_buf_ptr++ = '\t';
 	\\r		*string_buf_ptr++ = '\r';
@@ -151,12 +169,13 @@ while			return WHILE;
 "|"			|
 "?"			return OPERATOR;
 
+
 ;			return SM;
-{			return LC;
-}			return RC;
 ,			return CM;
 :			return COLON;
 =			return ASN;
+"{"			return LC;
+"}"			return RC;
 "("			return LP;
 ")"			return RP;
 "["			return LB;
