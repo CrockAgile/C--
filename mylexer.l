@@ -4,7 +4,7 @@ H	[a-fA-F0-9]
 
 %{
 #define MAX_STR_CONST 10000 // what practical limits to set?
-#define MAX_INCLUDE_DEPTH 10
+#define MAX_INCLUDE_DEPTH 20
 
 #include <stdio.h>
 #include <string.h>
@@ -18,7 +18,6 @@ extern int yychar;
 void lexerr(char* s);
 int user_include();
 
-int line_num = 1;
 int prev_state;
 int errors;
 FILE* saved_yyin;
@@ -30,7 +29,8 @@ YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
 %}
 
-%x comment
+%x star_comment
+%x line_comment
 %x include
 %x string
 
@@ -38,12 +38,13 @@ int include_stack_ctr = 0;
 
 %%
 
-\n			line_num++;
+\n
 [ \t\f]+
 
 break			return BREAK;
 case			return CASE;
 char			return CHAR;
+class			return CLASS;
 const			return CONST;
 continue		return CONTINUE;
 default			return DEFAULT;
@@ -81,6 +82,7 @@ while			return WHILE;
 			exit(1);
 		}
 		include_stack[include_stack_ctr++] = YY_CURRENT_BUFFER;
+		yytext++[yyleng-1] = '\0';
 		yyin = fopen(yytext, "r");
 
 		if (!yyin)
@@ -102,12 +104,18 @@ while			return WHILE;
 		}
 }
 
-"/*"			{ prev_state = INITIAL; BEGIN(comment);}
-<comment>{
+"/*"			{ prev_state = INITIAL; BEGIN(star_comment);}
+<star_comment>{
 	[^*\n]*
 	"*"+[^*/\n]*
-	\n			line_num++;
+	\n
 	"*"+"/"		BEGIN(prev_state);
+}
+
+"//"			{ prev_state = INITIAL; BEGIN(line_comment);}
+<line_comment>{
+	[^\n]*
+	\n			BEGIN(prev_state);
 }
 
 			/* TODO decide how to limit string length */
@@ -173,6 +181,7 @@ while			return WHILE;
 ;			return SM;
 ,			return CM;
 :			return COLON;
+::			return SCOPE;
 =			return ASN;
 "{"			return LC;
 "}"			return RC;

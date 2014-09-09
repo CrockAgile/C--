@@ -133,7 +133,9 @@
      THEN = 349,
      ELSE = 350,
      USING = 351,
-     NAMESP = 352
+     NAMESP = 352,
+     SCOPE = 353,
+     CLASS = 354
    };
 #endif
 
