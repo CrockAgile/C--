@@ -135,7 +135,10 @@
      USING = 351,
      NAMESP = 352,
      SCOPE = 353,
-     CLASS = 354
+     CLASS = 354,
+     PUBLIC = 355,
+     PRIVATE = 356,
+     PROTECTED = 357
    };
 #endif
 

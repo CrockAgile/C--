@@ -5,12 +5,14 @@ H	[a-fA-F0-9]
 %{
 #define MAX_STR_CONST 10000 // what practical limits to set?
 #define MAX_INCLUDE_DEPTH 20
+#define MAX_FNAME_LENGTH 300
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include "cgram.tab.h"
+#include "filestack.h"
 
 extern YYSTYPE yylval;
 extern int yychar;
@@ -23,7 +25,8 @@ int errors;
 FILE* saved_yyin;
 
 char string_buf[MAX_STR_CONST];
-char *string_buf_ptr;
+char filename_buff[MAX_FNAME_LENGTH] = {0};
+char* string_buf_ptr;
 
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
@@ -58,6 +61,9 @@ if				return IF;
 int				return INT;
 long			return LONG;
 namespace		return NAMESP;
+private			return PRIVATE;
+protected		return PROTECTED;
+public			return PUBLIC;
 return			return RETURN;
 short			return SHORT;
 signed			return SIGNED;
@@ -76,23 +82,26 @@ while			return WHILE;
 		/* shamelessly taken from flex man page and tweaked	*/
 
 "#include"[ \t\f]*			BEGIN(include);
-<include>\"[^ \t\n\f]+\"	{
+<include>\"[^ \t\n\f]+\"	{	// user include as in "foo.h"
 		if( include_stack_ctr >= MAX_INCLUDE_DEPTH) {
 			lexerr("Includes nested too deeply\n");
 			exit(1);
 		}
 		include_stack[include_stack_ctr++] = YY_CURRENT_BUFFER;
-		yytext++[yyleng-1] = '\0';
+		yytext++[yyleng-1] = '\0';	// strip quotes
 		yyin = fopen(yytext, "r");
 
 		if (!yyin)
 			lexerr("Include file could not be found\n");
 
+		push_file(yytext,yylineno);
+		print_filestack();
+		yylineno = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
 
 		BEGIN(INITIAL);
 }
-<include>\<		BEGIN(INITIAL);
+<include>\<[^ \t\n\f]+\>		BEGIN(INITIAL);	// library include
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
@@ -100,6 +109,9 @@ while			return WHILE;
 		}
 		else {
 			yy_delete_buffer( YY_CURRENT_BUFFER);
+			memset(&filename_buff[0],0,sizeof(filename_buff));
+			yylineno = pop_file(filename_buff);
+			print_filestack();
 			yy_switch_to_buffer(include_stack[include_stack_ctr]);
 		}
 }
@@ -188,7 +200,7 @@ while			return WHILE;
 "("			return LP;
 ")"			return RP;
 "["			return LB;
-"]"			return RB;
+"]"			return RB; // TODO matching things like '3]' which is BAD
 
 %%
 
