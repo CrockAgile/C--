@@ -1,6 +1,12 @@
+O	[0-7]
 D	[0-9]
 L	[_a-zA-Z]
 H	[a-fA-F0-9]
+E	[Ee][+-]?{D}+
+FS	[fFlL]
+IS	[uUlL]
+
+		// TODO use ytab.h instead ?
 
 %{
 #define MAX_STR_CONST 10000 // what practical limits to set?
@@ -62,7 +68,6 @@ int				return INT;
 long			return LONG;
 namespace		return NAMESP;
 private			return PRIVATE;
-protected		return PROTECTED;
 public			return PUBLIC;
 return			return RETURN;
 short			return SHORT;
@@ -78,6 +83,15 @@ void			return VOID;
 while			return WHILE;
 
 {L}({L}|{D})*	return IDENTIFIER;
+
+0[xX]{H}+{IS}?	lexerr("Hex not supported\n");
+0{O}+{IS}?		lexerr("Octal not supported\n");
+
+{D}+{IS}?					return ICON;
+{D}+{E}{FS}?				return FCON;
+{D}*"."{D}+({E})?{FS}?		return FCON;
+{D}+"."{D}*({E})?{FS}?		return FCON;
+'(\\.|[^\\'])+'				return CCON;
 
 		/* shamelessly taken from flex man page and tweaked	*/
 
@@ -163,6 +177,7 @@ while			return WHILE;
 "&="			|
 "^="			|
 "|="			|
+"="				|
 ">>"			|
 "<<"			|
 "++"			|
@@ -194,13 +209,12 @@ while			return WHILE;
 ,			return CM;
 :			return COLON;
 ::			return SCOPE;
-=			return ASN;
 "{"			return LC;
 "}"			return RC;
 "("			return LP;
 ")"			return RP;
 "["			return LB;
-"]"			return RB; // TODO matching things like '3]' which is BAD
+"]"			return RB;
 
 %%
 
