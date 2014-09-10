@@ -18,7 +18,7 @@ IS	[uUlL]
 #include <stdlib.h>
 #include <ctype.h>
 #include "cgram.tab.h"
-#include "filestack.h"
+#include "lexlib.h"
 
 extern YYSTYPE yylval;
 extern int yychar;
@@ -42,6 +42,7 @@ int include_stack_ctr = 0;
 %x line_comment
 %x include
 %x string
+%x escape
 
 %option yylineno
 
@@ -95,7 +96,7 @@ while			return WHILE;
 
 		/* shamelessly taken from flex man page and tweaked	*/
 
-"#include"[ \t\f]*			BEGIN(include);
+"#"[ \t\f]*"include"[ \t\f]*	BEGIN(include);
 <include>\"[^ \t\n\f]+\"	{	// user include as in "foo.h"
 		if( include_stack_ctr >= MAX_INCLUDE_DEPTH) {
 			lexerr("Includes nested too deeply\n");

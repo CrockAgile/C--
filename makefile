@@ -5,8 +5,8 @@
 CC=gcc
 CFLAGS=-c -g
 
-120++:	120++.o lex.yy.o filestack.o
-	$(CC) -o 120++ 120++.o lex.yy.o filestack.o
+120++:	120++.o lex.yy.o lexlib.o
+	$(CC) -o 120++ 120++.o lex.yy.o lexlib.o
 
 120++.o: 120++.c
 	$(CC) $(CFLAGS) 120++.c
@@ -16,5 +16,5 @@ lex.yy.o: lex.yy.c
 
 lex.yy.c: mylexer.l cgram.tab.h
 	flex mylexer.l
-filestack.o: filestack.c
-	$(CC) $(CFLAGS) filestack.c
+lexlib.o: lexlib.c
+	$(CC) $(CFLAGS) lexlib.c

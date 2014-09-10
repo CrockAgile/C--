@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "lexlib.h"
 
 extern int yylex();
 extern int yylineno;

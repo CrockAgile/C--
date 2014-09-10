@@ -1,4 +1,22 @@
-#include "filestack.h"
+#include "lexlib.h"
+
+struct token {
+    int category;
+    char* text;
+    int lineno;
+    char* filename;
+    int ival;
+    int* sval;
+};
+
+typedef struct token token;
+
+struct token_elem {
+    token* t;
+    struct token_elem* next;
+};
+
+typedef struct token_elem token_el;
 
 struct file_elem {
     char* filename;
@@ -50,9 +68,10 @@ int delete_filestack(){
 
 void print_filestack() {
     file_el* curr = filestack_top;
+    printf("/***TOP***\n");
     while( curr != NULL){
         printf("%s:%d\n",curr->filename,curr->curr_line);
         curr = curr->next;
     }
-    printf("\n");
+    printf("***BOT***/\n");
 }
