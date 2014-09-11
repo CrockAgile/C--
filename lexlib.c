@@ -75,3 +75,38 @@ void print_filestack() {
     }
     printf("***BOT***/\n");
 }
+
+void escape_char(char* src, char* dest) {
+    switch(src[1]){
+        case 'a':
+            *dest = '\a';
+            break;
+        case 'b':
+            *dest = '\b';
+            break;
+        case 't':
+            *dest = '\t';
+            break;
+        case 'n':
+            *dest = '\n';
+            break;
+        case 'v':
+            *dest = '\v';
+            break;
+        case 'f':
+            *dest = '\f';
+            break;
+        case 'r':
+            *dest = '\r';
+            break;
+        case '\\':
+            *dest = '\\';
+            break;
+        case '\'':
+            *dest = '\'';
+            break;
+        case '\"':
+            *dest = '\"';
+            break;
+    }
+}

@@ -2,7 +2,8 @@
 #include "B.h"
 int main()
 {
-    char '\n';
+    char a = '\n';
+    char* s = "foo\nbar";
     float pi = 3.14;
     return 0;
 }

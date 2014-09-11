@@ -10,7 +10,7 @@ IS	[uUlL]
 
 %{
 #define MAX_STR_CONST 10000 // what practical limits to set?
-#define MAX_INCLUDE_DEPTH 20
+#define MAX_INCLUDE_DEPTH 100
 #define MAX_FNAME_LENGTH 300
 
 #include <stdio.h>
@@ -24,7 +24,6 @@ extern YYSTYPE yylval;
 extern int yychar;
 
 void lexerr(char* s);
-int user_include();
 
 int prev_state;
 int errors;
@@ -42,9 +41,10 @@ int include_stack_ctr = 0;
 %x line_comment
 %x include
 %x string
-%x escape
+%x chara
 
 %option yylineno
+%option stack
 
 %%
 
@@ -92,11 +92,16 @@ while			return WHILE;
 {D}+{E}{FS}?				return FCON;
 {D}*"."{D}+({E})?{FS}?		return FCON;
 {D}+"."{D}*({E})?{FS}?		return FCON;
-'(\\.|[^\\'])+'				return CCON;
+'([^\\'])+'					yytext++[yyleng-1] = '\0'; return CCON;
+'\\.'		{
+				yytext++[yyleng-1] = '\0'; // strip quotes
+				escape_char(yytext++,yytext+1);
+				return CCON;
+			}
 
 		/* shamelessly taken from flex man page and tweaked	*/
 
-"#"[ \t\f]*"include"[ \t\f]*	BEGIN(include);
+"#"[ \t\f]*"include"[ \t\f]*	yy_push_state(include);
 <include>\"[^ \t\n\f]+\"	{	// user include as in "foo.h"
 		if( include_stack_ctr >= MAX_INCLUDE_DEPTH) {
 			lexerr("Includes nested too deeply\n");
@@ -114,9 +119,9 @@ while			return WHILE;
 		yylineno = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
 
-		BEGIN(INITIAL);
+		yy_pop_state();
 }
-<include>\<[^ \t\n\f]+\>		BEGIN(INITIAL);	// library include
+<include>\<[^ \t\n\f]+\>	// library include
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
@@ -131,41 +136,44 @@ while			return WHILE;
 		}
 }
 
-"/*"			{ prev_state = INITIAL; BEGIN(star_comment);}
+"/*"			yy_push_state(star_comment);
 <star_comment>{
 	[^*\n]*
 	"*"+[^*/\n]*
 	\n
-	"*"+"/"		BEGIN(prev_state);
+	"*"+"/"		yy_pop_state();
 }
 
-"//"			{ prev_state = INITIAL; BEGIN(line_comment);}
+"//"			yy_push_state(line_comment);
 <line_comment>{
 	[^\n]*
-	\n			BEGIN(prev_state);
+	\n			yy_pop_state();
 }
 
 			/* TODO decide how to limit string length */
 
-\"	string_buf_ptr = string_buf; BEGIN(string);
+\"	string_buf_ptr = string_buf; yy_push_state(string);
 
 <string>{
-	\"		{ BEGIN(INITIAL); *string_buf_ptr = '\0';} // TODO return string
+	\"		yy_pop_state(); *string_buf_ptr = '\0'; printf("%s",string_buf); return STRING; // TODO return string
 	\n		lexerr("unterminated string constant\n");
-	\\{D}+	lexerr("invalid escape sequence\n");
 	<<EOF>>	lexerr("reached EOF while in string\n");
-	\\n		*string_buf_ptr++ = '\n';
-	\\t		*string_buf_ptr++ = '\t';
-	\\r		*string_buf_ptr++ = '\r';
-	\\b		*string_buf_ptr++ = '\b';
-	\\f		*string_buf_ptr++ = '\f';
-	\\(.|\n)	*string_buf_ptr++ = yytext[1];
+	\\		|
+	\\a		|
+	\\b		|
+	\\n		|
+	\\t		|
+	\\r		|
+	\\f		|
+	\\\'	|
+	\\v		|
+	\\\"	escape_char(yytext,string_buf_ptr++);
+
 	[^\\\n\"]+	{ 	char* yptr = yytext;
 					while ( *yptr )
 						*string_buf_ptr++ = *yptr++;
 				}
 }
-
 
 
 ">>="			|
@@ -203,13 +211,13 @@ while			return WHILE;
 ">"			|
 "^"			|
 "|"			|
+::			|
 "?"			return OPERATOR;
 
 
 ;			return SM;
 ,			return CM;
 :			return COLON;
-::			return SCOPE;
 "{"			return LC;
 "}"			return RC;
 "("			return LP;
@@ -233,9 +241,4 @@ void lexerr(char* s)
 int yywrap()
 {
 	return 1;
-}
-
-int user_include()
-{
-	return 303;
 }

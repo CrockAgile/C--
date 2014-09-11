@@ -11,4 +11,6 @@ int pop_file(char* name_buff);
 int delete_filestack();
 void print_filestack();
 
+// helper functions
+void escape_char(char* src, char* dest);
 #endif
