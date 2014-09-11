@@ -4,6 +4,7 @@ int main()
 {
     char a = '\n';
     char* s = "foo\nbar";
+    char* t = "bar\tbaz";
     float pi = 3.14;
     return 0;
 }

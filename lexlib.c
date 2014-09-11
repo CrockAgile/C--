@@ -1,27 +1,25 @@
 #include "lexlib.h"
 
-int push_file(char* newfile, int lineno) {
+extern token yytoken;
+extern int yylineno;
+extern char* yytext;
+
+int push_file(int lineno) {
     file_el* pushed = (file_el*)malloc(sizeof(file_el));
     if(!pushed)
         return 0;
 
-    pushed->filename = (char*)malloc(strlen(newfile)+1);
-    if(!pushed->filename)
-        return 0;
+    pushed->filename = yytoken.filename;
 
-    strcpy(pushed->filename,newfile);
     pushed->curr_line = lineno;
-    pushed->next = (file_el*)filestack_top;
+    pushed->next = filestack_top;
     filestack_top = pushed;
     return 1;
 }
 
-int pop_file(char* name_buff) {
+int pop_file() {
     file_el* popped = filestack_top;
-    if(name_buff)
-        strcpy(name_buff,popped->filename);
-
-    free(popped->filename);
+    yytoken.filename = popped->filename;
 
     filestack_top = popped->next;
     int resumed_line = popped->curr_line;
@@ -81,4 +79,32 @@ void escape_char(char* src, char* dest) {
             *dest = '\"';
             break;
     }
+}
+
+int update_yytoken(int code, void* lval) {
+    if(yytoken.lval)
+        free(yytoken.lval);
+    if(yytoken.text)
+        free(yytoken.text);
+
+    yytoken.text = strdup(yytext);
+    yytoken.code = code;
+    yytoken.lineno = yylineno;
+    yytoken.lval = lval;
+
+    return code;
+}
+
+int string_update_yytoken(int code, void* lval, char* orig) {
+    if(yytoken.lval)
+        free(yytoken.lval);
+    if(yytoken.text)
+        free(yytoken.text);
+
+    yytoken.text = strdup(orig);
+    yytoken.code = code;
+    yytoken.lineno = yylineno;
+    yytoken.lval = lval;
+
+    return code;
 }

@@ -6,8 +6,6 @@ E	[Ee][+-]?{D}+
 FS	[fFlL]
 IS	[uUlL]
 
-		// TODO use ytab.h instead ?
-
 %{
 #define MAX_STR_CONST 10000 // what practical limits to set?
 #define MAX_INCLUDE_DEPTH 100
@@ -20,23 +18,20 @@ IS	[uUlL]
 #include "cgram.tab.h"
 #include "lexlib.h"
 
-extern YYSTYPE yylval;
-extern int yychar;
 token yytoken = {0,NULL,0,NULL,NULL};
 
 void lexerr(char* s);
 
-int prev_state;
 int errors;
-FILE* saved_yyin;
 
-char lexeme_buf[MAX_STR_CONST];
 char string_buf[MAX_STR_CONST];
-char filename_buff[MAX_FNAME_LENGTH] = {0};
-char* string_buf_ptr;
-char* lexeme_buf_ptr;
+char origin_buf[MAX_STR_CONST];
+char* str_buf_ptr;
+char* origin_ptr;
+float* float_ptr;
+int* int_ptr;
 
-YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH]; // TODO switch to built in
 int include_stack_ctr = 0;
 %}
 
@@ -54,52 +49,72 @@ int include_stack_ctr = 0;
 \n
 [ \t\f]+
 
-break			return BREAK;
-case			return CASE;
-char			return CHAR;
-class			return CLASS;
-const			return CONST;
-continue		return CONTINUE;
-default			return DEFAULT;
-do				return DO;
-double			return DOUBLE;
-else			return ELSE;
-extern			return EXTERN;
-float			return FLOAT;
-for				return FOR;
-if				return IF;
-int				return INT;
-long			return LONG;
-namespace		return NAMESP;
-private			return PRIVATE;
-public			return PUBLIC;
-return			return RETURN;
-short			return SHORT;
-signed			return SIGNED;
-sizeof			return SIZEOF;
-static			return STATIC;
-struct			return STRUCT;
-switch			return SWITCH;
-typedef			return TYPEDEF;
-unsigned		return UNSIGNED;
-using			return USING;
-void			return VOID;
-while			return WHILE;
+break			return update_yytoken(BREAK,NULL);
+case			return update_yytoken(CASE,NULL);
+char			return update_yytoken(CHAR,NULL);
+class			return update_yytoken(CLASS,NULL);
+const			return update_yytoken(CONST,NULL);
+continue		return update_yytoken(CONTINUE,NULL);
+default			return update_yytoken(DEFAULT,NULL);
+do				return update_yytoken(DO,NULL);
+double			return update_yytoken(DOUBLE,NULL);
+else			return update_yytoken(ELSE,NULL);
+extern			return update_yytoken(EXTERN,NULL);
+float			return update_yytoken(FLOAT,NULL);
+for				return update_yytoken(FOR,NULL);
+if				return update_yytoken(IF,NULL);
+int				return update_yytoken(INT,NULL);
+long			return update_yytoken(LONG,NULL);
+namespace		return update_yytoken(NAMESP,NULL);
+private			return update_yytoken(PRIVATE,NULL);
+public			return update_yytoken(PUBLIC,NULL);
+return			return update_yytoken(RETURN,NULL);
+short			return update_yytoken(SHORT,NULL);
+signed			return update_yytoken(SIGNED,NULL);
+sizeof			return update_yytoken(SIZEOF,NULL);
+static			return update_yytoken(STATIC,NULL);
+struct			return update_yytoken(STRUCT,NULL);
+switch			return update_yytoken(SWITCH,NULL);
+typedef			return update_yytoken(TYPEDEF,NULL);
+unsigned		return update_yytoken(UNSIGNED,NULL);
+using			return update_yytoken(USING,NULL);
+void			return update_yytoken(VOID,NULL);
+while			return update_yytoken(WHILE,NULL);
 
-{L}({L}|{D})*	return IDENTIFIER;
+{L}({L}|{D})*	return update_yytoken(IDENTIFIER,NULL);
 
 0[xX]{H}+{IS}?	lexerr("Hex not supported\n");
 0{O}+{IS}?		lexerr("Octal not supported\n");
 
-{D}+{IS}?					return ICON;
-{D}+{E}{FS}?				return FCON;
-{D}*"."{D}+({E})?{FS}?		return FCON;
-{D}+"."{D}*({E})?{FS}?		return FCON;
-'([^\\'])+'					yytext++[yyleng-1] = '\0'; return CCON;
+{D}+{IS}?	{
+				int_ptr = (int*)malloc(sizeof(int));
+				*int_ptr = atoi(yytext);
+				return update_yytoken(ICON,int_ptr);
+			}
+
+{D}*"."{D}+({E})?{FS}?	|
+{D}+"."{D}*({E})?{FS}?	|
+{D}+{E}{FS}?	{
+				float_ptr = (float*)malloc(sizeof(float));
+				*float_ptr = atof(yytext);
+				return update_yytoken(FCON,float_ptr);
+				}
+
+
+'([^\\'])+'	{
+				str_buf_ptr = (char*)malloc(strlen(yytext)+1);
+				strcpy(str_buf_ptr,yytext+1);
+				str_buf_ptr[yyleng-2] = '\0';
+				return update_yytoken(CCON,str_buf_ptr);
+			}
+
 '\\.'		{
-				yytext++[yyleng-1] = '\0'; // strip quotes
-				escape_char(yytext++,yytext+1);
-				return CCON;
+				str_buf_ptr = (char*)malloc(4);
+				strcpy(str_buf_ptr,yytext+1);
+				str_buf_ptr[2] = '\0';
+				escape_char(str_buf_ptr,str_buf_ptr);
+				str_buf_ptr[1] = '\0';
+				return update_yytoken(CCON,str_buf_ptr);
 			}
 
 		/* shamelessly taken from flex man page and tweaked	*/
@@ -117,16 +132,15 @@ while			return WHILE;
 		if (!yyin)
 			lexerr("Include file could not be found\n");
 
-		push_file(yytoken.filename,yylineno);
-		free(yytoken.filename);
+		push_file(yylineno);
 		yytoken.filename = strdup(yytext);
-		print_filestack();
+		print_filestack(); // TODO
 		yylineno = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
 
 		yy_pop_state();
 }
-<include>\<[^ \t\n\f]+\>	// library include
+<include>\<[^ \t\n\f]+\>	// TODO library include
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
@@ -134,11 +148,9 @@ while			return WHILE;
 		}
 		else {
 			yy_delete_buffer( YY_CURRENT_BUFFER);
-			memset(&filename_buff[0],0,sizeof(filename_buff));
-			yylineno = pop_file(filename_buff);
 			free(yytoken.filename);
-			yytoken.filename = strdup(filename_buff);
-			print_filestack();
+			yylineno = pop_file();
+			print_filestack(); // TODO
 			yy_switch_to_buffer(include_stack[include_stack_ctr]);
 		}
 }
@@ -159,10 +171,19 @@ while			return WHILE;
 
 			/* TODO decide how to limit string length */
 
-\"	string_buf_ptr = string_buf; yy_push_state(string);
+\"	{
+		str_buf_ptr = string_buf;
+		origin_ptr = origin_buf;
+		yy_push_state(string);
+	}
 
 <string>{
-	\"		yy_pop_state(); *string_buf_ptr = '\0'; printf("%s",string_buf); return STRING; // TODO return string
+	\"		{
+				yy_pop_state();
+				*str_buf_ptr = '\0';
+				*origin_ptr = '\0';
+				return string_update_yytoken(STRING,strdup(string_buf),origin_buf);
+			}
 	\n		lexerr("unterminated string constant\n");
 	<<EOF>>	lexerr("reached EOF while in string\n");
 	\\		|
@@ -174,11 +195,17 @@ while			return WHILE;
 	\\f		|
 	\\\'	|
 	\\v		|
-	\\\"	escape_char(yytext,string_buf_ptr++);
+	\\\"	{
+				strcpy(origin_ptr,yytext);
+				origin_ptr += 2;
+				escape_char(yytext,str_buf_ptr++);
+			}
 
 	[^\\\n\"]+	{ 	char* yptr = yytext;
-					while ( *yptr )
-						*string_buf_ptr++ = *yptr++;
+					while ( *yptr ) {
+						*origin_ptr++ = *yptr;
+						*str_buf_ptr++ = *yptr++;
+					}
 				}
 }
 
@@ -219,18 +246,18 @@ while			return WHILE;
 "^"			|
 "|"			|
 ::			|
-"?"			return OPERATOR;
+"?"			return update_yytoken(OPERATOR,NULL);
 
 
-;			return SM;
-,			return CM;
-:			return COLON;
-"{"			return LC;
-"}"			return RC;
-"("			return LP;
-")"			return RP;
-"["			return LB;
-"]"			return RB;
+;			return update_yytoken(SM,NULL);
+,			return update_yytoken(CM,NULL);
+:			return update_yytoken(COLON,NULL);
+"{"			return update_yytoken(LC,NULL);
+"}"			return update_yytoken(RC,NULL);
+"("			return update_yytoken(LP,NULL);
+")"			return update_yytoken(RP,NULL);
+"["			return update_yytoken(LB,NULL);
+"]"			return update_yytoken(RB,NULL);
 
 %%
 
