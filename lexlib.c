@@ -1,33 +1,5 @@
 #include "lexlib.h"
 
-struct token {
-    int category;
-    char* text;
-    int lineno;
-    char* filename;
-    int ival;
-    int* sval;
-};
-
-typedef struct token token;
-
-struct token_elem {
-    token* t;
-    struct token_elem* next;
-};
-
-typedef struct token_elem token_el;
-
-struct file_elem {
-    char* filename;
-    int curr_line;
-    struct file_elem* next;
-};
-
-typedef struct file_elem file_el;
-
-file_el* filestack_top;
-
 int push_file(char* newfile, int lineno) {
     file_el* pushed = (file_el*)malloc(sizeof(file_el));
     if(!pushed)

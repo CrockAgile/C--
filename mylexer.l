@@ -22,6 +22,7 @@ IS	[uUlL]
 
 extern YYSTYPE yylval;
 extern int yychar;
+token yytoken = {0,NULL,0,NULL,NULL};
 
 void lexerr(char* s);
 
@@ -29,9 +30,11 @@ int prev_state;
 int errors;
 FILE* saved_yyin;
 
+char lexeme_buf[MAX_STR_CONST];
 char string_buf[MAX_STR_CONST];
 char filename_buff[MAX_FNAME_LENGTH] = {0};
 char* string_buf_ptr;
+char* lexeme_buf_ptr;
 
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
@@ -114,7 +117,9 @@ while			return WHILE;
 		if (!yyin)
 			lexerr("Include file could not be found\n");
 
-		push_file(yytext,yylineno);
+		push_file(yytoken.filename,yylineno);
+		free(yytoken.filename);
+		yytoken.filename = strdup(yytext);
 		print_filestack();
 		yylineno = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
@@ -131,6 +136,8 @@ while			return WHILE;
 			yy_delete_buffer( YY_CURRENT_BUFFER);
 			memset(&filename_buff[0],0,sizeof(filename_buff));
 			yylineno = pop_file(filename_buff);
+			free(yytoken.filename);
+			yytoken.filename = strdup(filename_buff);
 			print_filestack();
 			yy_switch_to_buffer(include_stack[include_stack_ctr]);
 		}
