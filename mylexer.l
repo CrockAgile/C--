@@ -144,6 +144,7 @@ while			return update_yytoken(WHILE,NULL);
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
+			yylineno = 1;
 			yyterminate();
 		}
 		else {
