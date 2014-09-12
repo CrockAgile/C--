@@ -46,8 +46,62 @@ void print_filestack() {
     printf("***BOT***/\n");
 }
 
+int code;
+char* text;
+int lineno;
+char* filename;
+void* lval;
+
+int add_to_tail(token* curr_yytoken) {
+    token* yytoken_copy = (token*)malloc(sizeof(token));
+    yytoken_copy->code = curr_yytoken->code;
+    yytoken_copy->text = curr_yytoken->text;
+    yytoken_copy->lineno = curr_yytoken->lineno;
+    yytoken_copy->filename = curr_yytoken->filename;
+    yytoken_copy->lval = curr_yytoken->lval;
+
+    token_el* added = (token_el*)malloc(sizeof(token_el));
+    added->t = yytoken_copy;
+    added->next = NULL;
+
+    if(tokenlist_tail){
+        tokenlist_tail->next = added;
+    }
+    else{
+        tokenlist_head = added;
+    }
+    tokenlist_tail = added;
+}
+void print_tokenlist(token_el* start) {
+    while(start) {
+        printf("%-20d%-25s%-20d%-20s",
+            start->t->code,
+            start->t->text,
+            start->t->lineno,
+            start->t->filename
+        );
+        switch(start->t->code){
+            case ICON:
+                printf("%-20d",*(int*)(start->t->lval));
+                break;
+            case FCON:
+                printf("%-20f",*(float*)(start->t->lval));
+                break;
+            case STRING:
+            case CCON:
+                printf("%-20s",(char*)(start->t->lval));
+                break;
+        }
+        printf("\n");
+        start = start->next;
+    }
+}
+
 void escape_char(char* src, char* dest) {
     switch(src[1]){
+        case '0':
+            *dest = '\0';
+            break;
         case 'a':
             *dest = '\a';
             break;
@@ -82,10 +136,6 @@ void escape_char(char* src, char* dest) {
 }
 
 int update_yytoken(int code, void* lval) {
-    if(yytoken.lval)
-        free(yytoken.lval);
-    if(yytoken.text)
-        free(yytoken.text);
 
     yytoken.text = strdup(yytext);
     yytoken.code = code;
@@ -95,11 +145,7 @@ int update_yytoken(int code, void* lval) {
     return code;
 }
 
-int string_update_yytoken(int code, void* lval, char* orig) {
-    if(yytoken.lval)
-        free(yytoken.lval);
-    if(yytoken.text)
-        free(yytoken.text);
+int lval_update_yytoken(int code, void* lval, char* orig) {
 
     yytoken.text = strdup(orig);
     yytoken.code = code;

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "lexlib.h"
 
 extern int yylex();
@@ -15,22 +16,8 @@ int main(int argc, char** argv) {
         yytoken.filename = argv[i];
         yyin = fopen(argv[i],"r");
         while( yylex() ){
-            if( yytoken.code == 264){
-                printf("***%s->%s\n",yytoken.text,(char*)yytoken.lval);
-            }
-            else {
-                printf("%d\t%s\t\t%d\t%s\t%p\n",
-                    yytoken.code,
-                    yytoken.text,
-                    yytoken.lineno,
-                    yytoken.filename,
-                    yytoken.lval
-                );
-            }
+            add_to_tail(&yytoken);
         }
+        print_tokenlist(tokenlist_head);
     }
-}
-
-void print_yylist(){
-
 }

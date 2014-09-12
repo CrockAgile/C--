@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "cgram.tab.h"
 
 struct s_token {
     int code;
@@ -31,6 +32,8 @@ struct file_elem {
 typedef struct file_elem file_el;
 
 file_el* filestack_top;
+token_el* tokenlist_head;
+token_el* tokenlist_tail;
 
 // filestack interface
 int push_file(int lineno);
@@ -40,8 +43,11 @@ void print_filestack();
 
 // yytoken business
 int update_yytoken(int, void*);
-int string_update_yytoken(int, void*, char*);
+int lval_update_yytoken(int, void*, char*);
 
+// linked list business
+int add_to_tail(token* yy_token);
+void print_tokenlist(token_el* start);
 
 // helper functions
 void escape_char(char* src, char* dest);

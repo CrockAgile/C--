@@ -1,29 +1,14 @@
-# README #
+TODO advanced lexerr
+    - Line numbers
+    - characters
+    - more specific?
 
-This README would normally document whatever steps are necessary to get your application up and running.
+TODO 'c' string functionality ?
 
-### What is this repository for? ###
+TODO 'aaa'
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+TODO built in buffer state stack
 
-### How do I get set up? ###
+TODO decide how to limit string length
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+TODO library include

@@ -2,9 +2,9 @@
 #include "B.h"
 int main()
 {
-    char a = '\n';
+    char a = '\\';
     char* s = "foo\nbar";
-    char* t = "bar\tbaz";
+    char* t = "b\tar\tbaz";
     float pi = 3.14;
     return 0;
 }
