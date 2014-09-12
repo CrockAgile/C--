@@ -21,3 +21,5 @@ lexlib.o: lexlib.c
 	$(CC) $(CFLAGS) lexlib.c
 clean:
 	rm *.o 120++ lex.yy.c
+tar:
+	tar -cvf hw1.tar .
