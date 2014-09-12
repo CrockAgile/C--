@@ -74,7 +74,7 @@ int add_to_tail(token* curr_yytoken) {
 }
 void print_tokenlist(token_el* start) {
     while(start) {
-        printf("%-20d%-25s%-20d%-20s",
+        printf("%-30d%-20s%-30d%-30s",
             start->t->code,
             start->t->text,
             start->t->lineno,
@@ -82,14 +82,14 @@ void print_tokenlist(token_el* start) {
         );
         switch(start->t->code){
             case ICON:
-                printf("%-20d",*(int*)(start->t->lval));
+                printf("%-30d",*(int*)(start->t->lval));
                 break;
             case FCON:
-                printf("%-20f",*(float*)(start->t->lval));
+                printf("%-30f",*(float*)(start->t->lval));
                 break;
             case STRING:
             case CCON:
-                printf("%-20s",(char*)(start->t->lval));
+                printf("%-30s",(char*)(start->t->lval));
                 break;
         }
         printf("\n");

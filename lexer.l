@@ -185,6 +185,7 @@ while			return update_yytoken(WHILE,NULL);
 \"	{
 		str_buf_ptr = string_buf;
 		origin_ptr = origin_buf;
+		*origin_ptr++ = '\"';
 		yy_push_state(string);
 	}
 
@@ -192,6 +193,7 @@ while			return update_yytoken(WHILE,NULL);
 	\"		{
 				yy_pop_state();
 				*str_buf_ptr = '\0';
+				*origin_ptr++ = '\"';
 				*origin_ptr = '\0';
 				return lval_update_yytoken(STRING,strdup(string_buf),origin_buf);
 			}

@@ -2,4 +2,5 @@
 #include "B.h"
 int main()
 {
+    "foobar";
 }
