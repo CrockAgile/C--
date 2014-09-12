@@ -7,6 +7,7 @@ CFLAGS=-c -g
 
 120++:	120++.o lex.yy.o lexlib.o
 	$(CC) -o 120++ 120++.o lex.yy.o lexlib.o
+	cp 120++ ./examples/120++
 
 120++.o: 120++.c
 	$(CC) $(CFLAGS) 120++.c

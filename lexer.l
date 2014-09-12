@@ -32,6 +32,15 @@ int* int_ptr;
 
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
+
+// system includes
+int iostream_included = 0;
+int cstdlib_included = 0;
+int ctime_included = 0;
+int string_included = 0;
+int fstream_included = 0;
+int cstring_included = 0;
+int iomanip_included = 0;
 %}
 
 %x star_comment
@@ -138,7 +147,14 @@ while			return update_yytoken(WHILE,NULL);
 
 		yy_pop_state();
 }
-<include>\<[^ \t\n\f]+\>
+
+<include>"<iostream>"	iostream_included = 1; yy_pop_state();
+<include>"<cstdlib>"	cstdlib_included = 1; yy_pop_state();
+<include>"<ctime>"		ctime_included = 1; yy_pop_state();
+<include>"<string>"		string_included = 1; yy_pop_state();
+<include>"<fstream>"	fstream_included = 1; yy_pop_state();
+<include>"<cstring>"	cstring_included = 1; yy_pop_state();
+<include>"<iomanip>"	iomanip_included = 1; yy_pop_state();
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
