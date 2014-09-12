@@ -58,6 +58,7 @@ int iomanip_included = 0;
 [ \t\f]+
 
 break			return update_yytoken(BREAK,NULL);
+bool			return update_yytoken(BOOLEAN,NULL);
 case			return update_yytoken(CASE,NULL);
 char			return update_yytoken(CHAR,NULL);
 class			return update_yytoken(CLASS,NULL);

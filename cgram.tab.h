@@ -138,7 +138,8 @@
      CLASS = 354,
      PUBLIC = 355,
      PRIVATE = 356,
-     PROTECTED = 357
+     PROTECTED = 357,
+     BOOLEAN = 358
    };
 #endif
 
