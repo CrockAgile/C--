@@ -17,23 +17,24 @@ IS	[uUlL]
 #include <ctype.h>
 #include "lexlib.h"
 
-token yytoken = {0,NULL,0,NULL,NULL};
-
 void lexerr(char* s);
 
 int errors;
 
-char string_buf[MAX_STR_CONST];
-char origin_buf[MAX_STR_CONST];
-char* str_buf_ptr;
-char* origin_ptr;
-float* float_ptr;
-int* int_ptr;
-
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
 
-// system includes
+char string_buf[MAX_STR_CONST]; // TODO implement growing/shrinking buffers
+char origin_buf[MAX_STR_CONST];
+char* str_buf_ptr;
+char* origin_ptr;
+
+float* float_ptr;
+int* int_ptr;
+
+token yytoken = {0,NULL,0,NULL,NULL};
+
+// system include flags
 int iostream_included = 0;
 int cstdlib_included = 0;
 int ctime_included = 0;
@@ -41,6 +42,10 @@ int string_included = 0;
 int fstream_included = 0;
 int cstring_included = 0;
 int iomanip_included = 0;
+
+// TODO should remake char and string
+// into same state with varying in/out (' or ")
+// and then check if len(sval) == 1 for chars
 %}
 
 %x star_comment

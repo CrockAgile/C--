@@ -74,7 +74,7 @@ int add_to_tail(token* curr_yytoken) {
 }
 void print_tokenlist(token_el* start) {
     while(start) {
-        printf("%-30d%-20s%-30d%-30s",
+        printf("%-10d%-30s%-10d%-20s",
             start->t->code,
             start->t->text,
             start->t->lineno,
