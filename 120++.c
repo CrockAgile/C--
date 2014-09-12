@@ -12,14 +12,14 @@ void call_lexing(int, char**);
 
 int main(int argc, char** argv) {
     call_lexing(argc, argv);
-    \\ syntactics
-    \\ semantics
-    \\ intermediate code
-    \\ optimize
-    \\ final code
+    // syntactics
+    // semantics
+    // intermediate code
+    // optimize
+    // final code
 
-    \\ should clean up linked list when done with it but
-    \\ since this stage ends now is faster to simply exit
+    // should clean up linked list when done with it but
+    // since this stage ends now is faster to simply exit
 }
 
 void call_lexing(int argc, char** argv) {
