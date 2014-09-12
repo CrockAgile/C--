@@ -10,5 +10,3 @@ TODO 'aaa'
 TODO built in buffer state stack
 
 TODO decide how to limit string length
-
-TODO library include
