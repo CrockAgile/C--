@@ -139,7 +139,9 @@
      PUBLIC = 355,
      PRIVATE = 356,
      PROTECTED = 357,
-     BOOLEAN = 358
+     BOOLEAN = 358,
+     NEW = 359,
+     DELETE = 360
    };
 #endif
 

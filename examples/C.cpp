@@ -4,4 +4,5 @@
 int main()
 {
     "foobar";
+    Foo a = new foo;
 }
