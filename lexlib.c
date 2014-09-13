@@ -73,6 +73,18 @@ int add_to_tail(token* curr_yytoken) {
     tokenlist_tail = added;
 }
 void print_tokenlist(token_el* start) {
+	printf("%-10s%-30s%-10s%-20s%-30s",
+		"Category",
+		"Text",
+		"Lineno",
+		"Filename",
+		"Lval");
+	int i;
+	printf("\n");
+	for (i = 0; i < 9; i++) {
+		printf("----------");
+	}
+	printf("\n");
     while(start) {
         printf("%-10d%-30s%-10d%-20s",
             start->t->code,

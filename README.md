@@ -10,3 +10,6 @@ TODO 'aaa'
 TODO built in buffer state stack
 
 TODO decide how to limit string length
+
+
+added ssh configuration ?
