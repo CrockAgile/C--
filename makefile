@@ -22,6 +22,11 @@ lexlib.o: lexlib.c
 clean:
 	rm *.o 120++ lex.yy.c
 tar:
-	tar -cvf hw1.tar . --exclude=./.git/* --exclude=hw1.tar
+	make clean
+	tar -cvf hw1.tar . \
+		--exclude=./.git/* \
+		--exclude=./.git \
+		--exclude=hw1.tar \
+		--exclude=.gitignore
 transfer:
 	scp hw1.tar croc4574@wormulon.cs.uidaho.edu:/home/croc4574/445/1
