@@ -1,3 +1,5 @@
+Class long project for CS 445: Compiler Design
+
 TODO advanced lexerr
     - Line numbers
     - characters
@@ -12,4 +14,3 @@ TODO built in buffer state stack
 TODO decide how to limit string length
 
 
-added ssh configuration ?
