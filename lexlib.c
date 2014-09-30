@@ -54,6 +54,9 @@ void* lval;
 
 int add_to_tail(token* curr_yytoken) {
     token* yytoken_copy = (token*)malloc(sizeof(token));
+    if(!yytoken_copy)
+        return 0;
+
     yytoken_copy->code = curr_yytoken->code;
     yytoken_copy->text = curr_yytoken->text;
     yytoken_copy->lineno = curr_yytoken->lineno;
@@ -61,6 +64,9 @@ int add_to_tail(token* curr_yytoken) {
     yytoken_copy->lval = curr_yytoken->lval;
 
     token_el* added = (token_el*)malloc(sizeof(token_el));
+    if(!added)
+        return 0;
+
     added->t = yytoken_copy;
     added->next = NULL;
 
