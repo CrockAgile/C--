@@ -12,20 +12,27 @@ TARNAME=hw2.tar
 120++.o: 120++.c
 	$(CC) $(CFLAGS) 120++.c
 
+120gram.c 120gram.h: 120gram.y
+	bison -dt --verbose 120gram.y
+
 lex.yy.o: lex.yy.c
 	$(CC) $(CFLAGS) lex.yy.c
 
 lex.yy.c: lexer.l cgram.tab.h
 	flex lexer.l
+
 lexlib.o: lexlib.c
 	$(CC) $(CFLAGS) lexlib.c
+
 clean:
-	rm -f *.o 120++ lex.yy.c
+	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
+
 tar: clean
 	tar -cvf $(TARNAME) . \
 		--exclude=./.git/* \
 		--exclude=./.git \
 		--exclude=$(TARNAME) \
 		--exclude=.gitignore
-transfer:
+
+transfer: tar
 	scp $(TARNAME) croc4574@wormulon.cs.uidaho.edu:/home/croc4574/445/$(TARNAME)

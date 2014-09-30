@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "cgram.tab.h"
+#include "120gram.tab.h"
 
 struct s_token {
     int code;

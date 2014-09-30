@@ -43,6 +43,8 @@ int fstream_included = 0;
 int cstring_included = 0;
 int iomanip_included = 0;
 
+int namespace_std = 0;
+
 // TODO should remake char and string
 // into same state with varying in/out (' or ")
 // and then check if len(sval) == 1 for chars
@@ -63,7 +65,7 @@ int iomanip_included = 0;
 [ \t\f]+
 
 break			return update_yytoken(BREAK,NULL);
-bool			return update_yytoken(BOOLEAN,NULL);
+bool			return update_yytoken(BOOL,NULL);
 case			return update_yytoken(CASE,NULL);
 char			return update_yytoken(CHAR,NULL);
 class			return update_yytoken(CLASS,NULL);
@@ -80,7 +82,6 @@ for				return update_yytoken(FOR,NULL);
 if				return update_yytoken(IF,NULL);
 int				return update_yytoken(INT,NULL);
 long			return update_yytoken(LONG,NULL);
-namespace		return update_yytoken(NAMESP,NULL);
 new				return update_yytoken(NEW,NULL);
 private			return update_yytoken(PRIVATE,NULL);
 public			return update_yytoken(PUBLIC,NULL);
@@ -105,7 +106,7 @@ while			return update_yytoken(WHILE,NULL);
 {D}+{IS}?	{
 				int_ptr = (int*)malloc(sizeof(int));
 				*int_ptr = atoi(yytext);
-				return update_yytoken(ICON,int_ptr);
+				return update_yytoken(INTEGER,int_ptr);
 			}
 
 {D}*"."{D}+({E})?{FS}?	|
@@ -113,7 +114,7 @@ while			return update_yytoken(WHILE,NULL);
 {D}+{E}{FS}?	{
 				float_ptr = (float*)malloc(sizeof(float));
 				*float_ptr = atof(yytext);
-				return update_yytoken(FCON,float_ptr);
+				return update_yytoken(FLOATING,float_ptr);
 				}
 
 
@@ -121,7 +122,7 @@ while			return update_yytoken(WHILE,NULL);
 				str_buf_ptr = (char*)malloc(strlen(yytext)+1);
 				strcpy(str_buf_ptr,yytext+1);
 				str_buf_ptr[yyleng-2] = '\0';
-				return update_yytoken(CCON,str_buf_ptr);
+				return update_yytoken(CHARACTER,str_buf_ptr);
 			}
 
 '\\.'		{
@@ -130,7 +131,7 @@ while			return update_yytoken(WHILE,NULL);
 				str_buf_ptr[2] = '\0';
 				escape_char(str_buf_ptr,str_buf_ptr);
 				str_buf_ptr[1] = '\0';
-				return update_yytoken(CCON,str_buf_ptr);
+				return update_yytoken(CHARACTER,str_buf_ptr);
 			}
 
 		/* shamelessly taken from flex man page and tweaked	*/
@@ -163,6 +164,8 @@ while			return update_yytoken(WHILE,NULL);
 <include>"<fstream>"	fstream_included = 1; yy_pop_state();
 <include>"<cstring>"	cstring_included = 1; yy_pop_state();
 <include>"<iomanip>"	iomanip_included = 1; yy_pop_state();
+
+"using namespace std"   namespace_std = 1;
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
@@ -232,54 +235,55 @@ while			return update_yytoken(WHILE,NULL);
 }
 
 
-">>="		|
-"<<="		|
-"+="		|
-"-="		|
-"*="		|
-"/="		|
-"%="		|
-"&="		|
-"^="		|
-"|="		|
-"="			|
-">>"		|
-"<<"		|
-"++"		|
-"--"		|
-"->"		|
-"."			|
-"&&"		|
-"||"		|
-"<="		|
-">="		|
-"=="		|
-!=			|
-&			|
-!			|
-~			|
--			|
-"+"			|
-"*"			|
-"/"			|
-%			|
-"<"			|
-">"			|
-"^"			|
-"|"			|
-::			|
-"?"			return update_yytoken(OPERATOR,NULL);
+">>="		return update_yytoken(SLEQ,NULL);
+"<<="		return update_yytoken(SREQ,NULL);
+"+="		return update_yytoken(ADDEQ,NULL);
+"-="		return update_yytoken(SUBEQ,NULL);
+"*="		return update_yytoken(MULEQ,NULL);
+"/="		return update_yytoken(DIVEQ,NULL);
+"%="		return update_yytoken(MODEQ,NULL);
+"&="		return update_yytoken(ANDEQ,NULL);
+"^="		return update_yytoken(XOREQ,NULL);
+"|="		return update_yytoken(OREQ,NULL);
+"="			return update_yytoken('=',NULL);
+">>"		return update_yytoken(SR,NULL);
+"<<"		return update_yytoken(SL,NULL);
+"++"		return update_yytoken(PLUSPLUS,NULL);
+"--"		return update_yytoken(MINUSMINUS,NULL);
+"->"		return update_yytoken(ARROW,NULL);
+"->*"       return update_yytoken(ARROWSTAR,NULL);
+"."			return update_yytoken('.',NULL);
+"&&"		return update_yytoken(ANDAND,NULL);
+"||"		return update_yytoken(OROR,NULL);
+"<="		return update_yytoken(LTEQ,NULL);
+">="		return update_yytoken(GTEQ,NULL);
+"=="		return update_yytoken(EQ,NULL);
+!=			return update_yytoken(NOTEQ,NULL);
+&			return update_yytoken('&',NULL);
+!			return update_yytoken('!',NULL);
+~			return update_yytoken('~',NULL);
+-			return update_yytoken('-',NULL);
+"+"			return update_yytoken('+',NULL);
+"*"			return update_yytoken('*',NULL);
+"/"			return update_yytoken('/',NULL);
+%			return update_yytoken('%',NULL);
+"<"			return update_yytoken('<',NULL);
+">"			return update_yytoken('>',NULL);
+"^"			return update_yytoken('^',NULL);
+"|"			return update_yytoken('|',NULL);
+::			return update_yytoken(COLONCOLON,NULL);
+"?"			return update_yytoken('?',NULL);
 
 
-;			return update_yytoken(SM,NULL);
-,			return update_yytoken(CM,NULL);
-:			return update_yytoken(COLON,NULL);
-"{"			return update_yytoken(LC,NULL);
-"}"			return update_yytoken(RC,NULL);
-"("			return update_yytoken(LP,NULL);
-")"			return update_yytoken(RP,NULL);
-"["			return update_yytoken(LB,NULL);
-"]"			return update_yytoken(RB,NULL);
+;			return update_yytoken(';',NULL);
+,			return update_yytoken(',',NULL);
+:			return update_yytoken(':',NULL);
+"{"			return update_yytoken('{',NULL);
+"}"			return update_yytoken('}',NULL);
+"("			return update_yytoken('(',NULL);
+")"			return update_yytoken(')',NULL);
+"["			return update_yytoken('[',NULL);
+"]"			return update_yytoken(']',NULL);
 
 <*>.|\n     lexerr("Unrecognized lexeme"); return 0;
 

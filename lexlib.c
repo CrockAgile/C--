@@ -93,14 +93,14 @@ void print_tokenlist(token_el* start) {
             start->t->filename
         );
         switch(start->t->code){
-            case ICON:
+            case INTEGER:
                 printf("%-30d",*(int*)(start->t->lval));
                 break;
-            case FCON:
+            case FLOATING:
                 printf("%-30f",*(float*)(start->t->lval));
                 break;
             case STRING:
-            case CCON:
+            case CHARACTER:
                 printf("%-30s",(char*)(start->t->lval));
                 break;
         }
