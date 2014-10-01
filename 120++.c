@@ -32,6 +32,6 @@ void call_lexing(int argc, char** argv) {
 //            add_to_tail(&yytoken);
 //        }
         yyparse();
-        print_tokenlist(tokenlist_head);
+        //print_tokenlist(tokenlist_head);
     }
 }

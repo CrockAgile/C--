@@ -5,8 +5,8 @@ CC=gcc
 CFLAGS=-c -g
 TARNAME=hw2.tar
 
-120++:	120++.o lex.yy.o lexlib.o 120gram.tab.o
-	$(CC) -o 120++ 120++.o lex.yy.o lexlib.o 120gram.tab.o
+120++:	120++.o lex.yy.o lexlib.o 120gram.tab.o parselib.o
+	$(CC) -o 120++ 120++.o lex.yy.o lexlib.o 120gram.tab.o parselib.o
 	cp 120++ ./examples/120++
 
 120++.o: 120++.c 120gram.tab.h
@@ -26,6 +26,9 @@ lex.yy.c: lexer.l 120gram.tab.h
 
 lexlib.o: lexlib.c 120gram.tab.h
 	$(CC) $(CFLAGS) lexlib.c
+
+parselib.o: parselib.c
+	$(CC) $(CFLAGS) parselib.c
 
 clean:
 	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
