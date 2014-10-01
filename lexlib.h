@@ -52,4 +52,19 @@ void print_tokenlist(token_el* start);
 // helper functions
 void escape_char(char* src, char* dest);
 
+struct name_el {
+    char *name;
+    int type;
+    struct name_el *next;
+};
+
+struct nametable {
+    int size;
+    int num;
+    struct name_el ** elements;
+};
+
+int hash_name_el(struct name_el a);
+int nametable_insert(struct name_el*, struct nametable*);
+
 #endif

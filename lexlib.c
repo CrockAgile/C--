@@ -46,11 +46,6 @@ void print_filestack() {
     printf("***BOT***/\n");
 }
 
-int code;
-char* text;
-int lineno;
-char* filename;
-void* lval;
 
 int add_to_tail(token* curr_yytoken) {
     token* yytoken_copy = (token*)malloc(sizeof(token));
@@ -171,4 +166,15 @@ int lval_update_yytoken(int code, void* lval, char* orig) {
     yytoken.lval = lval;
 
     return code;
+}
+
+int hash_name_el(struct name_el a) {
+}
+
+int nametable_insert(struct name_el *data, struct nametable *hash_table) {
+    int i, hash;
+    if(hash_table->num >= hash_table->size) {
+        return 0; // TODO dynamic hash table size
+    }
+
 }

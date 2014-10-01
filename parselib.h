@@ -14,9 +14,8 @@ struct pnode {
 
 struct pnode *alcnode(int rule, int kids, ...);
 
-
 enum {
-    CLASS_HEAD_RULE_1,
+    TYPEDEF_NAME_1
 };
 
 #endif
