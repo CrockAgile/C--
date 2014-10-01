@@ -43,12 +43,15 @@
 
 %{
 #include <stdio.h>
+#include "parselib.h"
 
 extern int lineno;
 int yydebug=1;
 
 static void yyerror(char *s);
 %}
+
+%define api.value.type {struct pnode}
 
 %token IDENTIFIER INTEGER FLOATING CHARACTER STRING
 %token TYPEDEF_NAME NAMESPACE_NAME CLASS_NAME ENUM_NAME TEMPLATE_NAME
@@ -771,9 +774,7 @@ class_specifier:
 	;
 
 class_head:
-	  class_key identifier { $$ = alctree(CLASS_HEAD_RULE_1, 2, $1, $2);
-				 typenametable_insert($2->t->text, CLASS_NAME);
-				  }
+	  class_key identifier { $$ = $1; }
 	| class_key identifier base_clause
 	| class_key nested_name_specifier identifier
 	| class_key nested_name_specifier identifier base_clause
@@ -1177,11 +1178,3 @@ yyerror(char *s)
 	fprintf(stderr, "%d: %s\n", lineno, s);
 }
 
-int
-main(void)
-{
-	lineno = 1;
-	yyparse();
-
-	return 0;
-}
