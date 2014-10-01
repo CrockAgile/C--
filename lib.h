@@ -52,6 +52,7 @@ void print_tokenlist(token_el* start);
 // helper functions
 void escape_char(char* src, char* dest);
 
+
 struct name_el {
     char *name;
     int type;
@@ -66,5 +67,28 @@ struct nametable {
 
 int hash_name_el(struct name_el a);
 int nametable_insert(struct name_el*, struct nametable*);
+
+#endif
+
+#ifndef parselib
+#define parselib
+
+#include <stdarg.h>
+#include <stdlib.h>
+
+struct pnode {
+    int prodrule;
+    int nkids;
+    struct pnode **kids;
+    token *t;
+};
+
+struct pnode *alcnode(int rule, int kids, ...);
+
+struct pnode* create_pnode(token* curr_yytoken);
+
+enum {
+    TYPEDEF_NAME_1
+};
 
 #endif

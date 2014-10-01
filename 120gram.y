@@ -43,10 +43,10 @@
 
 %{
 #include <stdio.h>
-#include "parselib.h"
+#include "lib.h"
 
 extern int yylineno;
-int yydebug = 1;
+// int yydebug = 1;
 
 static void yyerror(char *s);
 %}

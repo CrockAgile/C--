@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "lexlib.h"
+#include "lib.h"
 
 extern int yylex();
 extern int yyparse();
 extern token yytoken;
+extern YYSTYPE yylval;
 extern FILE* yyin;
 extern FILE* yyout;
 
@@ -13,14 +14,9 @@ void call_lexing(int, char**);
 
 int main(int argc, char** argv) {
     call_lexing(argc, argv);
-    // syntactics
-    // semantics
-    // intermediate code
-    // optimize
-    // final code
+    printf("%s\n",yylval->t->filename);
 
-    // should clean up linked list when done with it but
-    // since this stage ends now is faster to simply exit
+    return 0;
 }
 
 void call_lexing(int argc, char** argv) {
@@ -28,10 +24,6 @@ void call_lexing(int argc, char** argv) {
     for (i = 1; i < argc; i++){
         yytoken.filename = argv[i];
         yyin = fopen(argv[i],"r");
-//        while( yylex() ){
-//            add_to_tail(&yytoken);
-//        }
         yyparse();
-        //print_tokenlist(tokenlist_head);
     }
 }

@@ -1,8 +1,9 @@
-#include "lexlib.h"
+#include "lib.h"
 
 extern token yytoken;
 extern int yylineno;
 extern char* yytext;
+extern YYSTYPE yylval;
 
 int push_file(int lineno) {
     file_el* pushed = (file_el*)malloc(sizeof(file_el));
@@ -45,6 +46,7 @@ void print_filestack() {
     }
     printf("***BOT***/\n");
 }
+
 
 
 int add_to_tail(token* curr_yytoken) {
@@ -155,6 +157,8 @@ int update_yytoken(int code, void* lval) {
     yytoken.lineno = yylineno;
     yytoken.lval = lval;
 
+    yylval = create_pnode(&yytoken);
+
     return code;
 }
 
@@ -164,6 +168,8 @@ int lval_update_yytoken(int code, void* lval, char* orig) {
     yytoken.code = code;
     yytoken.lineno = yylineno;
     yytoken.lval = lval;
+
+    yylval = create_pnode(&yytoken);
 
     return code;
 }
@@ -177,4 +183,50 @@ int nametable_insert(struct name_el *data, struct nametable *hash_table) {
         return 0; // TODO dynamic hash table size
     }
 
+}
+
+struct pnode *alcnode(int rule, int kids, ...) {
+    va_list args;
+
+    struct pnode* new_pnode = (struct pnode*)malloc(sizeof(struct pnode));
+    if(!new_pnode)
+        return NULL;
+
+    new_pnode->prodrule = rule;
+    new_pnode->nkids = kids;
+
+    new_pnode->kids = (struct pnode**)malloc(kids * sizeof(struct pnode*));
+    int x;
+    va_start( args, kids );
+    for ( x = 0; x < kids; x++ ) {
+        new_pnode->kids[x] = va_arg(args,struct pnode*);
+        printf("%d\n",new_pnode->kids[x]->prodrule);
+    }
+    va_end( args );
+
+    new_pnode->t = NULL;
+    return new_pnode;
+}
+
+struct pnode* create_pnode(token* curr_yytoken) {
+    token* yytoken_copy = (token*)malloc(sizeof(token));
+    if(!yytoken_copy)
+        return 0;
+
+    yytoken_copy->code = curr_yytoken->code;
+    yytoken_copy->text = curr_yytoken->text;
+    yytoken_copy->lineno = curr_yytoken->lineno;
+    yytoken_copy->filename = curr_yytoken->filename;
+    yytoken_copy->lval = curr_yytoken->lval;
+
+    struct pnode *new_pnode = (struct pnode*)malloc(sizeof(struct pnode));
+    if(!new_pnode)
+        return 0;
+
+    new_pnode->prodrule = 0;
+    new_pnode->nkids = 0;
+    new_pnode->kids = NULL;
+    new_pnode->t = yytoken_copy;
+
+    return new_pnode;
 }

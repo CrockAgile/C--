@@ -11,11 +11,13 @@ IS	[uUlL]
 #define MAX_INCLUDE_DEPTH 100
 #define MAX_FNAME_LENGTH 300
 
+#define YYSTYPE struct pnode*
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "lexlib.h"
+#include "lib.h"
 
 void lexerr(char* s);
 
