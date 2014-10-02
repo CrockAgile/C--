@@ -15,7 +15,6 @@ void call_lexing(int, char**);
 int main(int argc, char** argv) {
     call_lexing(argc, argv);
     printf("%s\n",yylval->t->filename);
-
     return 0;
 }
 
