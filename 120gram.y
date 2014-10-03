@@ -46,7 +46,8 @@
 #include "lib.h"
 
 extern int yylineno;
-// int yydebug = 1;
+YYSTYPE root = NULL;
+//int yydebug = 1;
 
 static void yyerror(char *s);
 %}
@@ -266,7 +267,7 @@ delete_expression:
 	  DELETE cast_expression { $$ = alcnode(101,2,$1,$2); }
 	| COLONCOLON DELETE cast_expression { $$ = alcnode(101,3,$1,$2,$3); }
 	| DELETE '[' ']' cast_expression { $$ = alcnode(101,4,$1,$2,$3,$4); }
-	| COLONCOLON DELETE '[' ']' cast_expression { $$ = alcnode(101,$1,$2,$3,$4,$5); }
+	| COLONCOLON DELETE '[' ']' cast_expression { $$ = alcnode(101,5,$1,$2,$3,$4,$5); }
 	;
 
 cast_expression:
@@ -638,7 +639,7 @@ asm_definition:
 
 linkage_specification:
 	EXTERN string_literal '{' declaration_seq_opt '}' { $$ = alcnode(101,5,$1,$2,$3,$4,$5); }
-	| EXTERN string_literal declaration { $$ = alcnode(); }
+	| EXTERN string_literal declaration { $$ = alcnode(101,3,$1,$2,$3); }
 	;
 
 /*----------------------------------------------------------------------
@@ -723,7 +724,7 @@ parameter_declaration_clause:
 	| parameter_declaration_list { $$ = $1 ; }
 	| ELLIPSIS { $$ = $1 ; }
 	| parameter_declaration_list ',' ELLIPSIS { $$ = alcnode(101,3,$1,$2,$3); }
-	| 
+	| { $$ = NULL ; }
 	;
 
 parameter_declaration_list:
@@ -1046,127 +1047,127 @@ type_id_list:
  *----------------------------------------------------------------------*/
 
 declaration_seq_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| declaration_seq { $$ = $1 ; }
 	;
 
 nested_name_specifier_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| nested_name_specifier { $$ = $1 ; }
 	;
 
 expression_list_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| expression_list { $$ = $1 ; }
 	;
 
 COLONCOLON_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| COLONCOLON { $$ = $1 ; }
 	;
 
 new_placement_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| new_placement { $$ = $1 ; }
 	;
 
 new_initializer_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| new_initializer { $$ = $1 ; }
 	;
 
 new_declarator_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| new_declarator { $$ = $1 ; }
 	;
 
 expression_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| expression { $$ = $1 ; }
 	;
 
 statement_seq_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| statement_seq { $$ = $1 ; }
 	;
 
 condition_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| condition { $$ = $1 ; }
 	;
 
 enumerator_list_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| enumerator_list { $$ = $1 ; }
 	;
 
 initializer_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| initializer { $$ = $1 ; }
 	;
 
 constant_expression_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| constant_expression { $$ = $1 ; }
 	;
 
 abstract_declarator_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| abstract_declarator { $$ = $1 ; }
 	;
 
 type_specifier_seq_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| type_specifier_seq { $$ = $1 ; }
 	;
 
 direct_abstract_declarator_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| direct_abstract_declarator { $$ = $1 ; }
 	;
 
 ctor_initializer_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; } // trouble maker
 	| ctor_initializer { $$ = $1 ; }
 	;
 
 COMMA_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| ',' { $$ = $1 ; }
 	;
 
 member_specification_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| member_specification { $$ = $1 ; }
 	;
 
 SEMICOLON_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| ';' { $$ = $1 ; }
 	;
 
 conversion_declarator_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| conversion_declarator { $$ = $1 ; }
 	;
 
 EXPORT_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| EXPORT { $$ = $1 ; }
 	;
 
 handler_seq_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| handler_seq { $$ = $1 ; }
 	;
 
 assignment_expression_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| assignment_expression { $$ = $1 ; }
 	;
 
 type_id_list_opt:
-	/* epsilon */
+	/* epsilon */ { $$ = NULL ; }
 	| type_id_list { $$ = $1 ; }
 	;
 

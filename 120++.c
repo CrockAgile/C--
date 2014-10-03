@@ -6,7 +6,7 @@
 extern int yylex();
 extern int yyparse();
 extern token yytoken;
-extern YYSTYPE yylval;
+extern YYSTYPE root;
 extern FILE* yyin;
 extern FILE* yyout;
 
@@ -14,7 +14,6 @@ void call_lexing(int, char**);
 
 int main(int argc, char** argv) {
     call_lexing(argc, argv);
-    printf("%s\n",yylval->t->filename);
     return 0;
 }
 
@@ -25,4 +24,5 @@ void call_lexing(int argc, char** argv) {
         yyin = fopen(argv[i],"r");
         yyparse();
     }
+    treeprint(root,0);
 }

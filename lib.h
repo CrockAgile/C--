@@ -84,8 +84,8 @@ struct pnode {
 };
 
 struct pnode *alcnode(int rule, int kids, ...);
-
 struct pnode* create_pnode(token* curr_yytoken);
+int treeprint(struct pnode *p, int depth);
 
 enum {
     TYPEDEF_NAME_1

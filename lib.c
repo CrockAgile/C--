@@ -4,6 +4,7 @@ extern token yytoken;
 extern int yylineno;
 extern char* yytext;
 extern YYSTYPE yylval;
+extern YYSTYPE root;
 
 int push_file(int lineno) {
     file_el* pushed = (file_el*)malloc(sizeof(file_el));
@@ -152,6 +153,7 @@ void escape_char(char* src, char* dest) {
 
 int update_yytoken(int code, void* lval) {
 
+    //free(yytoken.text);
     yytoken.text = strdup(yytext);
     yytoken.code = code;
     yytoken.lineno = yylineno;
@@ -200,11 +202,11 @@ struct pnode *alcnode(int rule, int kids, ...) {
     va_start( args, kids );
     for ( x = 0; x < kids; x++ ) {
         new_pnode->kids[x] = va_arg(args,struct pnode*);
-        printf("%d\n",new_pnode->kids[x]->prodrule);
     }
     va_end( args );
 
     new_pnode->t = NULL;
+    root = new_pnode;
     return new_pnode;
 }
 
@@ -220,6 +222,7 @@ struct pnode* create_pnode(token* curr_yytoken) {
     yytoken_copy->lval = curr_yytoken->lval;
 
     struct pnode *new_pnode = (struct pnode*)malloc(sizeof(struct pnode));
+
     if(!new_pnode)
         return 0;
 
@@ -229,4 +232,21 @@ struct pnode* create_pnode(token* curr_yytoken) {
     new_pnode->t = yytoken_copy;
 
     return new_pnode;
+}
+
+int treeprint(struct pnode *p, int depth) {
+    if (p == NULL) {
+        printf("%*s Epsilon Expression\n", depth*2, " ");
+        return 0;
+    }
+    int i;
+
+    if (p->t) {
+        printf("%*s !!%d!!\n", depth*2, " ", p->t->code);
+    }
+    else {
+        printf("%*s %d: %d\n", depth*2, " ", p->prodrule, p->nkids);
+    }
+    for (i = 0; i < p->nkids; i++)
+        treeprint(p->kids[i], depth+1);
 }
