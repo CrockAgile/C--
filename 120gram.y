@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include "lib.h"
 
-extern int yylineno;
+extern token yytoken;
 YYSTYPE root = NULL;
 //int yydebug = 1;
 
@@ -1176,6 +1176,7 @@ type_id_list_opt:
 static void
 yyerror(char *s)
 {
-	fprintf(stderr, "%d: %s\n", yylineno, s);
+    fprintf(stderr, "%s:%d: %s before '%s' token\n",
+        yytoken.filename, yytoken.lineno, s, yytoken.text);
 }
 

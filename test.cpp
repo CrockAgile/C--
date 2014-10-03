@@ -1,3 +1,3 @@
 int main() {
-    foo(7);
+    foo
 }
