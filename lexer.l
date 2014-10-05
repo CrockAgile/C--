@@ -167,7 +167,7 @@ while			return update_yytoken(WHILE,NULL);
 <include>"<cstring>"	cstring_included = 1; yy_pop_state();
 <include>"<iomanip>"	iomanip_included = 1; yy_pop_state();
 
-"using namespace std"   namespace_std = 1;
+"using"[\t ]*"namespace"[\t ]*"std"[\t ]*;   namespace_std = 1;
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
