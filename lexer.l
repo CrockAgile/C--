@@ -102,7 +102,9 @@ using			return update_yytoken(USING,NULL);
 void			return update_yytoken(VOID,NULL);
 while			return update_yytoken(WHILE,NULL);
 
-{L}({L}|{D})*	return update_yytoken(IDENTIFIER,NULL);
+{L}({L}|{D})*	{
+                    return update_yytoken(IDENTIFIER,NULL);
+                }
 
 0[xX]{H}+{IS}?	lexerr("Hex not supported");
 0{O}+{IS}?		lexerr("Octal not supported");

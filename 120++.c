@@ -13,6 +13,10 @@ extern FILE* yyout;
 void call_lexing(int, char**);
 
 int main(int argc, char** argv) {
+    if (!init_nametable()){
+        fprintf(stderr,"Failed to initialize nametable\n");
+        exit(1);
+    }
     call_lexing(argc, argv);
     return 0;
 }
@@ -23,6 +27,7 @@ void call_lexing(int argc, char** argv) {
         yytoken.filename = argv[i];
         yyin = fopen(argv[i],"r");
         yyparse();
+        printf("***%s***\n",argv[i]);
+        treeprint(root,0);
     }
-    treeprint(root,0);
 }

@@ -96,11 +96,13 @@ void humanreadable(struct pnode* readme, char **dest);
 
 struct hash_el {
     token* t;
+    int code;
     struct hash_el* next;
 };
 
 struct hash_el **nametable;
 
+int init_nametable();
 unsigned long hash_name(unsigned char*);
 int insert_name(struct hash_el*);
 struct hash_el* lookup_name(char*);
