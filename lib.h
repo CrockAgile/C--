@@ -54,7 +54,6 @@ void print_tokenlist(token_el* start);
 // helper functions
 void escape_char(char* src, char* dest);
 
-
 struct name_el {
     char *name;
     int type;
@@ -80,8 +79,13 @@ int nametable_insert(struct name_el*, struct nametable*);
 
 #define TABLESIZE 1000
 
+struct prodrule {
+    int code;
+    struct prodrule *next;
+};
+
 struct pnode {
-    int prodrule;
+    struct prodrule *prule;
     int nkids;
     struct pnode **kids;
     token *t;
@@ -93,6 +97,7 @@ void treeprint(struct pnode *p, int depth);
 
 char* craft_readable(char* base, int prodrule);
 void humanreadable(struct pnode* readme, char **dest);
+struct pnode* prepend_prodrule(struct pnode* des, int code);
 
 struct hash_el {
     token* t;

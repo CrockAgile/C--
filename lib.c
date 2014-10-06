@@ -197,7 +197,9 @@ struct pnode *alcnode(int rule, int kids, ...) {
     if(!new_pnode)
         return NULL;
 
-    new_pnode->prodrule = rule;
+    struct prodrule* new_prule = (struct prodrule*)malloc(sizeof(struct prodrule));
+    new_prule->code = rule;
+    new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
 
     new_pnode->kids = (struct pnode**)malloc(kids * sizeof(struct pnode*));
@@ -228,7 +230,7 @@ struct pnode* create_pnode(token* curr_yytoken) {
     if(!new_pnode)
         return 0;
 
-    new_pnode->prodrule = 0;
+    new_pnode->prule = NULL;
     new_pnode->nkids = 0;
     new_pnode->kids = NULL;
     new_pnode->t = yytoken_copy;
@@ -432,483 +434,492 @@ char* craft_readable(char* base, int prodrule) {
 }
 
 void humanreadable(struct pnode* readme, char **dest) {
-    switch(readme->prodrule / 100) {
+    switch(readme->prule->code / 100) {
      case 1:
-         *dest = craft_readable("typedef" ,readme->prodrule);
+         *dest = craft_readable("typedef" ,readme->prule->code);
         break;
      case 2:
-         *dest = craft_readable("namespace" ,readme->prodrule);
+         *dest = craft_readable("namespace" ,readme->prule->code);
         break;
      case 3:
-         *dest = craft_readable("original" ,readme->prodrule);
+         *dest = craft_readable("original" ,readme->prule->code);
         break;
      case 4:
-         *dest = craft_readable("class_name" ,readme->prodrule);
+         *dest = craft_readable("class_name" ,readme->prule->code);
         break;
      case 5:
-         *dest = craft_readable("enum_name" ,readme->prodrule);
+         *dest = craft_readable("enum_name" ,readme->prule->code);
         break;
      case 6:
-         *dest = craft_readable("template_name" ,readme->prodrule);
+         *dest = craft_readable("template_name" ,readme->prule->code);
         break;
      case 7:
-         *dest = craft_readable("identifier" ,readme->prodrule);
+         *dest = craft_readable("identifier" ,readme->prule->code);
         break;
      case 8:
-         *dest = craft_readable("literal" ,readme->prodrule);
+         *dest = craft_readable("literal" ,readme->prule->code);
         break;
      case 9:
-         *dest = craft_readable("integer_lit" ,readme->prodrule);
+         *dest = craft_readable("integer_lit" ,readme->prule->code);
         break;
      case 10:
-         *dest = craft_readable("character_lit" ,readme->prodrule);
+         *dest = craft_readable("character_lit" ,readme->prule->code);
         break;
      case 11:
-         *dest = craft_readable("floating_lit" ,readme->prodrule);
+         *dest = craft_readable("floating_lit" ,readme->prule->code);
         break;
      case 12:
-         *dest = craft_readable("string_lit" ,readme->prodrule);
+         *dest = craft_readable("string_lit" ,readme->prule->code);
         break;
      case 13:
-         *dest = craft_readable("boolean_lit" ,readme->prodrule);
+         *dest = craft_readable("boolean_lit" ,readme->prule->code);
         break;
      case 14:
-         *dest = craft_readable("translation_unit" ,readme->prodrule);
+         *dest = craft_readable("translation_unit" ,readme->prule->code);
         break;
      case 15:
-         *dest = craft_readable("primary_expr" ,readme->prodrule);
+         *dest = craft_readable("primary_expr" ,readme->prule->code);
         break;
      case 16:
-         *dest = craft_readable("id_expr" ,readme->prodrule);
+         *dest = craft_readable("id_expr" ,readme->prule->code);
         break;
      case 17:
-         *dest = craft_readable("unqualified_id" ,readme->prodrule);
+         *dest = craft_readable("unqualified_id" ,readme->prule->code);
         break;
      case 18:
-         *dest = craft_readable("qualified_id" ,readme->prodrule);
+         *dest = craft_readable("qualified_id" ,readme->prule->code);
         break;
      case 19:
-         *dest = craft_readable("nested_name_spec" ,readme->prodrule);
+         *dest = craft_readable("nested_name_spec" ,readme->prule->code);
         break;
      case 20:
-         *dest = craft_readable("postfix_expr" ,readme->prodrule);
+         *dest = craft_readable("postfix_expr" ,readme->prule->code);
         break;
      case 21:
-         *dest = craft_readable("expr_list" ,readme->prodrule);
+         *dest = craft_readable("expr_list" ,readme->prule->code);
         break;
      case 22:
-         *dest = craft_readable("unary_expr" ,readme->prodrule);
+         *dest = craft_readable("unary_expr" ,readme->prule->code);
         break;
      case 23:
-         *dest = craft_readable("unary_op" ,readme->prodrule);
+         *dest = craft_readable("unary_op" ,readme->prule->code);
         break;
     case 24:
-     *dest = craft_readable("new_expr" ,readme->prodrule);
+     *dest = craft_readable("new_expr" ,readme->prule->code);
             break;
     case 25:
-     *dest = craft_readable("new_placement" ,readme->prodrule);
+     *dest = craft_readable("new_placement" ,readme->prule->code);
         break;
     case 26:
-     *dest = craft_readable("new_type_id" ,readme->prodrule);
+     *dest = craft_readable("new_type_id" ,readme->prule->code);
         break;
     case 27:
-     *dest = craft_readable("new_declarator" ,readme->prodrule);
+     *dest = craft_readable("new_declarator" ,readme->prule->code);
         break;
     case 28:
-     *dest = craft_readable("direct_new_declarator" ,readme->prodrule);
+     *dest = craft_readable("direct_new_declarator" ,readme->prule->code);
         break;
     case 29:
-     *dest = craft_readable("new_initializer" ,readme->prodrule);
+     *dest = craft_readable("new_initializer" ,readme->prule->code);
         break;
     case 30:
-     *dest = craft_readable("delete_expr" ,readme->prodrule);
+     *dest = craft_readable("delete_expr" ,readme->prule->code);
         break;
     case 31:
-     *dest = craft_readable("cast_expr" ,readme->prodrule);
+     *dest = craft_readable("cast_expr" ,readme->prule->code);
         break;
     case 32:
-     *dest = craft_readable("pm_expr" ,readme->prodrule);
+     *dest = craft_readable("pm_expr" ,readme->prule->code);
         break;
     case 33:
-     *dest = craft_readable("multi_expr" ,readme->prodrule);
+     *dest = craft_readable("multi_expr" ,readme->prule->code);
         break;
     case 34:
-     *dest = craft_readable("add_expr" ,readme->prodrule);
+     *dest = craft_readable("add_expr" ,readme->prule->code);
         break;
     case 35:
-     *dest = craft_readable("shift_expr" ,readme->prodrule);
+     *dest = craft_readable("shift_expr" ,readme->prule->code);
         break;
     case 36:
-     *dest = craft_readable("relation_expr" ,readme->prodrule);
+     *dest = craft_readable("relation_expr" ,readme->prule->code);
         break;
     case 37:
-     *dest = craft_readable("equal_expr" ,readme->prodrule);
+     *dest = craft_readable("equal_expr" ,readme->prule->code);
         break;
     case 38:
-     *dest = craft_readable("and_expr" ,readme->prodrule);
+     *dest = craft_readable("and_expr" ,readme->prule->code);
         break;
     case 39:
-     *dest = craft_readable("xor_expr" ,readme->prodrule);
+     *dest = craft_readable("xor_expr" ,readme->prule->code);
         break;
     case 40:
-     *dest = craft_readable("or_expr" ,readme->prodrule);
+     *dest = craft_readable("or_expr" ,readme->prule->code);
         break;
     case 41:
-     *dest = craft_readable("logic_and_expr" ,readme->prodrule);
+     *dest = craft_readable("logic_and_expr" ,readme->prule->code);
         break;
     case 42:
-     *dest = craft_readable("logic_or_expr" ,readme->prodrule);
+     *dest = craft_readable("logic_or_expr" ,readme->prule->code);
         break;
     case 43:
-     *dest = craft_readable("condition_expr" ,readme->prodrule);
+     *dest = craft_readable("condition_expr" ,readme->prule->code);
         break;
     case 44:
-     *dest = craft_readable("assign_expr" ,readme->prodrule);
+     *dest = craft_readable("assign_expr" ,readme->prule->code);
         break;
     case 45:
-     *dest = craft_readable("assign_op" ,readme->prodrule);
+     *dest = craft_readable("assign_op" ,readme->prule->code);
         break;
     case 46:
-     *dest = craft_readable("expr" ,readme->prodrule);
+     *dest = craft_readable("expr" ,readme->prule->code);
         break;
     case 47:
-     *dest = craft_readable("const_expr" ,readme->prodrule);
+     *dest = craft_readable("const_expr" ,readme->prule->code);
         break;
     case 48:
-     *dest = craft_readable("statement" ,readme->prodrule);
+     *dest = craft_readable("statement" ,readme->prule->code);
         break;
     case 49:
-     *dest = craft_readable("labeled_stmt" ,readme->prodrule);
+     *dest = craft_readable("labeled_stmt" ,readme->prule->code);
         break;
     case 50:
-     *dest = craft_readable("expr_stmt" ,readme->prodrule);
+     *dest = craft_readable("expr_stmt" ,readme->prule->code);
         break;
     case 51:
-     *dest = craft_readable("compound_stmt" ,readme->prodrule);
+     *dest = craft_readable("compound_stmt" ,readme->prule->code);
         break;
     case 52:
-     *dest = craft_readable("stmt_sequence" ,readme->prodrule);
+     *dest = craft_readable("stmt_sequence" ,readme->prule->code);
         break;
     case 53:
-     *dest = craft_readable("selection_stmt" ,readme->prodrule);
+     *dest = craft_readable("selection_stmt" ,readme->prule->code);
         break;
     case 54:
-     *dest = craft_readable("condition" ,readme->prodrule);
+     *dest = craft_readable("condition" ,readme->prule->code);
         break;
     case 55:
-     *dest = craft_readable("iteration_stmt" ,readme->prodrule);
+     *dest = craft_readable("iteration_stmt" ,readme->prule->code);
         break;
     case 56:
-     *dest = craft_readable("for_init_stmt" ,readme->prodrule);
+     *dest = craft_readable("for_init_stmt" ,readme->prule->code);
         break;
     case 57:
-     *dest = craft_readable("jump_stmt" ,readme->prodrule);
+     *dest = craft_readable("jump_stmt" ,readme->prule->code);
         break;
     case 58:
-     *dest = craft_readable("declare_stmt" ,readme->prodrule);
+     *dest = craft_readable("declare_stmt" ,readme->prule->code);
         break;
     case 59:
-     *dest = craft_readable("declare_seq" ,readme->prodrule);
+     *dest = craft_readable("declare_seq" ,readme->prule->code);
         break;
     case 60:
-     *dest = craft_readable("declare" ,readme->prodrule);
+     *dest = craft_readable("declare" ,readme->prule->code);
         break;
     case 61:
-     *dest = craft_readable("block_declare" ,readme->prodrule);
+     *dest = craft_readable("block_declare" ,readme->prule->code);
         break;
     case 62:
-     *dest = craft_readable("simple_declare" ,readme->prodrule);
+     *dest = craft_readable("simple_declare" ,readme->prule->code);
         break;
     case 63:
-     *dest = craft_readable("declare_specifier" ,readme->prodrule);
+     *dest = craft_readable("declare_specifier" ,readme->prule->code);
         break;
     case 64:
-     *dest = craft_readable("declare_specifier_seq" ,readme->prodrule);
+     *dest = craft_readable("declare_specifier_seq" ,readme->prule->code);
         break;
     case 65:
-     *dest = craft_readable("storage_class_specifier" ,readme->prodrule);
+     *dest = craft_readable("storage_class_specifier" ,readme->prule->code);
         break;
     case 66:
-     *dest = craft_readable("function_specifier" ,readme->prodrule);
+     *dest = craft_readable("function_specifier" ,readme->prule->code);
         break;
     case 67:
-     *dest = craft_readable("type_specifier" ,readme->prodrule);
+     *dest = craft_readable("type_specifier" ,readme->prule->code);
         break;
     case 68:
-     *dest = craft_readable("simple_type_specifier" ,readme->prodrule);
+     *dest = craft_readable("simple_type_specifier" ,readme->prule->code);
         break;
     case 69:
-     *dest = craft_readable("type_name" ,readme->prodrule);
+     *dest = craft_readable("type_name" ,readme->prule->code);
         break;
     case 70:
-     *dest = craft_readable("elaborated_type_specifier" ,readme->prodrule);
+     *dest = craft_readable("elaborated_type_specifier" ,readme->prule->code);
         break;
     case 71:
-     *dest = craft_readable("enum_name" ,readme->prodrule);
+     *dest = craft_readable("enum_name" ,readme->prule->code);
         break;
     case 72:
-     *dest = craft_readable("enum_specifier" ,readme->prodrule);
+     *dest = craft_readable("enum_specifier" ,readme->prule->code);
         break;
     case 73:
-     *dest = craft_readable("enumerator_list" ,readme->prodrule);
+     *dest = craft_readable("enumerator_list" ,readme->prule->code);
         break;
     case 74:
-     *dest = craft_readable("enumerator_def" ,readme->prodrule);
+     *dest = craft_readable("enumerator_def" ,readme->prule->code);
         break;
     case 75:
-     *dest = craft_readable("enumerator" ,readme->prodrule);
+     *dest = craft_readable("enumerator" ,readme->prule->code);
         break;
     case 76:
-     *dest = craft_readable("init_decl_list" ,readme->prodrule);
+     *dest = craft_readable("init_decl_list" ,readme->prule->code);
         break;
     case 77:
-     *dest = craft_readable("init_decl" ,readme->prodrule);
+     *dest = craft_readable("init_decl" ,readme->prule->code);
         break;
     case 78:
-     *dest = craft_readable("declarator" ,readme->prodrule);
+     *dest = craft_readable("declarator" ,readme->prule->code);
         break;
     case 79:
-     *dest = craft_readable("direct_declarator" ,readme->prodrule);
+     *dest = craft_readable("direct_declarator" ,readme->prule->code);
         break;
     case 80:
-     *dest = craft_readable("ptr_op" ,readme->prodrule);
+     *dest = craft_readable("ptr_op" ,readme->prule->code);
         break;
     case 81:
-     *dest = craft_readable("cv_qualifier_seq" ,readme->prodrule);
+     *dest = craft_readable("cv_qualifier_seq" ,readme->prule->code);
         break;
     case 82:
-     *dest = craft_readable("cv_qualifier" ,readme->prodrule);
+     *dest = craft_readable("cv_qualifier" ,readme->prule->code);
         break;
     case 83:
-     *dest = craft_readable("declarator_id" ,readme->prodrule);
+     *dest = craft_readable("declarator_id" ,readme->prule->code);
         break;
     case 84:
-     *dest = craft_readable("type_id" ,readme->prodrule);
+     *dest = craft_readable("type_id" ,readme->prule->code);
         break;
     case 85:
-     *dest = craft_readable("type_specifier_seq" ,readme->prodrule);
+     *dest = craft_readable("type_specifier_seq" ,readme->prule->code);
         break;
     case 86:
-     *dest = craft_readable("abstract_declarator" ,readme->prodrule);
+     *dest = craft_readable("abstract_declarator" ,readme->prule->code);
         break;
     case 87:
-     *dest = craft_readable("parameter_decl_clause" ,readme->prodrule);
+     *dest = craft_readable("parameter_decl_clause" ,readme->prule->code);
         break;
     case 88:
-     *dest = craft_readable("parameter_decl_list" ,readme->prodrule);
+     *dest = craft_readable("parameter_decl_list" ,readme->prule->code);
         break;
     case 89:
-     *dest = craft_readable("parameter_decl" ,readme->prodrule);
+     *dest = craft_readable("parameter_decl" ,readme->prule->code);
         break;
     case 90:
-     *dest = craft_readable("function_definition" ,readme->prodrule);
+     *dest = craft_readable("function_definition" ,readme->prule->code);
         break;
     case 91:
-     *dest = craft_readable("function_body" ,readme->prodrule);
+     *dest = craft_readable("function_body" ,readme->prule->code);
         break;
     case 92:
-     *dest = craft_readable("initializer" ,readme->prodrule);
+     *dest = craft_readable("initializer" ,readme->prule->code);
         break;
     case 93:
-     *dest = craft_readable("initializer_clause" ,readme->prodrule);
+     *dest = craft_readable("initializer_clause" ,readme->prule->code);
         break;
     case 94:
-     *dest = craft_readable("initializer_list" ,readme->prodrule);
+     *dest = craft_readable("initializer_list" ,readme->prule->code);
         break;
     case 95:
-     *dest = craft_readable("class_specifier" ,readme->prodrule);
+     *dest = craft_readable("class_specifier" ,readme->prule->code);
         break;
     case 96:
-     *dest = craft_readable("class_head" ,readme->prodrule);
+     *dest = craft_readable("class_head" ,readme->prule->code);
         break;
     case 97:
-     *dest = craft_readable("class_key" ,readme->prodrule);
+     *dest = craft_readable("class_key" ,readme->prule->code);
         break;
     case 98:
-     *dest = craft_readable("member_specification" ,readme->prodrule);
+     *dest = craft_readable("member_specification" ,readme->prule->code);
         break;
     case 99:
-     *dest = craft_readable("member_declaration" ,readme->prodrule);
+     *dest = craft_readable("member_declaration" ,readme->prule->code);
         break;
     case 100:
-     *dest = craft_readable("member_declarator_list" ,readme->prodrule);
+     *dest = craft_readable("member_declarator_list" ,readme->prule->code);
         break;
     case 101:
-     *dest = craft_readable("member_declarator" ,readme->prodrule);
+     *dest = craft_readable("member_declarator" ,readme->prule->code);
         break;
     case 102:
-     *dest = craft_readable("const_initializer" ,readme->prodrule);
+     *dest = craft_readable("const_initializer" ,readme->prule->code);
         break;
     case 103:
-     *dest = craft_readable("base_clause" ,readme->prodrule);
+     *dest = craft_readable("base_clause" ,readme->prule->code);
         break;
     case 104:
-     *dest = craft_readable("base_specifier_list" ,readme->prodrule);
+     *dest = craft_readable("base_specifier_list" ,readme->prule->code);
         break;
     case 105:
-     *dest = craft_readable("base_specifier" ,readme->prodrule);
+     *dest = craft_readable("base_specifier" ,readme->prule->code);
         break;
     case 106:
-     *dest = craft_readable("access_specifier" ,readme->prodrule);
+     *dest = craft_readable("access_specifier" ,readme->prule->code);
         break;
     case 107:
-     *dest = craft_readable("conversion_func_id" ,readme->prodrule);
+     *dest = craft_readable("conversion_func_id" ,readme->prule->code);
         break;
     case 108:
-     *dest = craft_readable("conversion_type_id" ,readme->prodrule);
+     *dest = craft_readable("conversion_type_id" ,readme->prule->code);
         break;
     case 109:
-     *dest = craft_readable("conversion_declarator" ,readme->prodrule);
+     *dest = craft_readable("conversion_declarator" ,readme->prule->code);
         break;
     case 110:
-     *dest = craft_readable("ctor_initializer" ,readme->prodrule);
+     *dest = craft_readable("ctor_initializer" ,readme->prule->code);
         break;
     case 111:
-     *dest = craft_readable("mem_init_list" ,readme->prodrule);
+     *dest = craft_readable("mem_init_list" ,readme->prule->code);
         break;
     case 112:
-     *dest = craft_readable("mem_initializer" ,readme->prodrule);
+     *dest = craft_readable("mem_initializer" ,readme->prule->code);
         break;
     case 113:
-     *dest = craft_readable("mem_initializer_id" ,readme->prodrule);
+     *dest = craft_readable("mem_initializer_id" ,readme->prule->code);
         break;
     case 114:
-     *dest = craft_readable("operator_func_id" ,readme->prodrule);
+     *dest = craft_readable("operator_func_id" ,readme->prule->code);
         break;
     case 115:
-     *dest = craft_readable("operator" ,readme->prodrule);
+     *dest = craft_readable("operator" ,readme->prule->code);
         break;
     case 116:
-     *dest = craft_readable("template_declaration" ,readme->prodrule);
+     *dest = craft_readable("template_declaration" ,readme->prule->code);
         break;
     case 117:
-     *dest = craft_readable("template_parameter_list" ,readme->prodrule);
+     *dest = craft_readable("template_parameter_list" ,readme->prule->code);
         break;
     case 118:
-     *dest = craft_readable("template_parameter" ,readme->prodrule);
+     *dest = craft_readable("template_parameter" ,readme->prule->code);
         break;
     case 119:
-     *dest = craft_readable("type_parameter" ,readme->prodrule);
+     *dest = craft_readable("type_parameter" ,readme->prule->code);
         break;
     case 120:
-     *dest = craft_readable("template_id" ,readme->prodrule);
+     *dest = craft_readable("template_id" ,readme->prule->code);
         break;
     case 121:
-     *dest = craft_readable("template_arg_list" ,readme->prodrule);
+     *dest = craft_readable("template_arg_list" ,readme->prule->code);
         break;
     case 122:
-     *dest = craft_readable("template_arg" ,readme->prodrule);
+     *dest = craft_readable("template_arg" ,readme->prule->code);
         break;
     case 123:
-     *dest = craft_readable("explicit_instantiation" ,readme->prodrule);
+     *dest = craft_readable("explicit_instantiation" ,readme->prule->code);
         break;
     case 124:
-     *dest = craft_readable("explicit_specialization" ,readme->prodrule);
+     *dest = craft_readable("explicit_specialization" ,readme->prule->code);
         break;
     case 125:
-     *dest = craft_readable("try_block" ,readme->prodrule);
+     *dest = craft_readable("try_block" ,readme->prule->code);
         break;
     case 126:
-     *dest = craft_readable("func_try_block" ,readme->prodrule);
+     *dest = craft_readable("func_try_block" ,readme->prule->code);
         break;
     case 127:
-     *dest = craft_readable("handler_seq" ,readme->prodrule);
+     *dest = craft_readable("handler_seq" ,readme->prule->code);
         break;
     case 128:
-     *dest = craft_readable("handler" ,readme->prodrule);
+     *dest = craft_readable("handler" ,readme->prule->code);
         break;
     case 129:
-     *dest = craft_readable("exception_decl" ,readme->prodrule);
+     *dest = craft_readable("exception_decl" ,readme->prule->code);
         break;
     case 130:
-     *dest = craft_readable("throw_expression" ,readme->prodrule);
+     *dest = craft_readable("throw_expression" ,readme->prule->code);
         break;
     case 131:
-     *dest = craft_readable("exception_specification" ,readme->prodrule);
+     *dest = craft_readable("exception_specification" ,readme->prule->code);
         break;
     case 132:
-     *dest = craft_readable("type_id_list" ,readme->prodrule);
+     *dest = craft_readable("type_id_list" ,readme->prule->code);
         break;
     case 133:
-     *dest = craft_readable("declaration_seq_opt" ,readme->prodrule);
+     *dest = craft_readable("declaration_seq_opt" ,readme->prule->code);
         break;
     case 134:
-     *dest = craft_readable("nested_name_specifier_opt" ,readme->prodrule);
+     *dest = craft_readable("nested_name_specifier_opt" ,readme->prule->code);
         break;
     case 135:
-     *dest = craft_readable("expression_list_opt" ,readme->prodrule);
+     *dest = craft_readable("expression_list_opt" ,readme->prule->code);
         break;
     case 136:
-     *dest = craft_readable("coloncolon_opt" ,readme->prodrule);
+     *dest = craft_readable("coloncolon_opt" ,readme->prule->code);
         break;
     case 137:
-     *dest = craft_readable("new_placement_opt" ,readme->prodrule);
+     *dest = craft_readable("new_placement_opt" ,readme->prule->code);
         break;
     case 138:
-     *dest = craft_readable("new_initializer_opt" ,readme->prodrule);
+     *dest = craft_readable("new_initializer_opt" ,readme->prule->code);
         break;
     case 139:
-     *dest = craft_readable("new_declarator_opt" ,readme->prodrule);
+     *dest = craft_readable("new_declarator_opt" ,readme->prule->code);
         break;
     case 140:
-     *dest = craft_readable("expression_opt" ,readme->prodrule);
+     *dest = craft_readable("expression_opt" ,readme->prule->code);
         break;
     case 141:
-     *dest = craft_readable("stmt_seq_opt" ,readme->prodrule);
+     *dest = craft_readable("stmt_seq_opt" ,readme->prule->code);
         break;
     case 142:
-     *dest = craft_readable("condition_opt" ,readme->prodrule);
+     *dest = craft_readable("condition_opt" ,readme->prule->code);
         break;
     case 143:
-     *dest = craft_readable("enum_list_opt" ,readme->prodrule);
+     *dest = craft_readable("enum_list_opt" ,readme->prule->code);
         break;
     case 144:
-     *dest = craft_readable("initializer_opt" ,readme->prodrule);
+     *dest = craft_readable("initializer_opt" ,readme->prule->code);
         break;
     case 145:
-     *dest = craft_readable("const_expr_opt" ,readme->prodrule);
+     *dest = craft_readable("const_expr_opt" ,readme->prule->code);
         break;
     case 146:
-     *dest = craft_readable("abstract_decl_opt" ,readme->prodrule);
+     *dest = craft_readable("abstract_decl_opt" ,readme->prule->code);
         break;
     case 147:
-     *dest = craft_readable("type_spec_seq_opt" ,readme->prodrule);
+     *dest = craft_readable("type_spec_seq_opt" ,readme->prule->code);
         break;
     case 148:
-     *dest = craft_readable("direct_abstract_decl_opt" ,readme->prodrule);
+     *dest = craft_readable("direct_abstract_decl_opt" ,readme->prule->code);
         break;
     case 149:
-     *dest = craft_readable("ctor_init_opt" ,readme->prodrule);
+     *dest = craft_readable("ctor_init_opt" ,readme->prule->code);
         break;
     case 150:
-     *dest = craft_readable("comma_opt" ,readme->prodrule);
+     *dest = craft_readable("comma_opt" ,readme->prule->code);
         break;
     case 151:
-     *dest = craft_readable("member_spec_opt" ,readme->prodrule);
+     *dest = craft_readable("member_spec_opt" ,readme->prule->code);
         break;
     case 152:
-     *dest = craft_readable("semicolon_opt" ,readme->prodrule);
+     *dest = craft_readable("semicolon_opt" ,readme->prule->code);
         break;
     case 153:
-     *dest = craft_readable("conversion_decl_opt" ,readme->prodrule);
+     *dest = craft_readable("conversion_decl_opt" ,readme->prule->code);
         break;
     case 154:
-     *dest = craft_readable("export_opt" ,readme->prodrule);
+     *dest = craft_readable("export_opt" ,readme->prule->code);
         break;
     case 155:
-     *dest = craft_readable("handler_seq_opt" ,readme->prodrule);
+     *dest = craft_readable("handler_seq_opt" ,readme->prule->code);
         break;
     case 156:
-     *dest = craft_readable("assign_expr_opt" ,readme->prodrule);
+     *dest = craft_readable("assign_expr_opt" ,readme->prule->code);
         break;
     case 157:
-     *dest = craft_readable("type_id_list_opt" ,readme->prodrule);
+     *dest = craft_readable("type_id_list_opt" ,readme->prule->code);
         break;
     default:
         printf("Unrecognized\n");
     }
      
     return;
+}
+
+struct pnode* prepend_prodrule(struct pnode* des, int code) {
+    struct prodrule* head = des->prule;
+    struct prodrule* new = (struct prodrule*)malloc(sizeof(struct prodrule));
+    new->code = code;
+    new->next = head;
+
+    des->prule = new;
 }
 
 int init_nametable() {
