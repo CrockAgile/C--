@@ -103,7 +103,7 @@ void			return update_yytoken(VOID,NULL);
 while			return update_yytoken(WHILE,NULL);
 
 {L}({L}|{D})*	{
-                    return update_yytoken(IDENTIFIER,NULL);
+                    return update_yytoken(id_check(yytext,IDENTIFIER),NULL);
                 }
 
 0[xX]{H}+{IS}?	lexerr("Hex not supported");

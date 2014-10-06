@@ -96,7 +96,7 @@ struct pnode* create_pnode(token* curr_yytoken);
 void treeprint(struct pnode *p, int depth);
 
 char* craft_readable(char* base, int prodrule);
-void humanreadable(struct pnode* readme, char **dest);
+void humanreadable(struct prodrule* , char **dest);
 struct pnode* prepend_prodrule(struct pnode* des, int code);
 
 struct hash_el {
@@ -111,5 +111,6 @@ int init_nametable();
 unsigned long hash_name(unsigned char*);
 int insert_name(struct hash_el*);
 struct hash_el* lookup_name(char*);
+int id_check(char*,int);
 
 #endif
