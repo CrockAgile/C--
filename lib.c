@@ -245,7 +245,7 @@ void treeprint(struct pnode *p, int depth) {
     }
 
     if (p->t) {
-        printf("%*s %s (%d)\n", depth*2, " ", p->t->text, p->t->code);
+        printf("%*s '%s' (%d)\n", depth*2, " ", p->t->text, p->t->code);
     }
     else {
         humanreadable(p,&s);
@@ -910,3 +910,38 @@ void humanreadable(struct pnode* readme, char **dest) {
      
     return;
 }
+
+int init_nametable() {
+    nametable = (struct hash_el**)calloc(TABLESIZE,sizeof(struct hash_el*));
+    if (!nametable)
+        return 0;
+    return 1;
+}
+
+// djb2 by Dan Bernstein
+unsigned long hash_name(unsigned char *s) {
+    unsigned long hash = 5381;
+    int c;
+
+    while( c = *s++ )
+        hash = ((hash << 5) + hash) + c;
+
+    return hash;
+}
+
+int insert_name(struct hash_el *new) {
+    struct hash_el** des = &nametable[hash_name(new->t->lval)%TABLESIZE];
+    if( *des ) {
+        new->next = *des;
+    }
+    *des = new;
+    return 1;
+}
+struct hash_el* lookup_name(char *search) {
+    struct hash_el* res = nametable[hash_name(search)%TABLESIZE];
+    if( res )
+        return res;
+
+    return NULL;
+}
+

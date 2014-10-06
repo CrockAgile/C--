@@ -78,6 +78,8 @@ int nametable_insert(struct name_el*, struct nametable*);
 #include <stdarg.h>
 #include <stdlib.h>
 
+#define TABLESIZE 1000
+
 struct pnode {
     int prodrule;
     int nkids;
@@ -91,5 +93,16 @@ void treeprint(struct pnode *p, int depth);
 
 char* craft_readable(char* base, int prodrule);
 void humanreadable(struct pnode* readme, char **dest);
+
+struct hash_el {
+    token* t;
+    struct hash_el* next;
+};
+
+struct hash_el **nametable;
+
+unsigned long hash_name(unsigned char*);
+int insert_name(struct hash_el*);
+struct hash_el* lookup_name(char*);
 
 #endif
