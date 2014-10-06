@@ -52,6 +52,8 @@ YYSTYPE root = NULL;
 static void yyerror(char *s);
 %}
 
+%expect 84
+
 %define api.value.type {struct pnode*}
 
 %token IDENTIFIER INTEGER FLOATING CHARACTER STRING
@@ -70,6 +72,7 @@ static void yyerror(char *s);
 %token VOID VOLATILE WCHAR_T WHILE
 
 %start translation_unit
+
 
 %%
 
