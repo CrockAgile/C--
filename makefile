@@ -16,7 +16,7 @@ TARNAME=hw2.tar
 	$(CC) $(CFLAGS) 120gram.tab.c
 
 120gram.tab.c 120gram.tab.h: 120gram.y lib.h
-	bison -dt --verbose 120gram.y
+	bison -Wall -Wno-empty-rule -dt --verbose 120gram.y
 
 lex.yy.o: lex.yy.c
 	$(CC) $(CFLAGS) lex.yy.c

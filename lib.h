@@ -1,6 +1,8 @@
 #ifndef lexlib
 #define lexlib
 
+#define SUFF_SIZE 100
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -85,10 +87,9 @@ struct pnode {
 
 struct pnode *alcnode(int rule, int kids, ...);
 struct pnode* create_pnode(token* curr_yytoken);
-int treeprint(struct pnode *p, int depth);
+void treeprint(struct pnode *p, int depth);
 
-enum {
-    TYPEDEF_NAME_1
-};
+char* craft_readable(char* base, int prodrule);
+void humanreadable(struct pnode* readme, char **dest);
 
 #endif
