@@ -52,7 +52,7 @@ YYSTYPE root = NULL;
 static void yyerror(char *s);
 %}
 
-%expect 84
+%expect 86
 
 %define api.value.type {struct pnode*}
 
@@ -665,12 +665,15 @@ declarator:
 
 direct_declarator:
 	  declarator_id { $$ = prepend_prodrule($1,7901) ; }
-	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq exception_specification { $$ = alcnode(7901,6,$1,$2,$3,$4,$5,$6); }
-	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq { $$ = alcnode(7902,5,$1,$2,$3,$4,$5); }
-	| direct_declarator '('parameter_declaration_clause ')' exception_specification { $$ = alcnode(7903,5,$1,$2,$3,$4,$5); }
-	| direct_declarator '('parameter_declaration_clause ')' { $$ = alcnode(7904,4,$1,$2,$3,$4); }
-	| direct_declarator '[' constant_expression_opt ']' { $$ = alcnode(7905,4,$1,$2,$3,$4); }
-	| '(' declarator ')' { $$ = alcnode(7906,3,$1,$2,$3); }
+	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq exception_specification { $$ = alcnode(7902,6,$1,$2,$3,$4,$5,$6); }
+	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq { $$ = alcnode(7903,5,$1,$2,$3,$4,$5); }
+	| direct_declarator '('parameter_declaration_clause ')' exception_specification { $$ = alcnode(7904,5,$1,$2,$3,$4,$5); }
+	| direct_declarator '('parameter_declaration_clause ')' { $$ = alcnode(7905,4,$1,$2,$3,$4); }
+	| direct_declarator '[' constant_expression_opt ']' { $$ = alcnode(7906,4,$1,$2,$3,$4); }
+	| CLASS_NAME '('parameter_declaration_clause ')' { $$ = alcnode(7907,4,$1,$2,$3,$4); }
+	| CLASS_NAME COLONCOLON declarator_id '('parameter_declaration_clause ')' { $$ = alcnode(7908,6,$1,$2,$3,$4,$5,$6); }
+	| CLASS_NAME COLONCOLON CLASS_NAME '('parameter_declaration_clause ')' { $$ = alcnode(7909,6,$1,$2,$3,$4,$5,$6); } 
+    | '(' declarator ')' { $$ = alcnode(7910,3,$1,$2,$3); }
 	;
 
 ptr_operator:
