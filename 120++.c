@@ -10,24 +10,25 @@ extern YYSTYPE root;
 extern FILE* yyin;
 extern FILE* yyout;
 
-void call_lexing(int, char**);
+void call_parsing(int, char**);
 
 int main(int argc, char** argv) {
     if (!init_nametable()){
         fprintf(stderr,"Failed to initialize nametable\n");
         exit(1);
     }
-    call_lexing(argc, argv);
+    call_parsing(argc, argv);
     return 0;
 }
 
-void call_lexing(int argc, char** argv) {
+void call_parsing(int argc, char** argv) {
     int i;
     for (i = 1; i < argc; i++){
         yytoken.filename = argv[i];
         yyin = fopen(argv[i],"r");
-        yyparse();
-        printf("***%s***\n",argv[i]);
-        treeprint(root,0);
+        if( !yyparse() ) {
+            printf("\n***%s***\n",argv[i]);
+            treeprint(root,0);
+        }
     }
 }

@@ -60,15 +60,6 @@ struct name_el {
     struct name_el *next;
 };
 
-struct nametable {
-    int size;
-    int num;
-    struct name_el ** elements;
-};
-
-int hash_name_el(struct name_el a);
-int nametable_insert(struct name_el*, struct nametable*);
-
 #endif
 
 #ifndef parselib
@@ -99,18 +90,12 @@ char* craft_readable(char* base, int prodrule);
 void humanreadable(struct prodrule* , char **dest);
 struct pnode* prepend_prodrule(struct pnode* des, int code);
 
-struct hash_el {
-    token* t;
-    int code;
-    struct hash_el* next;
-};
-
-struct hash_el **nametable;
+token_el **nametable;
 
 int init_nametable();
 unsigned long hash_name(unsigned char*);
-int insert_name(struct hash_el*);
-struct hash_el* lookup_name(char*);
+int insert_name( token*,int);
+token_el* lookup_name(char*);
 int id_check(char*,int);
 
 #endif

@@ -1,16 +1,18 @@
  
 #include <iostream>
 
-typedef struct grog { };
+typedef struct grog { 
+    int foo;
+} something;
 
 class baz {
 public:
-    void grock(char*);
+    void grock(int x);
     int x;
-}
+};
 
-void foo();
-
-int main(int argc, char** argv) {
-    int x = 1;
-}
+class baz {
+public:
+    void stuff();
+    int y;
+};

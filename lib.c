@@ -178,18 +178,6 @@ int lval_update_yytoken(int code, void* lval, char* orig) {
     return code;
 }
 
-int hash_name_el(struct name_el a) {
-    return 1;
-}
-
-int nametable_insert(struct name_el *data, struct nametable *hash_table) {
-    if(hash_table->num >= hash_table->size) {
-        return 0; // TODO dynamic hash table size
-    }
-
-    return 1;
-}
-
 struct pnode *alcnode(int rule, int kids, ...) {
     va_list args;
 
@@ -255,7 +243,6 @@ void treeprint(struct pnode *p, int depth) {
         while(lastprod->next)
             lastprod = lastprod->next;
         humanreadable(lastprod,&first);
-
 
         printf("%*s %s <- %s: %d\n", depth*2, " ", last,first,p->nkids);
         free(last);
@@ -914,7 +901,7 @@ void humanreadable(struct prodrule* prule, char **dest) {
      *dest = craft_readable("type_id_list_opt" ,prule->code);
         break;
     default:
-        printf("Unrecognized\n");
+        printf("Unrecognized production rule.\n");
     }
      
     return;
@@ -930,7 +917,7 @@ struct pnode* prepend_prodrule(struct pnode* des, int code) {
 }
 
 int init_nametable() {
-    nametable = (struct hash_el**)calloc(TABLESIZE,sizeof(struct hash_el*));
+    nametable = (token_el**)calloc(TABLESIZE,sizeof(token_el*));
     if (!nametable)
         return 0;
     return 1;
@@ -947,14 +934,28 @@ unsigned long hash_name(unsigned char *s) {
     return hash;
 }
 
-int insert_name(struct hash_el *new) {
-    struct hash_el** des = &nametable[hash_name(new->t->lval)%TABLESIZE];
+int insert_name(token *insert, int new_code) {
+    unsigned long foo = hash_name(insert->text);
+    token_el** des = &nametable[foo%TABLESIZE];
+    token_el* res = *des;
+    if( res ) {
+        while( res->next ) {
+            if( strcmp(insert->text, res->t->text) ) {
+                return 0;
+            }
+            res = res->next;
+        }
+    }
+    token_el* new = (token_el*)malloc(sizeof(token_el));
+    new->t = insert;
+    new->t->code = new_code;
     new->next = *des;
     *des = new;
     return 1;
 }
-struct hash_el* lookup_name(char *search) {
-    struct hash_el* res = nametable[hash_name(search)%TABLESIZE];
+
+token_el* lookup_name(char *search) {
+    token_el* res = nametable[hash_name(search)%TABLESIZE];
     if( res )
         return res;
 
@@ -962,7 +963,7 @@ struct hash_el* lookup_name(char *search) {
 }
 
 int id_check(char* s, int code) {
-    struct hash_el* res = lookup_name(s);
+    token_el* res = lookup_name(s);
     if( res ) {
         while( strcmp(s,res->t->text) ) {
             if( res->next ) {
@@ -972,9 +973,9 @@ int id_check(char* s, int code) {
                 return code;
             }
         }
+        return res->t->code;
     }
     else {
-        printf("SHOULDNT\n");
         return code;
     }
 }
