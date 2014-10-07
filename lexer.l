@@ -17,7 +17,7 @@ IS	[uUlL]
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "lib.h"
+#include "parse.h"
 
 void lexerr(char* s);
 

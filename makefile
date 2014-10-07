@@ -15,7 +15,7 @@ TARNAME=hw2.tar
 120gram.tab.o:	120gram.tab.c
 	$(CC) $(CFLAGS) 120gram.tab.c
 
-120gram.tab.c 120gram.tab.h: 120gram.y lib.h
+120gram.tab.c 120gram.tab.h: 120gram.y 
 	bison -Wall -Wno-empty-rule -dt --verbose 120gram.y
 
 lex.yy.o: lex.yy.c
@@ -24,7 +24,7 @@ lex.yy.o: lex.yy.c
 lex.yy.c: lexer.l 120gram.tab.h
 	flex lexer.l
 
-lib.o: lib.c 120gram.tab.h
+lib.o: lex.c parse.c 120gram.tab.h
 	$(CC) $(CFLAGS) lib.c
 
 clean:

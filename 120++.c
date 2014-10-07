@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "lib.h"
+#include "parse.h"
 
 extern int yylex();
 extern int yyparse();

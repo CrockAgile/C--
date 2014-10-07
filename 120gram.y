@@ -43,7 +43,7 @@
 
 %{
 #include <stdio.h>
-#include "lib.h"
+#include "parse.h"
 
 extern token yytoken;
 YYSTYPE root = NULL;

@@ -1,16 +1,19 @@
 Class long project for CS 445: Compiler Design
 
-TODO advanced lexerr
-    - Line numbers
-    - characters
-    - more specific?
+Last Edited: 10/7/2014
 
-TODO 'c' string functionality ?
+TODOs:
+    Separate out dependencies (parse.h vs lex.h vs ??)
+    
+    Improve Lexical Errors
+        - Line Numbers
+        - Column Number, specific character
+        - Expectations?
 
-TODO 'aaa'
+    Enforce Character Constants
+        - 'c' vs 'cccc'
 
-TODO built in buffer state stack
+    Transition Lexer to Built-in Flex buffer state stack
+        - Dynamic Buffer
 
-TODO decide how to limit string length
-
-
+    String Limitations (length)
