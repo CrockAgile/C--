@@ -85,6 +85,7 @@ struct pnode {
 struct pnode *alcnode(int rule, int kids, ...);
 struct pnode* create_pnode(token* curr_yytoken);
 void treeprint(struct pnode *p, int depth);
+void freetree(struct pnode *p);
 
 char* craft_readable(char* base, int prodrule);
 void humanreadable(struct prodrule* , char **dest);
@@ -93,6 +94,7 @@ struct pnode* prepend_prodrule(struct pnode* des, int code);
 token_el **nametable;
 
 int init_nametable();
+void free_nametable();
 unsigned long hash_name(unsigned char*);
 int insert_name( token*,int);
 token_el* lookup_name(char*);

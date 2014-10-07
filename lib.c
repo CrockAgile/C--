@@ -185,7 +185,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
     if(!new_pnode)
         return NULL;
 
-    struct prodrule* new_prule = (struct prodrule*)malloc(sizeof(struct prodrule));
+    struct prodrule* new_prule = (struct prodrule*)calloc(1,sizeof(struct prodrule));
     new_prule->code = rule;
     new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
@@ -251,6 +251,33 @@ void treeprint(struct pnode *p, int depth) {
     for (i = 0; i < p->nkids; i++)
         treeprint(p->kids[i], depth+1);
     return;
+}
+
+void freetree(struct pnode *p) {
+    if(!p)
+        return;
+
+    int i;
+
+    for( i=0; i<p->nkids; i++ ) {
+        freetree(p->kids[i]);
+    }
+    if(p->t){
+        free(p->t->text);
+        // free(p->t->filename);
+        if(p->t->lval)
+            free(p->t->lval);
+        free(p->t);
+    }
+    struct prodrule* curr = p->prule;
+    struct prodrule* prev;
+    while( curr ) {
+        prev = curr;
+        curr = curr->next;
+        free(prev);
+    }
+    free(p->kids);
+    free(p);
 }
 
 /* typedef  100
@@ -921,6 +948,20 @@ int init_nametable() {
     if (!nametable)
         return 0;
     return 1;
+}
+
+void free_nametable() {
+    int size = TABLESIZE, i;
+    token_el *curr, *prev;
+    for( i=0; i<size; ++i) {
+        curr = nametable[i];
+        while(curr) {
+            prev = curr;
+            curr = curr->next;
+            free(prev);
+        }
+    }
+    free(nametable);
 }
 
 // djb2 by Dan Bernstein

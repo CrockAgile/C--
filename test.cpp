@@ -11,7 +11,7 @@ public:
     int x;
 };
 
-class baz {
+class bat {
 public:
     void stuff();
     int y;

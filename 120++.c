@@ -29,6 +29,8 @@ void call_parsing(int argc, char** argv) {
         if( !yyparse() ) {
             printf("\n***%s***\n",argv[i]);
             treeprint(root,0);
+            freetree(root);
+            free_nametable();
         }
     }
 }
