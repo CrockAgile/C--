@@ -32,10 +32,9 @@ clean:
 
 tar: clean
 	tar -cvf $(TARNAME) . \
-		--exclude=./.git/* \
-		--exclude=./.git \
+		--exclude-vcs \
 		--exclude=$(TARNAME) \
-		--exclude=.gitignore
+		--exclude=*.swp
 
 transfer: tar
 	scp $(TARNAME) croc4574@wormulon.cs.uidaho.edu:/home/croc4574/445/$(TARNAME)
