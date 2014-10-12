@@ -80,7 +80,7 @@ struct pnode* create_pnode(token* curr_yytoken) {
 }
 
 void treeprint(struct pnode *p, int depth) {
-    int i;
+    int i = 0;
     char *last, *first;
     if (p == NULL) { // epsilon reduces I make the child ptr NULL
         printf("%*s epsilon expression\n", depth*2, " ");
@@ -93,11 +93,18 @@ void treeprint(struct pnode *p, int depth) {
     else { // print "abridged" version of $$ = $1 chains
         humanreadable(p->prule,&last);
         struct prodrule* lastprod = p->prule;
-        while(lastprod->next)
+        while(lastprod->next) {
+            i++;
             lastprod = lastprod->next;
+        }
         humanreadable(lastprod,&first);
-
-        printf("%*s %s <- %s: %d\n", depth*2, " ", last,first,p->nkids);
+        // print only detailed version if more than 1 transition
+        if(i > 0) {
+            printf("%*s %s <-%d %s : %d\n", depth*2, " ", last,i,first,p->nkids);
+        }
+        else {
+            printf("%*s %s : %d\n", depth*2, " ", last,p->nkids);
+        }
         free(last);
         free(first);
     }
