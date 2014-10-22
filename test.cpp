@@ -1,18 +1,9 @@
- 
 #include <iostream>
 
-typedef struct grog { 
-    int foo;
-} something;
+using namespace std;
 
-class baz {
-public:
-    void grock(int x);
-    int x;
-};
-
-class bat {
-public:
-    void stuff();
-    int y;
-};
+int main(int argc, char **argv)
+{
+    cout << "Foobar" << endl;
+    return 0;
+}

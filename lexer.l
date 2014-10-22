@@ -64,7 +64,7 @@ int namespace_std = 0;
 %%
 
 \n
-[ \t\f]+
+[ \r\t\f]+
 
 break			return update_yytoken(BREAK,NULL);
 bool			return update_yytoken(BOOL,NULL);

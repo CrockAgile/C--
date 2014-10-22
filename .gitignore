@@ -2,3 +2,11 @@
 120++
 lex.yy.c
 *.swp
+*.xml
+*.properties
+*.log
+*.exe
+*.stackdump
+120gram.output
+120gram.tab.c
+120gram.tab.h
