@@ -47,12 +47,9 @@
 
 extern token yytoken;
 YYSTYPE root = NULL;
-//int yydebug = 1;
 
 static void yyerror(char *s);
 %}
-
-%expect 86
 
 %define api.value.type {struct pnode*}
 
@@ -72,7 +69,6 @@ static void yyerror(char *s);
 %token VOID VOLATILE WCHAR_T WHILE
 
 %start translation_unit
-
 
 %%
 

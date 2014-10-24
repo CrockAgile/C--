@@ -1,8 +1,18 @@
 Class long project for CS 445: Compiler Design
 
-Last Edited: 10/7/2014
+Last Edited: 10/22/2014
 
 TODOs:
+    Symbol Table Scope
+	- Find grammar Blocks
+	- Stack of name tables
+
+    Type Checking
+	- Write out 120++ cases following Coursera Notation
+	- Should leaves be built with types if possible? (ICON prob, not decl)
+	- Two Phases
+	    - Top to Bot, then Bot leaves up
+
     Separate out dependencies (parse.h vs lex.h vs ??)
     
     Improve Lexical Errors
