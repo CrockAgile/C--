@@ -5,6 +5,7 @@
 
 extern int yylex();
 extern int yyparse();
+extern int errors;
 extern token yytoken;
 extern YYSTYPE root;
 extern FILE* yyin;
@@ -22,15 +23,18 @@ int main(int argc, char** argv) {
 }
 
 void call_parsing(int argc, char** argv) {
-    int i;
+    int i, parse_result;
     for (i = 1; i < argc; i++){
         yytoken.filename = argv[i];
         yyin = fopen(argv[i],"r");
-        if( !yyparse() ) {
+        parse_result = yyparse();
+        if( parse_result == 0 ) {
             printf("\n***%s***\n",argv[i]);
             treeprint(root,0);
             freetree(root);
             free_nametable();
+        } else if ( parse_result == 1 ) {
+            exit(2);
         }
     }
 }

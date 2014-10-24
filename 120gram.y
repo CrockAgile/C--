@@ -49,9 +49,11 @@ extern token yytoken;
 YYSTYPE root = NULL;
 
 static void yyerror(char *s);
+static void type_error(struct pnode*);
 %}
 
 %define api.value.type {struct pnode*}
+%expect 86
 
 %token IDENTIFIER INTEGER FLOATING CHARACTER STRING
 %token TYPEDEF_NAME NAMESPACE_NAME CLASS_NAME ENUM_NAME TEMPLATE_NAME
@@ -778,9 +780,13 @@ class_specifier:
 
 class_head:
 	  class_key identifier { insert_name($2->t,265); $$ = alcnode(9601,2,$1,$2); }
+	| class_key class_name { type_error($2); exit(1); }
 	| class_key identifier base_clause { $$ = alcnode(9602,3,$1,$2,$3); }
+	| class_key class_name base_clause { type_error($2); exit(1); }
 	| class_key nested_name_specifier identifier { $$ = alcnode(9603,3,$1,$2,$3); }
+	| class_key nested_name_specifier class_name { type_error($2); exit(1); }
 	| class_key nested_name_specifier identifier base_clause { $$ = alcnode(9604,4,$1,$2,$3,$4); }
+	| class_key nested_name_specifier class_name base_clause { type_error($2); exit(1); }
 	;
 
 class_key:
@@ -1182,3 +1188,9 @@ yyerror(char *s)
         yytoken.filename, yytoken.lineno, s, yytoken.text);
 }
 
+static void
+type_error(struct pnode* doubled)
+{
+    fprintf(stderr, "%s:%d: error: redefinition of 'class %s'\n",
+        doubled->t->filename, doubled->t->lineno, doubled->t->text);
+}

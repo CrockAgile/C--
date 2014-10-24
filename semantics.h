@@ -1,7 +1,7 @@
 #ifndef SEMANTICS_H
 #define	SEMANTICS_H
 
-#include "parse.h"
+#define S_SIZE 1024
 
 enum SemanticNodes {
     // nodes that require scope actions
@@ -11,9 +11,39 @@ enum SemanticNodes {
     iteration_statement = 550,
 };
 
-void TreeScan(struct pnode*);
-void preorder_semantics();
-void postorder_semantics();
+struct environment {
+    int x;
+};
+
+struct type {
+    enum {
+        int_type,
+        bool_type,
+        void_type,
+        class_type,
+        array_type
+    } kind;
+
+    struct type* array;
+    struct {
+            struct environment *instancevars;
+    } class;
+};
+
+struct typeList {
+    struct type *first;
+    struct typeList *rest;
+};
+
+struct type* IntegerType();
+struct type* BooleanType();
+struct type* VoidType();
+struct type* ClassType(struct environment *instancevars);
+struct type* ArrayType(struct type *basetype);
+
+struct type *integerType;
+struct type *boolType;
+struct type *voidType;
 
 #endif	
 

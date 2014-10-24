@@ -24,7 +24,7 @@ lex.yy.o: lex.yy.c
 lex.yy.c: lexer.l 120gram.tab.h
 	flex lexer.l
 
-lib.o: lex.c parse.c 120gram.tab.h
+lib.o: lex.c parse.c semantics.c 120gram.tab.h 
 	$(CC) $(CFLAGS) lib.c
 
 clean:

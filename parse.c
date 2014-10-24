@@ -799,7 +799,7 @@ struct pnode* prepend_prodrule(struct pnode* des, int code) {
     struct prodrule* head = des->prule;
     struct prodrule* new = (struct prodrule*)malloc(sizeof(struct prodrule));
     if(!new)
-	return des; // failure is tolerable
+	    return des; // failure is tolerable
     new->code = code;
     new->next = head;
     des->prule = new;

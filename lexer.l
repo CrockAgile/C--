@@ -21,7 +21,7 @@ IS	[uUlL]
 
 void lexerr(char* s);
 
-int errors;
+int lerrors = 0;
 
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
@@ -78,7 +78,7 @@ delete			return update_yytoken(DELETE,NULL);
 do				return update_yytoken(DO,NULL);
 double			return update_yytoken(DOUBLE,NULL);
 else			return update_yytoken(ELSE,NULL);
-extern			return update_yytoken(EXTERN,NULL);
+extern			lexerr("extern not supported");
 false           return update_yytoken(FALSE,NULL);
 float			return update_yytoken(FLOAT,NULL);
 for				return update_yytoken(FOR,NULL);
@@ -99,6 +99,7 @@ true            return update_yytoken(TRUE,NULL);
 typedef			return update_yytoken(TYPEDEF,NULL);
 unsigned		return update_yytoken(UNSIGNED,NULL);
 using			return update_yytoken(USING,NULL);
+virtual         lexerr("virtual not supported");
 void			return update_yytoken(VOID,NULL);
 while			return update_yytoken(WHILE,NULL);
 
@@ -124,12 +125,20 @@ while			return update_yytoken(WHILE,NULL);
 				}
 
 
-'([^\\'])+'	{
+'([^\\'])'	{
 				str_buf_ptr = (char*)malloc(strlen(yytext)+1);
 				strcpy(str_buf_ptr,yytext+1);
 				str_buf_ptr[yyleng-2] = '\0';
 				return update_yytoken(CHARACTER,str_buf_ptr);
 			}
+
+'([^\\'])+' {
+                lexerr("Character constants cannot contain more than one character");
+                str_buf_ptr = malloc(strlen(yytext)+1);
+                strcpy(str_buf_ptr,yytext+1);
+                str_buf_ptr[1] = '\0';
+                return update_yytoken(CHARACTER,str_buf_ptr);
+            }
 
 '\\.'		{
 				str_buf_ptr = (char*)malloc(4);
@@ -214,8 +223,12 @@ while			return update_yytoken(WHILE,NULL);
 				*origin_ptr = '\0';
 				return lval_update_yytoken(STRING,strdup(string_buf),origin_buf);
 			}
-	\n		lexerr("unterminated string constant");
-	<<EOF>>	lexerr("reached EOF while in string");
+	\n		|
+	<<EOF>>	{
+                lexerr("unterminated string constant");
+                yy_pop_state(); 
+                return lval_update_yytoken(STRING,strdup(""),"");
+            }
 	\\		|
 	\\0		|
 	\\a		|
@@ -297,17 +310,23 @@ while			return update_yytoken(WHILE,NULL);
 
 void lexerr(char* s)
 {
-	errors++;
+	lerrors++;
 
 	fprintf(stderr, "lexical error: %s\n", s);
+
+    if (yytext[0] == '\n') {
+        strcpy(yytext,"\\n\0");
+    }
 
 	fprintf(stderr, "(%s:%d)\ttoken = \"%s\"\n",
 		yytoken.filename,
 		yylineno,
 		yytext);
+
+    exit(1);
 }
 
 int yywrap()
 {
-	return 1;
+    return 1;
 }
