@@ -3,16 +3,17 @@
 using namespace std;
 
 class Foo {
+private:
     int width;
+public:
+    bool setWidth(int width);
 };
 
 int main(int argc, char **argv)
 {
+    int x = 10;
     {
-	Foo bar;
-	int x;
+	int x = 20;
     }
-    char y;
-    cout << "Foobar" << endl;
     return 0;
 }

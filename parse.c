@@ -39,11 +39,15 @@ struct pnode *alcnode(int rule, int kids, ...) {
         return NULL;
 
     struct prodrule* new_prule = (struct prodrule*)calloc(1,sizeof(struct prodrule));
+    if(!new_prule)
+	return NULL;
     new_prule->code = rule;
     new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
 
     new_pnode->kids = (struct pnode**)malloc(kids * sizeof(struct pnode*));
+    if(!new_pnode->kids)
+	return NULL;
     int x;
     va_start( args, kids );
     for ( x = 0; x < kids; x++ ) {
@@ -794,6 +798,8 @@ void humanreadable(struct prodrule* prule, char **dest) {
 struct pnode* prepend_prodrule(struct pnode* des, int code) {
     struct prodrule* head = des->prule;
     struct prodrule* new = (struct prodrule*)malloc(sizeof(struct prodrule));
+    if(!new)
+	return des; // failure is tolerable
     new->code = code;
     new->next = head;
     des->prule = new;

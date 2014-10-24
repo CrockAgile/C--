@@ -3,6 +3,9 @@ Class long project for CS 445: Compiler Design
 Last Edited: 10/22/2014
 
 TODOs:
+    Prepopulate Symbol Table
+	- cin,cout,endl,string
+
     Symbol Table Scope
 	- Find grammar Blocks
 	- Stack of name tables
