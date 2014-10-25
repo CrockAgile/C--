@@ -1,6 +1,7 @@
 #ifndef SEMANTICS_H
 #define	SEMANTICS_H
 
+#include <stdbool.h>
 #define S_SIZE 1024
 
 typedef enum SemanticNode {
@@ -18,36 +19,51 @@ typedef enum SemanticNode {
     parameter_declarator = 890,
 } SemanticNode;
 
-void* sem_malloc(int size, int zero);
+void* sem_malloc(int size, bool zero);
 
 typedef enum btype{
         int_type,
         bool_type,
         void_type,
-        class_type,
-        array_type,
         char_type,
         double_type,
-        pointer_type
+        class_type,
+        // complicated linked types
+        pointer_type,
+        function_type,
+        array_type,
 } btype;
 
-typedef struct tab_el {
-    char *name;
-    int scope;
+typedef struct type_el {
     btype type;
-    int cons;
-    struct tab_el *next;
-} tab_el;
+    struct type_el *sub;
+} type_el;
+
+struct environ;
+
+typedef struct table_el {
+    // needed by Vars, Funcs, and Classes
+    char *name;
+    struct environ *pscope;
+    type_el *type;
+    bool cons;
+    bool defined;
+    // needed by Funcs, and Classes
+    type_el *param_types;
+    struct environ *cscope;
+    struct table_el *next;
+} table_el;
 
 typedef struct environ {
-    tab_el **table;
+    table_el **vars;
+    table_el **classes;
     struct environ *up;
 } environ;
 
-tab_el* MakeTableE(char*,int,btype,int,tab_el*);
+table_el* MakeTableEl(char*,int,type_el*,int);
 environ* MakeEnviron(environ *parent);
-tab_el* InsertTE(environ*,char*,int,btype,int);
-tab_el* LookUpTE(environ*,char*);
+table_el* InsertTableEl(environ*,char*,int,btype,int);
+table_el* LookUpTableEl(environ*,char*);
 
 #endif	
 

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "semantics.h"
 
-void* sem_malloc(int size, int zero) {
+void* sem_malloc(int size, bool zero) {
     void* new = NULL;
     zero ? (new = calloc(1,size)) : (new = malloc(size));
     if (!new){
@@ -13,26 +13,19 @@ void* sem_malloc(int size, int zero) {
     return new;
 }
 
-tab_el* MakeTableE(char*name,int scope,btype type,int cons,tab_el*next){
-    tab_el* new = sem_malloc(sizeof(tab_el),0);
-    new->name = strdup(name);
-    new->scope = scope;
-    new->type = type;
-    new->cons = cons;
-    new->next = next;
-    return new;
-}
-
 environ* MakeEnviron(environ *parent) {
     environ *new = sem_malloc(sizeof (environ),0);
     new->up = parent;
-    new->table = sem_malloc(S_SIZE * sizeof (environ*),0);
+    new->vars = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
+    new->vars = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
     return new;
 }
 
-tab_el* InsertTE(environ* env,char*k,int scope,btype type,int c) {
+table_el* InsertTableEl(environ* env,char*k,int scope,btype type,int c) {
+    return NULL;
 }
 
-tab_el* LookUp(environ *curr, char *key) {
+table_el* LookUpTableEl(environ *curr, char *key) {
+    return NULL;
 }
 

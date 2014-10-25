@@ -16,15 +16,10 @@ TODOs:
 	- Two Phases
 	    - Top to Bot, then Bot leaves up
 
-    Separate out dependencies (parse.h vs lex.h vs ??)
-    
     Improve Lexical Errors
         - Line Numbers
         - Column Number, specific character
         - Expectations?
-
-    Enforce Character Constants
-        - 'c' vs 'cccc'
 
     Transition Lexer to Built-in Flex buffer state stack
         - Dynamic Buffer

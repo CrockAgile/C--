@@ -26,7 +26,7 @@ int lerrors = 0;
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ctr = 0;
 
-char string_buf[MAX_STR_CONST]; // TODO implement growing/shrinking buffers
+char string_buf[MAX_STR_CONST];
 char origin_buf[MAX_STR_CONST];
 char* str_buf_ptr;
 char* origin_ptr;

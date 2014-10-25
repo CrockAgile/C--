@@ -2,7 +2,7 @@
 # Jeff Crocker
 
 CC=gcc
-CFLAGS=-c -g -Wall
+CFLAGS=-c -g
 TARNAME=hw2.tar
 
 120++:	120++.o lex.yy.o lib.o 120gram.tab.o
@@ -10,7 +10,7 @@ TARNAME=hw2.tar
 	cp 120++ ./examples/120++
 
 120++.o: 120++.c 120gram.tab.h
-	$(CC) $(CFLAGS) 120++.c
+	$(CC) $(CFLAGS) -Wall 120++.c
 
 120gram.tab.o:	120gram.tab.c
 	$(CC) $(CFLAGS) 120gram.tab.c
@@ -25,7 +25,7 @@ lex.yy.c: lexer.l 120gram.tab.h
 	flex lexer.l
 
 lib.o: lex.c parse.c semantics.c 120gram.tab.h lex.h parse.h semantics.h
-	$(CC) $(CFLAGS) lib.c
+	$(CC) $(CFLAGS) -Wall lib.c
 
 clean:
 	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
