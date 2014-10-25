@@ -1,48 +1,38 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "semantics.h"
 
-struct type *integerType = NULL;
-struct type *boolType = NULL;
-struct type *voidType = NULL;
-
-// classic singletons?
-struct type* IntegerType(){
-    if ( integerType == NULL ) {
-        integerType = calloc(1,sizeof(struct type));
-        integerType->kind = int_type;
+void* sem_malloc(int size, int zero) {
+    void* new = NULL;
+    zero ? (new = calloc(1,size)) : (new = malloc(size));
+    if (!new){
+        fprintf(stderr,"Memory allocation failed in Semantic Analysis\n");
+        exit(3);
     }
-    return integerType;
+    return new;
 }
 
-struct type* BooleanType(){
-    if ( boolType == NULL ) {
-        boolType = calloc(1,sizeof(struct type));
-        boolType->kind = bool_type;
-    }
-    return boolType;
+tableE* MakeTableE(char*name,int scope,btype type,int cons,tableE*next){
+    tableE* new = sem_malloc(sizeof(tableE),0);
+    new->name = strdup(name);
+    new->scope = scope;
+    new->type = type;
+    new->cons = cons;
+    new->next = next;
+    return new;
 }
 
-struct type* VoidType(){
-    if ( voidType == NULL ) {
-        voidType = calloc(1,sizeof(struct type));
-        voidType->kind = void_type;
-    }
-    return voidType;
+environ* MakeEnviron(environ *parent) {
+    environ *new = sem_malloc(sizeof (environ),0);
+    new->up = parent;
+    new->table = sem_malloc(S_SIZE * sizeof (environ*),0);
+    return new;
 }
 
-struct type* CharacterType(){
-    if ( charType == NULL ) {
-        charType = calloc(1,sizeof(struct type));
-        charType->kind = char_type;
-    }
-    return charType;
+tableE* InsertTE(environ* env,char*k,int scope,btype type,int c) {
 }
 
-struct type* DoubleType(){
-    if ( doubleType == NULL ) {
-        doubleType = calloc(1,sizeof(struct type));
-        doubleType->kind = double_type;
-    }
-    return doubleType;
+tableE* LookUp(environ *curr, char *key) {
 }
 

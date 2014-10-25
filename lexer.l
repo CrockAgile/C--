@@ -112,6 +112,8 @@ while			return update_yytoken(WHILE,NULL);
 
 {D}+{IS}?	{
 				int_ptr = (int*)malloc(sizeof(int));
+                if (!int_ptr)
+                    exit(1);
 				*int_ptr = atoi(yytext);
 				return update_yytoken(INTEGER,int_ptr);
 			}
@@ -120,6 +122,8 @@ while			return update_yytoken(WHILE,NULL);
 {D}+"."{D}*({E})?{FS}?	|
 {D}+{E}{FS}?	{
 				float_ptr = (float*)malloc(sizeof(float));
+                if (!float_ptr)
+                    exit(1);
 				*float_ptr = atof(yytext);
 				return update_yytoken(FLOATING,float_ptr);
 				}
@@ -127,6 +131,8 @@ while			return update_yytoken(WHILE,NULL);
 
 '([^\\'])'	{
 				str_buf_ptr = (char*)malloc(strlen(yytext)+1);
+                if (!str_buf_ptr)
+                    exit(1);
 				strcpy(str_buf_ptr,yytext+1);
 				str_buf_ptr[yyleng-2] = '\0';
 				return update_yytoken(CHARACTER,str_buf_ptr);
@@ -135,6 +141,8 @@ while			return update_yytoken(WHILE,NULL);
 '([^\\'])+' {
                 lexerr("Character constants cannot contain more than one character");
                 str_buf_ptr = malloc(strlen(yytext)+1);
+                if (!str_buf_ptr)
+                    exit(1);
                 strcpy(str_buf_ptr,yytext+1);
                 str_buf_ptr[1] = '\0';
                 return update_yytoken(CHARACTER,str_buf_ptr);
@@ -142,6 +150,8 @@ while			return update_yytoken(WHILE,NULL);
 
 '\\.'		{
 				str_buf_ptr = (char*)malloc(4);
+                if (!str_buf_ptr)
+                    exit(1);
 				strcpy(str_buf_ptr,yytext+1);
 				str_buf_ptr[2] = '\0';
 				escape_char(str_buf_ptr,str_buf_ptr);

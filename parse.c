@@ -310,6 +310,8 @@ char* craft_readable(char* base, int prodrule) {
     }
     suffix = prodrule % SUFF_SIZE;
     char* buf = (char*)malloc(s + suff_len + 1); 
+    if (!buf)
+        exit(2);
     strcpy(buf,base);
     sprintf(&buf[s]," rule %d",suffix);
     buf[s+suff_len] = '\0';

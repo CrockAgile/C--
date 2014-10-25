@@ -18,8 +18,9 @@ enum SemanticNodes {
     parameter_declarator = 890,
 };
 
-struct type {
-    enum {
+void* sem_malloc(int size, int zero);
+
+typedef enum {
         int_type,
         bool_type,
         void_type,
@@ -27,31 +28,25 @@ struct type {
         array_type,
         char_type,
         double_type,
-    } kind;
+} btype;
 
-};
-
-struct typeList {
-    struct type *first;
-    struct typeList *rest;
-};
-
-struct table_entry {
+typedef struct tableE {
     char *name;
     int scope;
-};
+    btype type;
+    int cons;
+    struct tableE *next;
+} tableE;
 
-struct type* IntegerType();
-struct type* BooleanType();
-struct type* VoidType();
-struct type* CharacterType();
-struct type* DoubleType();
+typedef struct environ {
+    tableE **table;
+    struct environ *up;
+} environ;
 
-struct type *integerType;
-struct type *boolType;
-struct type *voidType;
-struct type *charType;
-struct type *doubleType;
+tableE* MakeTableE(char*,int,btype,int,tableE*);
+environ* MakeEnviron(environ *parent);
+tableE* InsertTE(environ*,char*,int,btype,int);
+tableE* LookUpTE(environ*,char*);
 
 #endif	
 
