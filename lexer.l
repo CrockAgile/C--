@@ -47,9 +47,6 @@ int iomanip_included = 0;
 
 int namespace_std = 0;
 
-// TODO should remake char and string
-// into same state with varying in/out (' or ")
-// and then check if len(sval) == 1 for chars
 %}
 
 %x star_comment
