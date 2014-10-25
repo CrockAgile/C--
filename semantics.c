@@ -13,8 +13,8 @@ void* sem_malloc(int size, int zero) {
     return new;
 }
 
-tableE* MakeTableE(char*name,int scope,btype type,int cons,tableE*next){
-    tableE* new = sem_malloc(sizeof(tableE),0);
+tab_el* MakeTableE(char*name,int scope,btype type,int cons,tab_el*next){
+    tab_el* new = sem_malloc(sizeof(tab_el),0);
     new->name = strdup(name);
     new->scope = scope;
     new->type = type;
@@ -30,9 +30,9 @@ environ* MakeEnviron(environ *parent) {
     return new;
 }
 
-tableE* InsertTE(environ* env,char*k,int scope,btype type,int c) {
+tab_el* InsertTE(environ* env,char*k,int scope,btype type,int c) {
 }
 
-tableE* LookUp(environ *curr, char *key) {
+tab_el* LookUp(environ *curr, char *key) {
 }
 

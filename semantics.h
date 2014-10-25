@@ -3,7 +3,7 @@
 
 #define S_SIZE 1024
 
-enum SemanticNodes {
+typedef enum SemanticNode {
     // nodes that require new environment
     class_specifier = 950,
     compound_statement = 510,
@@ -16,11 +16,11 @@ enum SemanticNodes {
     // class_specifier also previously defined
     init_declarator = 770,
     parameter_declarator = 890,
-};
+} SemanticNode;
 
 void* sem_malloc(int size, int zero);
 
-typedef enum {
+typedef enum btype{
         int_type,
         bool_type,
         void_type,
@@ -28,25 +28,26 @@ typedef enum {
         array_type,
         char_type,
         double_type,
+        pointer_type
 } btype;
 
-typedef struct tableE {
+typedef struct tab_el {
     char *name;
     int scope;
     btype type;
     int cons;
-    struct tableE *next;
-} tableE;
+    struct tab_el *next;
+} tab_el;
 
 typedef struct environ {
-    tableE **table;
+    tab_el **table;
     struct environ *up;
 } environ;
 
-tableE* MakeTableE(char*,int,btype,int,tableE*);
+tab_el* MakeTableE(char*,int,btype,int,tab_el*);
 environ* MakeEnviron(environ *parent);
-tableE* InsertTE(environ*,char*,int,btype,int);
-tableE* LookUpTE(environ*,char*);
+tab_el* InsertTE(environ*,char*,int,btype,int);
+tab_el* LookUpTE(environ*,char*);
 
 #endif	
 
