@@ -9,13 +9,13 @@ public:
     bool setWidth(int width);
 };
 
-void stuff(){
-    cout << "stuff here" << endl;
+void foo(){
+    cout << "foo here" << endl;
 }
 
 int main(int argc, char **argv)
 {
-    stuff();
+    foo();
     int x = 10;
     {
 	    int x = 20;
