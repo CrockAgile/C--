@@ -832,11 +832,11 @@ void free_nametable() {
 }
 
 // djb2 by Dan Bernstein
-unsigned long hash_name(unsigned char *s) {
+unsigned long hash_name(char *s) {
     unsigned long hash = 5381;
     int c;
 
-    while( c = *s++ )
+    while( (c = *s++) )
         hash = ((hash << 5) + hash) + c;
 
     return hash;
@@ -864,9 +864,12 @@ int insert_name(token *insert, int new_code) {
 
 token_el* lookup_name(char *search) {
     token_el* res = nametable[hash_name(search)%TABLESIZE];
-    if( res )
-        return res;
-
+    while( res ) {
+        if( !strcmp(search, res->t->text) ) {
+            return res;
+        }
+        res = res->next;
+    }
     return NULL;
 }
 
@@ -876,14 +879,6 @@ token_el* lookup_name(char *search) {
 int id_check(char* s, int code) {
     token_el* res = lookup_name(s);
     if( res ) {
-        while( strcmp(s,res->t->text) ) {
-            if( res->next ) {
-                res = res->next;
-            }
-            else {
-                return code;
-            }
-        }
         return res->t->code;
     }
     else {

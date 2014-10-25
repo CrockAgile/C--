@@ -6,6 +6,16 @@
 #include <stdio.h>
 #include "120gram.tab.h"
 
+typedef struct name_insert {
+    char *name;
+    int code;
+    struct name_insert *next;
+} name_insert;
+
+name_insert *qhead,*qtail;
+
+void type_insert(char*,int);
+
 struct s_token {
     int code;
     char* text;

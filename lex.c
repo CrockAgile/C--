@@ -6,6 +6,16 @@ extern char* yytext;
 extern YYSTYPE yylval;
 extern YYSTYPE root;
 
+void type_insert(char *name,int code) {
+    name_insert *new = malloc(sizeof(name_insert));
+    if(!new)
+        exit(0);
+    new->name = name;
+    new->code = code;
+    new->next = qhead;
+    qhead = new;
+}
+
 int push_file(int lineno) {
     file_el* pushed = (file_el*)malloc(sizeof(file_el));
     if(!pushed)

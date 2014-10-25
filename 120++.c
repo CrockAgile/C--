@@ -15,11 +15,11 @@ extern FILE* yyout;
 void call_parsing(char*,int);
 
 int main(int argc, char** argv) {
-    int i,c,index,print_mode = 0;
-    opterr = 0;
+    int c,index,print_mode = 0;
+    opterr = 0; // using unistd command line parsing built-ins
     while ((c = getopt (argc, argv, "v")) != -1)
         switch(c) {
-            case 'v':
+            case 'v': // verbose mode to print parse tree
                 print_mode = 1;
                 break;
         }
@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
         fprintf(stderr,"Failed to initialize nametable\n");
         exit(1);
     }
+    // anything not a command flag should be parsed
     for (index=optind; index < argc; index++)
         call_parsing(argv[index],print_mode);
     
@@ -36,7 +37,7 @@ int main(int argc, char** argv) {
 }
 
 void call_parsing(char* filename,int print_mode) {
-    int i, parse_result;
+    int parse_result;
     yytoken.filename = filename;
     yyin = fopen(filename,"r");
     parse_result = yyparse();
@@ -44,8 +45,8 @@ void call_parsing(char* filename,int print_mode) {
         printf("\n***%s***\n",filename);
         treeprint(root,0);
     } else if ( parse_result == 1 ) {
-        exit(2);
+        exit(2); // exit 2 for a parse error
     }
-    freetree(root);
-    fclose(yyin);
+    freetree(root); // should each tree be preserved?
+    fclose(yyin); // close them file pointers!
 }

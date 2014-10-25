@@ -2,7 +2,7 @@
 # Jeff Crocker
 
 CC=gcc
-CFLAGS=-c -g
+CFLAGS=-c -g -Wall
 TARNAME=hw2.tar
 
 120++:	120++.o lex.yy.o lib.o 120gram.tab.o

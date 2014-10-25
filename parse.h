@@ -45,7 +45,7 @@ struct pnode* prepend_prodrule(struct pnode* des, int code);
 token_el **nametable;
 int init_nametable();
 void free_nametable();
-unsigned long hash_name(unsigned char*);
+unsigned long hash_name(char*);
 int insert_name( token*,int);
 token_el* lookup_name(char*);
 int id_check(char*,int);
