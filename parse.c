@@ -884,3 +884,39 @@ int id_check(char* s, int code) {
     }
 }
 
+// need linked list to maintain roots of trees
+void treelist_append(char *file, struct pnode *added) {
+    root_el *new = malloc(sizeof(root_el));
+    if (!new)
+        exit(1);
+
+    new->filename = file;
+    new->p = added;
+    new->next = NULL;
+
+    if (treelist_tail != NULL) {
+        treelist_tail->next = new;
+    } else {
+        treelist_head = new;
+    }
+    treelist_tail = new;
+}
+
+void print_treelist(root_el *head) {
+    root_el *curr;
+    for(curr=head; curr; curr = curr->next) {
+        printf("*** %s ***\n",curr->filename);
+        treeprint(curr->p,0);
+    }
+}
+
+void free_treelist(root_el *head) {
+    while ( head ) {
+        root_el *prev = head;
+        head = head->next;
+        freetree(prev->p);
+        free(prev);
+    }
+}
+
+

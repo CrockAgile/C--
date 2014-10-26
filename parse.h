@@ -50,4 +50,16 @@ int insert_name( token*,int);
 token_el* lookup_name(char*);
 int id_check(char*,int);
 
+typedef struct root_el {
+    char *filename;
+    struct pnode *p;
+    struct root_el *next;
+} root_el;
+
+// parse tree linked list to store trees
+root_el *treelist_head, *treelist_tail;
+void treelist_append(char *file, struct pnode *added);
+void print_treelist(root_el *head);
+void free_treelist(root_el *head);
+
 #endif

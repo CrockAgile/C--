@@ -55,7 +55,7 @@ typedef struct table_el {
 } table_el;
 
 typedef struct environ {
-    table_el **vars;
+    table_el **locals;
     table_el **classes;
     struct environ *up;
 } environ;

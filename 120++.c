@@ -12,41 +12,53 @@ extern YYSTYPE root;
 extern FILE* yyin;
 extern FILE* yyout;
 
-void call_parsing(char*,int);
+int parsetree_setup(int,char**);
+void parsetree_teardown();
+void call_parsing(char*);
 
 int main(int argc, char** argv) {
-    int c,index,print_mode = 0;
-    opterr = 0; // using unistd command line parsing built-ins
-    while ((c = getopt (argc, argv, "v")) != -1)
-        switch(c) {
-            case 'v': // verbose mode to print parse tree
-                print_mode = 1;
-                break;
-        }
-
-    if (!init_nametable()){
-        fprintf(stderr,"Failed to initialize nametable\n");
-        exit(1);
+    if( parsetree_setup(argc, argv) ) {
+    // have parse trees available to work with
+        print_treelist(treelist_head);
     }
-    // anything not a command flag should be parsed
-    for (index=optind; index < argc; index++)
-        call_parsing(argv[index],print_mode);
-    
-    free_nametable();
+    parsetree_teardown();
     return 0;
 }
 
-void call_parsing(char* filename,int print_mode) {
+int parsetree_setup(int argc,char **argv) {
+    int c, index, verbose_mode = 0;
+    opterr = 0;
+    while ((c = getopt (argc, argv, "v")) != -1)
+        switch(c) {
+            case 'v': // verbose mode to print tree
+                verbose_mode = 1;
+                break;
+        } 
+
+    if (!init_nametable()) {
+        fprintf(stderr,"Failed to initialize nametable\n");
+        exit(1);
+    }
+
+    for (index=optind; index < argc; index++)
+        call_parsing(argv[index]);
+
+    return verbose_mode;
+}
+
+void parsetree_teardown() {
+    free_treelist(treelist_head);
+    free_nametable();
+}
+
+void call_parsing(char* filename) {
     int parse_result;
     yytoken.filename = filename;
     yyin = fopen(filename,"r");
     parse_result = yyparse();
-    if( (parse_result == 0 ) && print_mode) {
-        printf("\n***%s***\n",filename);
-        treeprint(root,0);
-    } else if ( parse_result == 1 ) {
+    if ( parse_result == 1 ) {
         exit(2); // exit 2 for a parse error
     }
-    freetree(root); // should each tree be preserved?
+    treelist_append(filename,root);
     fclose(yyin); // close them file pointers!
 }

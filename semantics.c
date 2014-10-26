@@ -16,8 +16,8 @@ void* sem_malloc(int size, bool zero) {
 environ* MakeEnviron(environ *parent) {
     environ *new = sem_malloc(sizeof (environ),0);
     new->up = parent;
-    new->vars = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
-    new->vars = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
+    new->locals = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
+    new->classes = sem_malloc(sizeof (type_el*) * S_SIZE, 1);
     return new;
 }
 
