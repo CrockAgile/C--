@@ -905,7 +905,7 @@ void treelist_append(char *file, struct pnode *added) {
 void print_treelist(root_el *head) {
     root_el *curr;
     for(curr=head; curr; curr = curr->next) {
-        printf("*** %s ***\n",curr->filename);
+        printf("\n*** %s ***\n",curr->filename);
         treeprint(curr->p,0);
     }
 }
@@ -917,6 +917,7 @@ void free_treelist(root_el *head) {
         freetree(prev->p);
         free(prev);
     }
+    treelist_tail = NULL;
 }
 
 

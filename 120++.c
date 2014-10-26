@@ -4,13 +4,11 @@
 
 #include "parse.h"
 
-extern int yylex();
 extern int yyparse();
-extern int errors;
 extern token yytoken;
 extern YYSTYPE root;
-extern FILE* yyin;
-extern FILE* yyout;
+FILE* yyin;
+FILE* yyout;
 
 int parsetree_setup(int,char**);
 void parsetree_teardown();
