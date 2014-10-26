@@ -3,7 +3,7 @@
 
 CC=gcc
 CFLAGS=-c -g
-TARNAME=hw2.tar
+TARNAME=hw3.tar
 
 120++:	120++.o lex.yy.o lib.o 120gram.tab.o
 	$(CC) -o 120++ 120++.o lex.yy.o lib.o 120gram.tab.o 
