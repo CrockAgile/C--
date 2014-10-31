@@ -1,8 +1,10 @@
 #ifndef SEMANTICS_H
 #define	SEMANTICS_H
+#define S_SIZE 1024
+#define ENV_KIDS 8
 
 #include <stdbool.h>
-#define S_SIZE 1024
+#include "lex.h"
 
 typedef enum SemanticNode {
     // nodes that require new environment
@@ -34,36 +36,46 @@ typedef enum btype{
         array_type,
 } btype;
 
+// type element
 typedef struct type_el {
-    btype type;
-    struct type_el *sub;
+    btype type; // basic types
+    struct type_el *sub; // sub-lvls
+    struct type_el *next;
 } type_el;
 
 struct environ;
 
 typedef struct table_el {
     // needed by Vars, Funcs, and Classes
-    char *name;
-    struct environ *pscope;
+    token *tok;
     type_el *type;
-    bool cons;
-    bool defined;
+    bool cons, defd;
     // needed by Funcs, and Classes
     type_el *param_types;
-    struct environ *cscope;
+    struct environ *par_env;
+    struct environ *chl_env;
     struct table_el *next;
 } table_el;
 
 typedef struct environ {
-    table_el **locals;
-    table_el **classes;
-    struct environ *up;
+    table_el **locals; // vars, funcs, classes
+    struct environ *up; // parent
+    // only way I could figure to implement block definitions
+    // I know they aren't required but seemed fake w/o them
+    short nkids, ksize;
+    struct environ **kids; 
 } environ;
 
-table_el* MakeTableEl(char*,int,type_el*,int);
-environ* MakeEnviron(environ *parent);
-table_el* InsertTableEl(environ*,char*,int,btype,int);
-table_el* LookUpTableEl(environ*,char*);
+type_el* mk_type_el(btype t, type_el *s, type_el *n);
+void free_type_list(type_el* head);
+table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
+void free_table_list(table_el *head);
+environ* mk_environ(environ* parent);
+void free_environ(environ *target);
+unsigned long env_hash(char *s);
 
+static environ* GlobalEnviron;
+environ* GetGlobal();
+static environ* curr_env;
+environ* CurrEnv();
 #endif	
-
