@@ -1,3 +1,6 @@
+/* semantics.h
+ * jeff crocker
+ */
 #ifndef SEMANTICS_H
 #define	SEMANTICS_H
 #define S_SIZE 1024
@@ -66,6 +69,12 @@ typedef struct environ {
     struct environ **kids; 
 } environ;
 
+// for a stack of environ references
+typedef struct env_el {
+    environ *env;
+    struct env_el *next;
+} env_el;
+
 type_el* mk_type_el(btype t, type_el *s, type_el *n);
 void free_type_list(type_el* head);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
@@ -78,4 +87,7 @@ static environ* GlobalEnviron;
 environ* GetGlobal();
 static environ* curr_env;
 environ* CurrEnv();
+static env_el* env_stack;
+void PushCurrEnv();
+environ* PopEnv();
 #endif	

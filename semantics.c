@@ -1,3 +1,6 @@
+/* semantics.c
+ * jeff crocker
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,3 +127,17 @@ environ* CurrEnv() {
     return curr_env;
 }
 
+void PushCurrEnv() {
+    env_el *new = sem_malloc(sizeof(env_el),0);
+    new->env = curr_env;
+    new->next = env_stack;
+    env_stack = new;
+}
+
+environ* PopEnv() {
+    env_el* del = env_stack;
+    env_stack = env_stack->next;
+    environ *res = del->env;
+    free(del);
+    return res;
+}
