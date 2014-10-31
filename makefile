@@ -28,7 +28,7 @@ lib.o: lex.c parse.c semantics.c 120gram.tab.h lex.h parse.h semantics.h
 	$(CC) $(CFLAGS) -Wall lib.c
 
 clean:
-	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h $(TARNAME)
+	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
 
 tar: clean
 	tar -cvf $(TARNAME) . \
