@@ -16,6 +16,16 @@ void* sem_malloc(int size, bool zero) {
     return new;
 }
 
+// hash with mod specific to semantic tables
+unsigned long env_hash(char *s) {
+    unsigned long hash = 5381;
+    int c;
+    while( (c = *s++) )
+        hash = ((hash << 5) + hash) + c;
+    return hash % S_SIZE;
+}
+
+
 type_el* mk_type_el(btype t, type_el *s, type_el *n) {
     type_el *new = sem_malloc(sizeof(type_el),0);
     new->type = t; new->sub = s; new->next = n;
@@ -64,9 +74,44 @@ environ* mk_environ(environ *parent, int depth) {
     return new;
 }
 
+table_el* environ_lookup(environ *e, char *key) {
+    table_el* res = e->locals[env_hash(key)];
+    if (res) {
+        while (res->next) {
+            if (strcmp(key,res->tok->text)) {
+                return res;
+            }
+            res = res->next;
+        }
+    }
+    return NULL;
+}
+
+bool environ_insert(environ *e, token *to, btype ty, bool c, bool d) {
+    unsigned long index = env_hash(to->text);
+    table_el** des = &(e->locals[index]);
+    // if already in table, error
+    if (environ_lookup(e,to->text)) {
+        fprintf(stderr,"Double declaration of %s\n",to->text);
+        exit(3);
+    }
+    // make new type list
+    type_el* newtype = sem_malloc(sizeof(type_el),1);
+    newtype->type = ty;
+    // make new table element
+    table_el* new = sem_malloc(sizeof(table_el),1);
+    new->tok = to;
+    new->type = newtype;
+    new->cons = c; new->defd = d;
+    // prepend to list of hash collisions
+    new->next = *des;
+    *des = new;
+    return 1;
+}
+
 bool add_env_child(environ *parent) {
     if  (!parent)
-        return 1;
+        return 0;
 
     if ( parent->nkids < parent->ksize ) { // under max size
         parent->nkids++;
@@ -83,7 +128,7 @@ bool add_env_child(environ *parent) {
         free(parent->kids);
         parent->kids = new;
     }
-    return 0;
+    return 1;
 }
 
 void free_environ(environ *target) {
@@ -102,15 +147,6 @@ void free_environ(environ *target) {
     }
     // now that all taken indexes freed
     free(target->kids);
-}
-
-// hash with mod specific to semantic tables
-unsigned long env_hash(char *s) {
-    unsigned long hash = 5381;
-    int c;
-    while( (c = *s++) )
-        hash = ((hash << 5) + hash) + c;
-    return hash % S_SIZE;
 }
 
 environ* GetGlobal() {

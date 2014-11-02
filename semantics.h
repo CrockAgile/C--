@@ -62,14 +62,16 @@ typedef struct env_el {
     struct env_el *next;
 } env_el;
 
+unsigned long env_hash(char *s);
 type_el* mk_type_el(btype t, type_el *s, type_el *n);
 void free_type_list(type_el* head);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
 void free_table_list(table_el *head);
 environ* mk_environ(environ* parent,int depth);
+table_el* environ_lookup(environ *e, char *key);
+bool environ_insert(environ *e, token *to, btype ty, bool c, bool d);
 bool add_env_child(environ *parent);
 void free_environ(environ *target);
-unsigned long env_hash(char *s);
 
 static environ* GlobalEnviron;
 environ* GetGlobal();

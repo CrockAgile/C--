@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "parse.h"
+#include "semantics.h"
 
 extern token yytoken;
 extern YYSTYPE root;
@@ -36,8 +37,15 @@ int parsetree_setup(int argc,char **argv) {
         exit(1);
     }
 
-    for (index=optind; index < argc; index++)
-        call_parsing(argv[index]);
+    for (index=optind; index < argc; index++) {
+        char *fn = argv[index];
+        if (access(fn,F_OK) != -1) {
+            call_parsing(fn);
+        }
+        else {
+            fprintf(stderr,"File '%s' does not exist, exiting.\n",fn);
+        }
+    }
 
     return verbose_mode;
 }
