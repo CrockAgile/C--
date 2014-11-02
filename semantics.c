@@ -16,6 +16,8 @@ void* sem_malloc(int size, bool zero) {
     return new;
 }
 
+/* TYPES AND ENVIRONS SECTION */
+
 // hash with mod specific to semantic tables
 unsigned long env_hash(char *s) {
     unsigned long hash = 5381;
@@ -121,6 +123,7 @@ bool add_env_child(environ *parent) {
         short old_size = parent->ksize;
         short new_size = old_size * 2; // double in size
         // really should put a ceiling on size TODO
+        // TODO use realloc cause thats what it's for!
         environ **old = parent->kids;
         environ **new = sem_malloc(new_size * sizeof(environ*),1);
         memcpy(new,old,old_size * sizeof(environ*));
@@ -150,7 +153,7 @@ void free_environ(environ *target) {
 }
 
 environ* GetGlobal() {
-    if (GlobalEnviron)
+    if (GlobalEnviron) // singleton?
         return GlobalEnviron;
     // 'GLOBAL' environ is special case environ
     // that has no parent, i.e. root
@@ -183,4 +186,32 @@ environ* PopEnv() {
     environ *res = del->env;
     free(del);
     return res;
+}
+
+/* TREE TRAVERSALS SECTION */
+
+void preorder_semantics(struct prodrule *p){
+    switch(p->code / 10) {
+        case compound_statement:
+            printf("yea!\n");
+    }
+}
+
+void postorder_semantics(struct prodrule *p){
+    switch(p->code / 10) {
+    }
+}
+
+void semantic_traversal(struct pnode *p) {
+    struct prodrule *curr; int i;
+    if(!p) return;
+    // prodrules are maintained in linked list
+    for (curr=p->prule; curr; curr=curr->next)
+        preorder_semantics(curr);
+
+    for (i = 0; i < p->nkids; i++)
+        semantic_traversal(p->kids[i]);
+
+    for (curr=p->prule; curr; curr=curr->next)
+        postorder_semantics(curr);
 }

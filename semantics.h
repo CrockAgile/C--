@@ -7,7 +7,7 @@
 #define ENV_KIDS 8
 
 #include <stdbool.h>
-#include "lex.h"
+#include "parse.h"
 
 void* sem_malloc(int size, bool zero);
 
@@ -85,19 +85,20 @@ environ* PopEnv();
 /* TREE TRAVERSALS SECTION */
 
 typedef enum SemanticNode {
-    // nodes that require new environment
-    class_specifier = 950,
-    compound_statement = 510,
+    // nodes that require only new environment
     selection_statement = 530,
     iteration_statement = 550,
-    function_definition = 900,
-
-    // nodes that require adding to environment
-    // function_definiton previously defined
-    // class_specifier also previously defined
+    // nodes that require adding to table
     init_declarator = 770,
     parameter_declarator = 890,
+    // nodes that require both new env, and adding
+    class_specifier = 950,
+    compound_statement = 510,
+    function_definition = 900,
+
 } SemanticNode;
 
-
+void preorder_semantics(struct prodrule *p); 
+void postorder_semantics(struct prodrule *p);
+void semantic_traversal(struct pnode*);
 #endif	

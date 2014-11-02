@@ -35,34 +35,32 @@ struct pnode *alcnode(int rule, int kids, ...) {
     va_list args;
 
     struct pnode* new_pnode = (struct pnode*)malloc(sizeof(struct pnode));
-    if(!new_pnode)
-        return NULL;
+    if(!new_pnode) return NULL;
 
     struct prodrule* new_prule = (struct prodrule*)calloc(1,sizeof(struct prodrule));
-    if(!new_prule)
-	return NULL;
+    if(!new_prule) return NULL;
     new_prule->code = rule;
     new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
 
     new_pnode->kids = (struct pnode**)malloc(kids * sizeof(struct pnode*));
-    if(!new_pnode->kids)
-	return NULL;
+    if(!new_pnode->kids) return NULL;
     int x;
     va_start( args, kids );
     for ( x = 0; x < kids; x++ ) {
-        new_pnode->kids[x] = va_arg(args,struct pnode*);
+        struct pnode *kid = va_arg(args,struct pnode*);
+        new_pnode->kids[x] = kid;
+        if (kid)
+            new_pnode->kids[x]->par = new_pnode;
     }
-    va_end( args );
-
+    va_end( args ); 
     new_pnode->t = NULL;
     return new_pnode;
 }
 
 struct pnode* create_pnode(token* curr_yytoken) {
     token* yytoken_copy = (token*)malloc(sizeof(token));
-    if(!yytoken_copy)
-        return 0;
+    if(!yytoken_copy) return 0;
 
     yytoken_copy->code = curr_yytoken->code;
     yytoken_copy->text = curr_yytoken->text;
@@ -797,7 +795,7 @@ void humanreadable(struct prodrule* prule, char **dest) {
     return;
 }
 
-struct pnode* prepend_prodrule(struct pnode* des, int code) {
+struct pnode* single_child(struct pnode* des, int code) {
     struct prodrule* head = des->prule;
     struct prodrule* new = (struct prodrule*)malloc(sizeof(struct prodrule));
     if(!new)

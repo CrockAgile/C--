@@ -80,32 +80,32 @@ static void type_error(struct pnode*);
 
 typedef_name:
 	/* identifier */
-	TYPEDEF_NAME { $$ = prepend_prodrule($1,101) ; }
+	TYPEDEF_NAME { $$ = single_child($1,101) ; }
 	;
 
 namespace_name:
-	original_namespace_name { $$ = prepend_prodrule($1,201) ; }
+	original_namespace_name { $$ = single_child($1,201) ; }
 	;
 
 original_namespace_name:
 	/* identifier */
-	NAMESPACE_NAME { $$ = prepend_prodrule($1,301) ; }
+	NAMESPACE_NAME { $$ = single_child($1,301) ; }
 	;
 
 class_name:
 	/* identifier */
-	CLASS_NAME { $$ = prepend_prodrule($1,401) ; }
-	| template_id { $$ = prepend_prodrule($1,402) ; }
+	CLASS_NAME { $$ = single_child($1,401) ; }
+	| template_id { $$ = single_child($1,402) ; }
 	;
 
 enum_name:
 	/* identifier */
-	ENUM_NAME { $$ = prepend_prodrule($1,501) ; }
+	ENUM_NAME { $$ = single_child($1,501) ; }
 	;
 
 template_name:
 	/* identifier */
-	TEMPLATE_NAME { $$ = prepend_prodrule($1,601) ; }
+	TEMPLATE_NAME { $$ = single_child($1,601) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -113,36 +113,36 @@ template_name:
  *----------------------------------------------------------------------*/
 
 identifier:
-	IDENTIFIER { $$ = prepend_prodrule($1,701) ; }
+	IDENTIFIER { $$ = single_child($1,701) ; }
 	;
 
 literal:
-	integer_literal { $$ = prepend_prodrule($1,801) ; }
-	| character_literal { $$ = prepend_prodrule($1,802) ; }
-	| floating_literal { $$ = prepend_prodrule($1,803) ; }
-	| string_literal { $$ = prepend_prodrule($1,804) ; }
-	| boolean_literal { $$ = prepend_prodrule($1,805) ; }
+	integer_literal { $$ = single_child($1,801) ; }
+	| character_literal { $$ = single_child($1,802) ; }
+	| floating_literal { $$ = single_child($1,803) ; }
+	| string_literal { $$ = single_child($1,804) ; }
+	| boolean_literal { $$ = single_child($1,805) ; }
 	;
 
 integer_literal:
-	INTEGER { $$ = prepend_prodrule($1,901) ; }
+	INTEGER { $$ = single_child($1,901) ; }
 	;
 
 character_literal:
-	CHARACTER { $$ = prepend_prodrule($1,1001) ; }
+	CHARACTER { $$ = single_child($1,1001) ; }
 	;
 
 floating_literal:
-	FLOATING { $$ = prepend_prodrule($1,1101) ; }
+	FLOATING { $$ = single_child($1,1101) ; }
 	;
 
 string_literal:
-	STRING { $$ = prepend_prodrule($1,1201) ; }
+	STRING { $$ = single_child($1,1201) ; }
 	;
 
 boolean_literal:
-	TRUE { $$ = prepend_prodrule($1,1301) ; }
-	| FALSE { $$ = prepend_prodrule($1,1302) ; }
+	TRUE { $$ = single_child($1,1301) ; }
+	| FALSE { $$ = single_child($1,1302) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -150,7 +150,7 @@ boolean_literal:
  *----------------------------------------------------------------------*/
 
 translation_unit:
-	declaration_seq_opt { $$ = prepend_prodrule($1,1401) ; root = $$; }
+	declaration_seq_opt { $$ = single_child($1,1401) ; root = $$; }
 	;
 
 /*----------------------------------------------------------------------
@@ -158,21 +158,21 @@ translation_unit:
  *----------------------------------------------------------------------*/
 
 primary_expression:
-	literal { $$ = prepend_prodrule($1,1501) ; }
-	| THIS { $$ = prepend_prodrule($1,1502) ; }
+	literal { $$ = single_child($1,1501) ; }
+	| THIS { $$ = single_child($1,1502) ; }
 	| '(' expression ')' { $$ = alcnode(1503,3,$1,$2,$3); }
-	| id_expression { $$ = prepend_prodrule($1,1504) ; }
+	| id_expression { $$ = single_child($1,1504) ; }
 	;
 
 id_expression:
-	unqualified_id { $$ = prepend_prodrule($1,1601) ; }
-	| qualified_id { $$ = prepend_prodrule($1,1602) ; }
+	unqualified_id { $$ = single_child($1,1601) ; }
+	| qualified_id { $$ = single_child($1,1602) ; }
 	;
 
 unqualified_id:
-	identifier { $$ = prepend_prodrule($1,1701) ; }
-	| operator_function_id { $$ = prepend_prodrule($1,1702) ; }
-	| conversion_function_id { $$ = prepend_prodrule($1,1703) ; }
+	identifier { $$ = single_child($1,1701) ; }
+	| operator_function_id { $$ = single_child($1,1702) ; }
+	| conversion_function_id { $$ = single_child($1,1703) ; }
 	| '~' class_name { $$ = alcnode(1704,2,$1,$2); }
 	;
 
@@ -189,7 +189,7 @@ nested_name_specifier:
 	;
 
 postfix_expression:
-	primary_expression { $$ = prepend_prodrule($1,2001) ; }
+	primary_expression { $$ = single_child($1,2001) ; }
 	| postfix_expression '[' expression ']' { $$ = alcnode(2002,4,$1,$2,$3,$4); }
 	| postfix_expression '(' expression_list_opt ')' { $$ = alcnode(2003,4,$1,$2,$3,$4); }
 	| postfix_expression '.' TEMPLATE COLONCOLON id_expression { $$ = alcnode(2004,5,$1,$2,$3,$4,$5); }
@@ -211,12 +211,12 @@ postfix_expression:
 	;
 
 expression_list:
-	assignment_expression { $$ = prepend_prodrule($1,2101) ; }
+	assignment_expression { $$ = single_child($1,2101) ; }
 	| expression_list ',' assignment_expression { $$ = alcnode(2102,3,$1,$2,$3); }
 	;
 
 unary_expression:
-	postfix_expression { $$ = prepend_prodrule($1,2201) ; }
+	postfix_expression { $$ = single_child($1,2201) ; }
 	| PLUSPLUS cast_expression { $$ = alcnode(2202,2,$1,$2); }
 	| MINUSMINUS cast_expression { $$ = alcnode(2203,2,$1,$2); }
 	| '*' cast_expression { $$ = alcnode(2204,2,$1,$2); }
@@ -224,15 +224,15 @@ unary_expression:
 	| unary_operator cast_expression { $$ = alcnode(2206,2,$1,$2); }
 	| SIZEOF unary_expression { $$ = alcnode(2207,2,$1,$2); }
 	| SIZEOF '(' type_id ')' { $$ = alcnode(2208,4,$1,$2,$3,$4); }
-	| new_expression { $$ = prepend_prodrule($1,2209) ; }
-	| delete_expression { $$ = prepend_prodrule($1,2210) ; }
+	| new_expression { $$ = single_child($1,2209) ; }
+	| delete_expression { $$ = single_child($1,2210) ; }
 	;
 
 unary_operator:
-	  '+' { $$ = prepend_prodrule($1,2201) ; }
-	| '-' { $$ = prepend_prodrule($1,2202) ; }
-	| '!' { $$ = prepend_prodrule($1,2203) ; }
-	| '~' { $$ = prepend_prodrule($1,2204) ; }
+	  '+' { $$ = single_child($1,2201) ; }
+	| '-' { $$ = single_child($1,2202) ; }
+	| '!' { $$ = single_child($1,2203) ; }
+	| '~' { $$ = single_child($1,2204) ; }
 	;
 
 new_expression:
@@ -252,7 +252,7 @@ new_type_id:
 
 new_declarator:
 	ptr_operator new_declarator_opt { $$ = alcnode(2701,2,$1,$2); }
-	| direct_new_declarator { $$ = prepend_prodrule($1,2702) ; }
+	| direct_new_declarator { $$ = single_child($1,2702) ; }
 	;
 
 direct_new_declarator:
@@ -272,37 +272,37 @@ delete_expression:
 	;
 
 cast_expression:
-	unary_expression { $$ = prepend_prodrule($1,3101) ; }
+	unary_expression { $$ = single_child($1,3101) ; }
 	| '(' type_id ')' cast_expression { $$ = alcnode(3102,4,$1,$2,$3,$4); }
 	;
 
 pm_expression:
-	cast_expression { $$ = prepend_prodrule($1,3201) ; }
+	cast_expression { $$ = single_child($1,3201) ; }
 	| pm_expression DOTSTAR cast_expression { $$ = alcnode(3202,3,$1,$2,$3); }
 	| pm_expression ARROWSTAR cast_expression { $$ = alcnode(3203,3,$1,$2,$3); }
 	;
 
 multiplicative_expression:
-	pm_expression { $$ = prepend_prodrule($1,3301) ; }
+	pm_expression { $$ = single_child($1,3301) ; }
 	| multiplicative_expression '*' pm_expression { $$ = alcnode(3302,3,$1,$2,$3); }
 	| multiplicative_expression '/' pm_expression { $$ = alcnode(3303,3,$1,$2,$3); }
 	| multiplicative_expression '%' pm_expression { $$ = alcnode(3304,3,$1,$2,$3); }
 	;
 
 additive_expression:
-	multiplicative_expression { $$ = prepend_prodrule($1,3401) ; }
+	multiplicative_expression { $$ = single_child($1,3401) ; }
 	| additive_expression '+' multiplicative_expression { $$ = alcnode(3402,3,$1,$2,$3); }
 	| additive_expression '-' multiplicative_expression { $$ = alcnode(3403,3,$1,$2,$3); }
 	;
 
 shift_expression:
-	additive_expression { $$ = prepend_prodrule($1,3501) ; }
+	additive_expression { $$ = single_child($1,3501) ; }
 	| shift_expression SL additive_expression { $$ = alcnode(3502,3,$1,$2,$3); }
 	| shift_expression SR additive_expression { $$ = alcnode(3503,3,$1,$2,$3); }
 	;
 
 relational_expression:
-	shift_expression { $$ = prepend_prodrule($1,3601) ; }
+	shift_expression { $$ = single_child($1,3601) ; }
 	| relational_expression '<' shift_expression { $$ = alcnode(3602,3,$1,$2,$3); }
 	| relational_expression '>' shift_expression { $$ = alcnode(3603,3,$1,$2,$3); }
 	| relational_expression LTEQ shift_expression { $$ = alcnode(3604,3,$1,$2,$3); }
@@ -310,68 +310,68 @@ relational_expression:
 	;
 
 equality_expression:
-	relational_expression { $$ = prepend_prodrule($1,3701) ; }
+	relational_expression { $$ = single_child($1,3701) ; }
 	| equality_expression EQ relational_expression { $$ = alcnode(3702,3,$1,$2,$3); }
 	| equality_expression NOTEQ relational_expression { $$ = alcnode(3703,3,$1,$2,$3); }
 	;
 
 and_expression:
-	equality_expression { $$ = prepend_prodrule($1,3801) ; }
+	equality_expression { $$ = single_child($1,3801) ; }
 	| and_expression '&' equality_expression { $$ = alcnode(3802,3,$1,$2,$3); }
 	;
 
 exclusive_or_expression:
-	and_expression { $$ = prepend_prodrule($1,3901) ; }
+	and_expression { $$ = single_child($1,3901) ; }
 	| exclusive_or_expression '^' and_expression { $$ = alcnode(3902,3,$1,$2,$3); }
 	;
 
 inclusive_or_expression:
-	exclusive_or_expression { $$ = prepend_prodrule($1,4001) ; }
+	exclusive_or_expression { $$ = single_child($1,4001) ; }
 	| inclusive_or_expression '|' exclusive_or_expression { $$ = alcnode(4002,3,$1,$2,$3); }
 	;
 
 logical_and_expression:
-	inclusive_or_expression { $$ = prepend_prodrule($1,4101) ; }
+	inclusive_or_expression { $$ = single_child($1,4101) ; }
 	| logical_and_expression ANDAND inclusive_or_expression { $$ = alcnode(4102,3,$1,$2,$3); }
 	;
 
 logical_or_expression:
-	logical_and_expression { $$ = prepend_prodrule($1,4201) ; }
+	logical_and_expression { $$ = single_child($1,4201) ; }
 	| logical_or_expression OROR logical_and_expression { $$ = alcnode(4202,3,$1,$2,$3); }
 	;
 
 conditional_expression:
-	logical_or_expression { $$ = prepend_prodrule($1,4301) ; }
+	logical_or_expression { $$ = single_child($1,4301) ; }
 	| logical_or_expression  '?' expression ':' assignment_expression { $$ = alcnode(4302,5,$1,$2,$3,$4,$5); }
 	;
 
 assignment_expression:
-	conditional_expression { $$ = prepend_prodrule($1,4401) ; }
+	conditional_expression { $$ = single_child($1,4401) ; }
 	| logical_or_expression assignment_operator assignment_expression { $$ = alcnode(4402,3,$1,$2,$3); }
-	| throw_expression { $$ = prepend_prodrule($1,4403) ; }
+	| throw_expression { $$ = single_child($1,4403) ; }
 	;
 
 assignment_operator:
-	'=' { $$ = prepend_prodrule($1,4501) ; }
-	| MULEQ { $$ = prepend_prodrule($1,4502) ; }
-	| DIVEQ { $$ = prepend_prodrule($1,4503) ; }
-	| MODEQ { $$ = prepend_prodrule($1,4504) ; }
-	| ADDEQ { $$ = prepend_prodrule($1,4505) ; }
-	| SUBEQ { $$ = prepend_prodrule($1,4506) ; }
-	| SREQ { $$ = prepend_prodrule($1,4507) ; }
-	| SLEQ { $$ = prepend_prodrule($1,4508) ; }
-	| ANDEQ { $$ = prepend_prodrule($1,4509) ; }
-	| XOREQ { $$ = prepend_prodrule($1,4510) ; }
-	| OREQ { $$ = prepend_prodrule($1,4511) ; }
+	'=' { $$ = single_child($1,4501) ; }
+	| MULEQ { $$ = single_child($1,4502) ; }
+	| DIVEQ { $$ = single_child($1,4503) ; }
+	| MODEQ { $$ = single_child($1,4504) ; }
+	| ADDEQ { $$ = single_child($1,4505) ; }
+	| SUBEQ { $$ = single_child($1,4506) ; }
+	| SREQ { $$ = single_child($1,4507) ; }
+	| SLEQ { $$ = single_child($1,4508) ; }
+	| ANDEQ { $$ = single_child($1,4509) ; }
+	| XOREQ { $$ = single_child($1,4510) ; }
+	| OREQ { $$ = single_child($1,4511) ; }
 	;
 
 expression:
-	assignment_expression { $$ = prepend_prodrule($1,4601) ; }
+	assignment_expression { $$ = single_child($1,4601) ; }
 	| expression ',' assignment_expression { $$ = alcnode(4602,3,$1,$2,$3); }
 	;
 
 constant_expression:
-	conditional_expression { $$ = prepend_prodrule($1,4701) ; }
+	conditional_expression { $$ = single_child($1,4701) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -379,14 +379,14 @@ constant_expression:
  *----------------------------------------------------------------------*/
 
 statement:
-	labeled_statement { $$ = prepend_prodrule($1,4801) ; }
-	| expression_statement { $$ = prepend_prodrule($1,4802) ; }
-	| compound_statement { $$ = prepend_prodrule($1,4803) ; }
-	| selection_statement { $$ = prepend_prodrule($1,4804) ; }
-	| iteration_statement { $$ = prepend_prodrule($1,4805) ; }
-	| jump_statement { $$ = prepend_prodrule($1,4806) ; }
-	| declaration_statement { $$ = prepend_prodrule($1,4807) ; }
-	| try_block { $$ = prepend_prodrule($1,4808) ; }
+	labeled_statement { $$ = single_child($1,4801) ; }
+	| expression_statement { $$ = single_child($1,4802) ; }
+	| compound_statement { $$ = single_child($1,4803) ; }
+	| selection_statement { $$ = single_child($1,4804) ; }
+	| iteration_statement { $$ = single_child($1,4805) ; }
+	| jump_statement { $$ = single_child($1,4806) ; }
+	| declaration_statement { $$ = single_child($1,4807) ; }
+	| try_block { $$ = single_child($1,4808) ; }
 	;
 
 labeled_statement:
@@ -404,7 +404,7 @@ compound_statement:
 	;
 
 statement_seq:
-	statement { $$ = prepend_prodrule($1,5201) ; }
+	statement { $$ = single_child($1,5201) ; }
 	| statement_seq statement { $$ = alcnode(5202,2,$1,$2); }
 	;
 
@@ -415,7 +415,7 @@ selection_statement:
 	;
 
 condition:
-	expression { $$ = prepend_prodrule($1,5401) ; }
+	expression { $$ = single_child($1,5401) ; }
 	| type_specifier_seq declarator '=' assignment_expression { $$ = alcnode(5402,4,$1,$2,$3,$4); }
 	;
 
@@ -426,8 +426,8 @@ iteration_statement:
 	;
 
 for_init_statement:
-	expression_statement { $$ = prepend_prodrule($1,5601) ; }
-	| simple_declaration { $$ = prepend_prodrule($1,5602) ; }
+	expression_statement { $$ = single_child($1,5601) ; }
+	| simple_declaration { $$ = single_child($1,5602) ; }
 	;
 
 jump_statement:
@@ -438,7 +438,7 @@ jump_statement:
 	;
 
 declaration_statement:
-	block_declaration { $$ = prepend_prodrule($1,5801) ; }
+	block_declaration { $$ = single_child($1,5801) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -446,26 +446,26 @@ declaration_statement:
  *----------------------------------------------------------------------*/
 
 declaration_seq:
-	declaration { $$ = prepend_prodrule($1,5901) ; }
+	declaration { $$ = single_child($1,5901) ; }
 	| declaration_seq declaration { $$ = alcnode(5902,2,$1,$2); }
 	;
 
 declaration:
-	block_declaration { $$ = prepend_prodrule($1,6001) ; }
-	| function_definition { $$ = prepend_prodrule($1,6002) ; }
-	| template_declaration { $$ = prepend_prodrule($1,6003) ; }
-	| explicit_instantiation { $$ = prepend_prodrule($1,6004) ; }
-	| explicit_specialization { $$ = prepend_prodrule($1,6005) ; }
-	| linkage_specification { $$ = prepend_prodrule($1,6006) ; }
-	| namespace_definition { $$ = prepend_prodrule($1,6007) ; }
+	block_declaration { $$ = single_child($1,6001) ; }
+	| function_definition { $$ = single_child($1,6002) ; }
+	| template_declaration { $$ = single_child($1,6003) ; }
+	| explicit_instantiation { $$ = single_child($1,6004) ; }
+	| explicit_specialization { $$ = single_child($1,6005) ; }
+	| linkage_specification { $$ = single_child($1,6006) ; }
+	| namespace_definition { $$ = single_child($1,6007) ; }
 	;
 
 block_declaration:
-	simple_declaration { $$ = prepend_prodrule($1,6101) ; }
-	| asm_definition { $$ = prepend_prodrule($1,6102) ; }
-	| namespace_alias_definition { $$ = prepend_prodrule($1,6103) ; }
-	| using_declaration { $$ = prepend_prodrule($1,6104) ; }
-	| using_directive { $$ = prepend_prodrule($1,6105) ; }
+	simple_declaration { $$ = single_child($1,6101) ; }
+	| asm_definition { $$ = single_child($1,6102) ; }
+	| namespace_alias_definition { $$ = single_child($1,6103) ; }
+	| using_declaration { $$ = single_child($1,6104) ; }
+	| using_directive { $$ = single_child($1,6105) ; }
 	;
 
 simple_declaration:
@@ -474,61 +474,61 @@ simple_declaration:
 	;
 
 decl_specifier:
-	storage_class_specifier { $$ = prepend_prodrule($1,6301) ; }
-	| type_specifier { $$ = prepend_prodrule($1,6302) ; }
-	| function_specifier { $$ = prepend_prodrule($1,6303) ; }
-	| FRIEND { $$ = prepend_prodrule($1,6304) ; }
-	| TYPEDEF { $$ = prepend_prodrule($1,6305) ; }
+	storage_class_specifier { $$ = single_child($1,6301) ; }
+	| type_specifier { $$ = single_child($1,6302) ; }
+	| function_specifier { $$ = single_child($1,6303) ; }
+	| FRIEND { $$ = single_child($1,6304) ; }
+	| TYPEDEF { $$ = single_child($1,6305) ; }
 	;
 
 decl_specifier_seq:
-	  decl_specifier { $$ = prepend_prodrule($1,6401) ; }
+	  decl_specifier { $$ = single_child($1,6401) ; }
 	| decl_specifier_seq decl_specifier { $$ = alcnode(6402,2,$1,$2); }
 	;
 
 storage_class_specifier:
-	AUTO { $$ = prepend_prodrule($1,6501) ; }
-	| REGISTER { $$ = prepend_prodrule($1,6502) ; }
-	| STATIC { $$ = prepend_prodrule($1,6503) ; }
-	| EXTERN { $$ = prepend_prodrule($1,6504) ; }
-	| MUTABLE { $$ = prepend_prodrule($1,6505) ; }
+	AUTO { $$ = single_child($1,6501) ; }
+	| REGISTER { $$ = single_child($1,6502) ; }
+	| STATIC { $$ = single_child($1,6503) ; }
+	| EXTERN { $$ = single_child($1,6504) ; }
+	| MUTABLE { $$ = single_child($1,6505) ; }
 	;
 
 function_specifier:
-	INLINE { $$ = prepend_prodrule($1,6601) ; }
-	| VIRTUAL { $$ = prepend_prodrule($1,6602) ; }
-	| EXPLICIT { $$ = prepend_prodrule($1,6603) ; }
+	INLINE { $$ = single_child($1,6601) ; }
+	| VIRTUAL { $$ = single_child($1,6602) ; }
+	| EXPLICIT { $$ = single_child($1,6603) ; }
 	;
 
 type_specifier:
-	simple_type_specifier { $$ = prepend_prodrule($1,6701) ; }
-	| class_specifier { $$ = prepend_prodrule($1,6702) ; }
-	| enum_specifier { $$ = prepend_prodrule($1,6703) ; }
-	| elaborated_type_specifier { $$ = prepend_prodrule($1,6704) ; }
-	| cv_qualifier { $$ = prepend_prodrule($1,6705) ; }
+	simple_type_specifier { $$ = single_child($1,6701) ; }
+	| class_specifier { $$ = single_child($1,6702) ; }
+	| enum_specifier { $$ = single_child($1,6703) ; }
+	| elaborated_type_specifier { $$ = single_child($1,6704) ; }
+	| cv_qualifier { $$ = single_child($1,6705) ; }
 	;
 
 simple_type_specifier:
-	  type_name { $$ = prepend_prodrule($1,6801) ; }
+	  type_name { $$ = single_child($1,6801) ; }
 	| nested_name_specifier type_name { $$ = alcnode(6802,2,$1,$2); }
 	| COLONCOLON nested_name_specifier_opt type_name { $$ = alcnode(6803,3,$1,$2,$3); }
-	| CHAR { $$ = prepend_prodrule($1,6804) ; }
-	| WCHAR_T { $$ = prepend_prodrule($1,6805) ; }
-	| BOOL { $$ = prepend_prodrule($1,6806) ; }
-	| SHORT { $$ = prepend_prodrule($1,6807) ; }
-	| INT { $$ = prepend_prodrule($1,6808) ; }
-	| LONG { $$ = prepend_prodrule($1,6809) ; }
-	| SIGNED { $$ = prepend_prodrule($1,6810) ; }
-	| UNSIGNED { $$ = prepend_prodrule($1,6811) ; }
-	| FLOAT { $$ = prepend_prodrule($1,6812) ; }
-	| DOUBLE { $$ = prepend_prodrule($1,6813) ; }
-	| VOID { $$ = prepend_prodrule($1,6814) ; }
+	| CHAR { $$ = single_child($1,6804) ; }
+	| WCHAR_T { $$ = single_child($1,6805) ; }
+	| BOOL { $$ = single_child($1,6806) ; }
+	| SHORT { $$ = single_child($1,6807) ; }
+	| INT { $$ = single_child($1,6808) ; }
+	| LONG { $$ = single_child($1,6809) ; }
+	| SIGNED { $$ = single_child($1,6810) ; }
+	| UNSIGNED { $$ = single_child($1,6811) ; }
+	| FLOAT { $$ = single_child($1,6812) ; }
+	| DOUBLE { $$ = single_child($1,6813) ; }
+	| VOID { $$ = single_child($1,6814) ; }
 	;
 
 type_name:
-	class_name { $$ = prepend_prodrule($1,6901) ; }
-	| enum_name { $$ = prepend_prodrule($1,6902) ; }
-	| typedef_name { $$ = prepend_prodrule($1,6903) ; }
+	class_name { $$ = single_child($1,6901) ; }
+	| enum_name { $$ = single_child($1,6902) ; }
+	| typedef_name { $$ = single_child($1,6903) ; }
 	;
 
 elaborated_type_specifier:
@@ -543,7 +543,7 @@ elaborated_type_specifier:
 
 /*
 enum_name:
-	identifier { $$ = prepend_prodrule($1,7101) ; }
+	identifier { $$ = single_child($1,7101) ; }
 	;
 */
 
@@ -552,17 +552,17 @@ enum_specifier:
 	;
 
 enumerator_list:
-	enumerator_definition { $$ = prepend_prodrule($1,7301) ; }
+	enumerator_definition { $$ = single_child($1,7301) ; }
 	| enumerator_list ',' enumerator_definition { $$ = alcnode(7302,3,$1,$2,$3); }
 	;
 
 enumerator_definition:
-	enumerator { $$ = prepend_prodrule($1,7401) ; }
+	enumerator { $$ = single_child($1,7401) ; }
 	| enumerator '=' constant_expression { $$ = alcnode(7402,3,$1,$2,$3); }
 	;
 
 enumerator:
-	identifier { $$ = prepend_prodrule($1,7501) ; }
+	identifier { $$ = single_child($1,7501) ; }
 	;
 
 /*
@@ -648,7 +648,7 @@ linkage_specification:
  *----------------------------------------------------------------------*/
 
 init_declarator_list:
-	init_declarator { $$ = prepend_prodrule($1,7601) ; }
+	init_declarator { $$ = single_child($1,7601) ; }
 	| init_declarator_list ',' init_declarator { $$ = alcnode(7602,3,$1,$2,$3); }
 	;
 
@@ -657,12 +657,12 @@ init_declarator:
 	;
 
 declarator:
-	direct_declarator { $$ = prepend_prodrule($1,7801) ; }
+	direct_declarator { $$ = single_child($1,7801) ; }
 	| ptr_operator declarator { $$ = alcnode(7802,2,$1,$2); }
 	;
 
 direct_declarator:
-	  declarator_id { $$ = prepend_prodrule($1,7901) ; }
+	  declarator_id { $$ = single_child($1,7901) ; }
 	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq exception_specification { $$ = alcnode(7902,6,$1,$2,$3,$4,$5,$6); }
 	| direct_declarator '('parameter_declaration_clause ')' cv_qualifier_seq { $$ = alcnode(7903,5,$1,$2,$3,$4,$5); }
 	| direct_declarator '('parameter_declaration_clause ')' exception_specification { $$ = alcnode(7904,5,$1,$2,$3,$4,$5); }
@@ -675,9 +675,9 @@ direct_declarator:
 	;
 
 ptr_operator:
-	'*' { $$ = prepend_prodrule($1,8001) ; }
+	'*' { $$ = single_child($1,8001) ; }
 	| '*' cv_qualifier_seq { $$ = alcnode(8001,2,$1,$2); }
-	| '&' { $$ = prepend_prodrule($1,8002) ; }
+	| '&' { $$ = single_child($1,8002) ; }
 	| nested_name_specifier '*' { $$ = alcnode(8002,2,$1,$2); }
 	| nested_name_specifier '*' cv_qualifier_seq { $$ = alcnode(8003,3,$1,$2,$3); }
 	| COLONCOLON nested_name_specifier '*' { $$ = alcnode(8004,3,$1,$2,$3); }
@@ -685,17 +685,17 @@ ptr_operator:
 	;
 
 cv_qualifier_seq:
-	cv_qualifier { $$ = prepend_prodrule($1,8102) ; }
+	cv_qualifier { $$ = single_child($1,8102) ; }
 	| cv_qualifier cv_qualifier_seq { $$ = alcnode(8101,2,$1,$2); }
 	;
 
 cv_qualifier:
-	CONST { $$ = prepend_prodrule($1,8201) ; }
-	| VOLATILE { $$ = prepend_prodrule($1,8202) ; }
+	CONST { $$ = single_child($1,8201) ; }
+	| VOLATILE { $$ = single_child($1,8202) ; }
 	;
 
 declarator_id:
-	  id_expression { $$ = prepend_prodrule($1,8301) ; }
+	  id_expression { $$ = single_child($1,8301) ; }
 	| COLONCOLON id_expression { $$ = alcnode(8302,2,$1,$2); }
 	| COLONCOLON nested_name_specifier type_name { $$ = alcnode(8303,3,$1,$2,$3); }
 	| COLONCOLON type_name { $$ = alcnode(8304,2,$1,$2); }
@@ -711,7 +711,7 @@ type_specifier_seq:
 
 abstract_declarator:
 	ptr_operator abstract_declarator_opt { $$ = alcnode(8601,2,$1,$2); }
-	| direct_abstract_declarator { $$ = prepend_prodrule($1,8602) ; }
+	| direct_abstract_declarator { $$ = single_child($1,8602) ; }
 	;
 
 direct_abstract_declarator:
@@ -725,14 +725,14 @@ direct_abstract_declarator:
 
 parameter_declaration_clause:
 	  parameter_declaration_list ELLIPSIS { $$ = alcnode(8701,2,$1,$2); }
-	| parameter_declaration_list { $$ = prepend_prodrule($1,8702) ; }
-	| ELLIPSIS { $$ = prepend_prodrule($1,8703) ; }
+	| parameter_declaration_list { $$ = single_child($1,8702) ; }
+	| ELLIPSIS { $$ = single_child($1,8703) ; }
 	| parameter_declaration_list ',' ELLIPSIS { $$ = alcnode(8704,3,$1,$2,$3); }
 	| { $$ = NULL ; }
 	;
 
 parameter_declaration_list:
-	parameter_declaration { $$ = prepend_prodrule($1,8802) ; }
+	parameter_declaration { $$ = single_child($1,8802) ; }
 	| parameter_declaration_list ',' parameter_declaration { $$ = alcnode(8801,3,$1,$2,$3); }
 	;
 
@@ -751,7 +751,7 @@ function_definition:
 	;
 
 function_body:
-	compound_statement { $$ = prepend_prodrule($1,9101) ; }
+	compound_statement { $$ = single_child($1,9101) ; }
 	;
 
 initializer:
@@ -760,13 +760,13 @@ initializer:
 	;
 
 initializer_clause:
-	assignment_expression { $$ = prepend_prodrule($1,9301) ; }
+	assignment_expression { $$ = single_child($1,9301) ; }
 	| '{' initializer_list COMMA_opt '}' { $$ = alcnode(9302,4,$1,$2,$3,$4); }
 	| '{' '}' { $$ = alcnode(9303,2,$1,$2); }
 	;
 
 initializer_list:
-	initializer_clause { $$ = prepend_prodrule($1,9401) ; }
+	initializer_clause { $$ = single_child($1,9401) ; }
 	| initializer_list ',' initializer_clause { $$ = alcnode(9402,3,$1,$2,$3); }
 	;
 
@@ -790,9 +790,9 @@ class_head:
 	;
 
 class_key:
-	CLASS { $$ = prepend_prodrule($1,9701) ;}
-	| STRUCT { $$ = prepend_prodrule($1,9702) ;}
-	| UNION { $$ = prepend_prodrule($1,9703) ; }
+	CLASS { $$ = single_child($1,9701) ;}
+	| STRUCT { $$ = single_child($1,9702) ;}
+	| UNION { $$ = single_child($1,9703) ; }
 	;
 
 member_specification:
@@ -804,20 +804,20 @@ member_declaration:
 	  decl_specifier_seq member_declarator_list ';' { $$ = alcnode(9901,3,$1,$2,$3); }
 	| decl_specifier_seq ';' { $$ = alcnode(9902,2,$1,$2); }
 	| member_declarator_list ';' { $$ = alcnode(9903,2,$1,$2); }
-	| ';' { $$ = prepend_prodrule($1,9904) ; }
+	| ';' { $$ = single_child($1,9904) ; }
 	| function_definition SEMICOLON_opt { $$ = alcnode(9905,2,$1,$2); }
 	| qualified_id ';' { $$ = alcnode(9906,2,$1,$2); }
-	| using_declaration { $$ = prepend_prodrule($1,9907) ; }
-	| template_declaration { $$ = prepend_prodrule($1,9908) ; }
+	| using_declaration { $$ = single_child($1,9907) ; }
+	| template_declaration { $$ = single_child($1,9908) ; }
 	;
 
 member_declarator_list:
-	member_declarator { $$ = prepend_prodrule($1,10001) ; }
+	member_declarator { $$ = single_child($1,10001) ; }
 	| member_declarator_list ',' member_declarator { $$ = alcnode(10002,3,$1,$2,$3); }
 	;
 
 member_declarator:
-	| declarator { $$ = prepend_prodrule($1,10101) ; }
+	| declarator { $$ = single_child($1,10101) ; }
 	| declarator pure_specifier { $$ = alcnode(10102,2,$1,$2); }
 	| declarator constant_initializer { $$ = alcnode(10103,2,$1,$2); }
 	| identifier ':' constant_expression { $$ = alcnode(10104,3,$1,$2,$3); }
@@ -845,7 +845,7 @@ base_clause:
 	;
 
 base_specifier_list:
-	base_specifier { $$ = prepend_prodrule($1,10401) ; }
+	base_specifier { $$ = single_child($1,10401) ; }
 	| base_specifier_list ',' base_specifier { $$ = alcnode(10402,3,$1,$2,$3); }
 	;
 
@@ -853,7 +853,7 @@ base_specifier:
 	  COLONCOLON nested_name_specifier class_name { $$ = alcnode(10501,3,$1,$2,$3); }
 	| COLONCOLON class_name { $$ = alcnode(10502,2,$1,$2); }
 	| nested_name_specifier class_name { $$ = alcnode(10503,2,$1,$2); }
-	| class_name { $$ = prepend_prodrule($1,10504) ; }
+	| class_name { $$ = single_child($1,10504) ; }
 	| VIRTUAL access_specifier COLONCOLON nested_name_specifier_opt class_name { $$ = alcnode(10505,5,$1,$2,$3,$4,$5); }
 	| VIRTUAL access_specifier nested_name_specifier_opt class_name { $$ = alcnode(10506,4,$1,$2,$3,$4); }
 	| VIRTUAL COLONCOLON nested_name_specifier_opt class_name { $$ = alcnode(10507,4,$1,$2,$3,$4); }
@@ -865,9 +865,9 @@ base_specifier:
 	;
 
 access_specifier:
-	PRIVATE { $$ = prepend_prodrule($1,10601) ; }
-	| PROTECTED { $$ = prepend_prodrule($1,10602) ; }
-	| PUBLIC { $$ = prepend_prodrule($1,10603) ; }
+	PRIVATE { $$ = single_child($1,10601) ; }
+	| PROTECTED { $$ = single_child($1,10602) ; }
+	| PUBLIC { $$ = single_child($1,10603) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -891,7 +891,7 @@ ctor_initializer:
 	;
 
 mem_initializer_list:
-	mem_initializer { $$ = prepend_prodrule($1,11101) ; }
+	mem_initializer { $$ = single_child($1,11101) ; }
 	| mem_initializer ',' mem_initializer_list { $$ = alcnode(11102,3,$1,$2,$3); }
 	;
 
@@ -903,8 +903,8 @@ mem_initializer_id:
 	  COLONCOLON nested_name_specifier class_name { $$ = alcnode(11301,3,$1,$2,$3); }
 	| COLONCOLON class_name { $$ = alcnode(11302,2,$1,$2); }
 	| nested_name_specifier class_name { $$ = alcnode(11303,2,$1,$2); }
-	| class_name { $$ = prepend_prodrule($1,11304) ; }
-	| identifier { $$ = prepend_prodrule($1,11305) ; }
+	| class_name { $$ = single_child($1,11304) ; }
+	| identifier { $$ = single_child($1,11305) ; }
 	;
 
 /*----------------------------------------------------------------------
@@ -916,46 +916,46 @@ operator_function_id:
 	;
 
 operator:
-	NEW { $$ = prepend_prodrule($1,11501) ; }
-	| DELETE { $$ = prepend_prodrule($1,11502) ; }
+	NEW { $$ = single_child($1,11501) ; }
+	| DELETE { $$ = single_child($1,11502) ; }
 	| NEW '[' ']' { $$ = alcnode(11503,3,$1,$2,$3); }
 	| DELETE '[' ']' { $$ = alcnode(11504,3,$1,$2,$3); }
-	| '+' { $$ = prepend_prodrule($1,11505) ; }
-	| '_' { $$ = prepend_prodrule($1,11506) ; }
-	| '*' { $$ = prepend_prodrule($1,11507) ; }
-	| '/' { $$ = prepend_prodrule($1,11508) ; }
-	| '%' { $$ = prepend_prodrule($1,11509) ; }
-	| '^' { $$ = prepend_prodrule($1,11510) ; }
-	| '&' { $$ = prepend_prodrule($1,11511) ; }
-	| '|' { $$ = prepend_prodrule($1,11512) ; }
-	| '~' { $$ = prepend_prodrule($1,11513) ; }
-	| '!' { $$ = prepend_prodrule($1,11514) ; }
-	| '=' { $$ = prepend_prodrule($1,11515) ; }
-	| '<' { $$ = prepend_prodrule($1,11516) ; }
-	| '>' { $$ = prepend_prodrule($1,11517) ; }
-	| ADDEQ { $$ = prepend_prodrule($1,11518) ; }
-	| SUBEQ { $$ = prepend_prodrule($1,11519) ; }
-	| MULEQ { $$ = prepend_prodrule($1,11520) ; }
-	| DIVEQ { $$ = prepend_prodrule($1,11521) ; }
-	| MODEQ { $$ = prepend_prodrule($1,11522) ; }
-	| XOREQ { $$ = prepend_prodrule($1,11523) ; }
-	| ANDEQ { $$ = prepend_prodrule($1,11524) ; }
-	| OREQ { $$ = prepend_prodrule($1,11525) ; }
-	| SL { $$ = prepend_prodrule($1,11526) ; }
-	| SR { $$ = prepend_prodrule($1,11527) ; }
-	| SREQ { $$ = prepend_prodrule($1,11528) ; }
-	| SLEQ { $$ = prepend_prodrule($1,11529) ; }
-	| EQ { $$ = prepend_prodrule($1,11530) ; }
-	| NOTEQ { $$ = prepend_prodrule($1,11531) ; }
-	| LTEQ { $$ = prepend_prodrule($1,11532) ; }
-	| GTEQ { $$ = prepend_prodrule($1,11533) ; }
-	| ANDAND { $$ = prepend_prodrule($1,11534) ; }
-	| OROR { $$ = prepend_prodrule($1,11535) ; }
-	| PLUSPLUS { $$ = prepend_prodrule($1,11536) ; }
-	| MINUSMINUS { $$ = prepend_prodrule($1,11537) ; }
-	| ',' { $$ = prepend_prodrule($1,11538) ; }
-	| ARROWSTAR { $$ = prepend_prodrule($1,11539) ; }
-	| ARROW { $$ = prepend_prodrule($1,11540) ; }
+	| '+' { $$ = single_child($1,11505) ; }
+	| '_' { $$ = single_child($1,11506) ; }
+	| '*' { $$ = single_child($1,11507) ; }
+	| '/' { $$ = single_child($1,11508) ; }
+	| '%' { $$ = single_child($1,11509) ; }
+	| '^' { $$ = single_child($1,11510) ; }
+	| '&' { $$ = single_child($1,11511) ; }
+	| '|' { $$ = single_child($1,11512) ; }
+	| '~' { $$ = single_child($1,11513) ; }
+	| '!' { $$ = single_child($1,11514) ; }
+	| '=' { $$ = single_child($1,11515) ; }
+	| '<' { $$ = single_child($1,11516) ; }
+	| '>' { $$ = single_child($1,11517) ; }
+	| ADDEQ { $$ = single_child($1,11518) ; }
+	| SUBEQ { $$ = single_child($1,11519) ; }
+	| MULEQ { $$ = single_child($1,11520) ; }
+	| DIVEQ { $$ = single_child($1,11521) ; }
+	| MODEQ { $$ = single_child($1,11522) ; }
+	| XOREQ { $$ = single_child($1,11523) ; }
+	| ANDEQ { $$ = single_child($1,11524) ; }
+	| OREQ { $$ = single_child($1,11525) ; }
+	| SL { $$ = single_child($1,11526) ; }
+	| SR { $$ = single_child($1,11527) ; }
+	| SREQ { $$ = single_child($1,11528) ; }
+	| SLEQ { $$ = single_child($1,11529) ; }
+	| EQ { $$ = single_child($1,11530) ; }
+	| NOTEQ { $$ = single_child($1,11531) ; }
+	| LTEQ { $$ = single_child($1,11532) ; }
+	| GTEQ { $$ = single_child($1,11533) ; }
+	| ANDAND { $$ = single_child($1,11534) ; }
+	| OROR { $$ = single_child($1,11535) ; }
+	| PLUSPLUS { $$ = single_child($1,11536) ; }
+	| MINUSMINUS { $$ = single_child($1,11537) ; }
+	| ',' { $$ = single_child($1,11538) ; }
+	| ARROWSTAR { $$ = single_child($1,11539) ; }
+	| ARROW { $$ = single_child($1,11540) ; }
 	| '(' ')' { $$ = alcnode(11505,2,$1,$2); }
 	| '[' ']' { $$ = alcnode(11506,2,$1,$2); }
 	;
@@ -969,13 +969,13 @@ template_declaration:
 	;
 
 template_parameter_list:
-	template_parameter { $$ = prepend_prodrule($1,11701) ; }
+	template_parameter { $$ = single_child($1,11701) ; }
 	| template_parameter_list ',' template_parameter { $$ = alcnode(11702,3,$1,$2,$3); }
 	;
 
 template_parameter:
-	type_parameter { $$ = prepend_prodrule($1,11801) ; }
-	| parameter_declaration { $$ = prepend_prodrule($1,11802) ; }
+	type_parameter { $$ = single_child($1,11801) ; }
+	| parameter_declaration { $$ = single_child($1,11802) ; }
 	;
 
 type_parameter:
@@ -992,14 +992,14 @@ template_id:
 	;
 
 template_argument_list:
-	template_argument { $$ = prepend_prodrule($1,12101) ; }
+	template_argument { $$ = single_child($1,12101) ; }
 	| template_argument_list ',' template_argument { $$ = alcnode(12102,3,$1,$2,$3); }
 	;
 
 template_argument:
-	assignment_expression { $$ = prepend_prodrule($1,12201) ; }
-	| type_id { $$ = prepend_prodrule($1,12202) ; }
-	| template_name { $$ = prepend_prodrule($1,12203) ; }
+	assignment_expression { $$ = single_child($1,12201) ; }
+	| type_id { $$ = single_child($1,12202) ; }
+	| template_name { $$ = single_child($1,12203) ; }
 	;
 
 explicit_instantiation:
@@ -1033,8 +1033,8 @@ handler:
 exception_declaration:
 	type_specifier_seq declarator { $$ = alcnode(12901,2,$1,$2); }
 	| type_specifier_seq abstract_declarator { $$ = alcnode(12902,2,$1,$2); }
-	| type_specifier_seq { $$ = prepend_prodrule($1,12903) ; }
-	| ELLIPSIS { $$ = prepend_prodrule($1,12904) ; }
+	| type_specifier_seq { $$ = single_child($1,12903) ; }
+	| ELLIPSIS { $$ = single_child($1,12904) ; }
 	;
 
 throw_expression:
@@ -1046,7 +1046,7 @@ exception_specification:
 	;
 
 type_id_list:
-	type_id { $$ = prepend_prodrule($1,13201) ; }
+	type_id { $$ = single_child($1,13201) ; }
 	| type_id_list ',' type_id { $$ = alcnode(13202,3,$1,$2,$3); }
 	;
 
@@ -1056,127 +1056,127 @@ type_id_list:
 
 declaration_seq_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| declaration_seq { $$ = prepend_prodrule($1,13302) ; }
+	| declaration_seq { $$ = single_child($1,13302) ; }
 	;
 
 nested_name_specifier_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| nested_name_specifier { $$ = prepend_prodrule($1,13402) ; }
+	| nested_name_specifier { $$ = single_child($1,13402) ; }
 	;
 
 expression_list_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| expression_list { $$ = prepend_prodrule($1,13502) ; }
+	| expression_list { $$ = single_child($1,13502) ; }
 	;
 
 COLONCOLON_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| COLONCOLON { $$ = prepend_prodrule($1,13602) ; }
+	| COLONCOLON { $$ = single_child($1,13602) ; }
 	;
 
 new_placement_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| new_placement { $$ = prepend_prodrule($1,13702) ; }
+	| new_placement { $$ = single_child($1,13702) ; }
 	;
 
 new_initializer_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| new_initializer { $$ = prepend_prodrule($1,13802) ; }
+	| new_initializer { $$ = single_child($1,13802) ; }
 	;
 
 new_declarator_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| new_declarator { $$ = prepend_prodrule($1,13902) ; }
+	| new_declarator { $$ = single_child($1,13902) ; }
 	;
 
 expression_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| expression { $$ = prepend_prodrule($1,14002) ; }
+	| expression { $$ = single_child($1,14002) ; }
 	;
 
 statement_seq_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| statement_seq { $$ = prepend_prodrule($1,14102) ; }
+	| statement_seq { $$ = single_child($1,14102) ; }
 	;
 
 condition_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| condition { $$ = prepend_prodrule($1,14202) ; }
+	| condition { $$ = single_child($1,14202) ; }
 	;
 
 enumerator_list_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| enumerator_list { $$ = prepend_prodrule($1,14302) ; }
+	| enumerator_list { $$ = single_child($1,14302) ; }
 	;
 
 initializer_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| initializer { $$ = prepend_prodrule($1,14402) ; }
+	| initializer { $$ = single_child($1,14402) ; }
 	;
 
 constant_expression_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| constant_expression { $$ = prepend_prodrule($1,14502) ; }
+	| constant_expression { $$ = single_child($1,14502) ; }
 	;
 
 abstract_declarator_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| abstract_declarator { $$ = prepend_prodrule($1,14602) ; }
+	| abstract_declarator { $$ = single_child($1,14602) ; }
 	;
 
 type_specifier_seq_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| type_specifier_seq { $$ = prepend_prodrule($1,14702) ; }
+	| type_specifier_seq { $$ = single_child($1,14702) ; }
 	;
 
 direct_abstract_declarator_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| direct_abstract_declarator { $$ = prepend_prodrule($1,14802) ; }
+	| direct_abstract_declarator { $$ = single_child($1,14802) ; }
 	;
 
 ctor_initializer_opt:
 	/* epsilon */ { $$ = NULL ; } // trouble maker
-	| ctor_initializer { $$ = prepend_prodrule($1,14902) ; }
+	| ctor_initializer { $$ = single_child($1,14902) ; }
 	;
 
 COMMA_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| ',' { $$ = prepend_prodrule($1,15002) ; }
+	| ',' { $$ = single_child($1,15002) ; }
 	;
 
 member_specification_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| member_specification { $$ = prepend_prodrule($1,15102) ; }
+	| member_specification { $$ = single_child($1,15102) ; }
 	;
 
 SEMICOLON_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| ';' { $$ = prepend_prodrule($1,15202) ; }
+	| ';' { $$ = single_child($1,15202) ; }
 	;
 
 conversion_declarator_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| conversion_declarator { $$ = prepend_prodrule($1,15302) ; }
+	| conversion_declarator { $$ = single_child($1,15302) ; }
 	;
 
 EXPORT_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| EXPORT { $$ = prepend_prodrule($1,15402) ; }
+	| EXPORT { $$ = single_child($1,15402) ; }
 	;
 
 handler_seq_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| handler_seq { $$ = prepend_prodrule($1,15502) ; }
+	| handler_seq { $$ = single_child($1,15502) ; }
 	;
 
 assignment_expression_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| assignment_expression { $$ = prepend_prodrule($1,15602) ; }
+	| assignment_expression { $$ = single_child($1,15602) ; }
 	;
 
 type_id_list_opt:
 	/* epsilon */ { $$ = NULL ; }
-	| type_id_list { $$ = prepend_prodrule($1,15702) ; }
+	| type_id_list { $$ = single_child($1,15702) ; }
 	;
 
 %%

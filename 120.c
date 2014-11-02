@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     // have parse trees available to work with
         print_treelist(treelist_head);
     }
+    semantic_traversal(root);
     parsetree_teardown();
     return 0;
 }

@@ -23,6 +23,7 @@ struct pnode {
     struct prodrule *prule;
     int nkids;
     struct pnode **kids;
+    struct pnode *par;
     token *t;
 };
 
@@ -39,7 +40,7 @@ char* craft_readable(char* base, int prodrule);
 // gigantic switch statement that derives human readable format
 // based on production code.
 void humanreadable(struct prodrule* , char **dest);
-struct pnode* prepend_prodrule(struct pnode* des, int code);
+struct pnode* single_child(struct pnode* des, int code);
 
 // global for hashtable of names
 token_el **nametable;
