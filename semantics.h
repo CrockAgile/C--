@@ -9,22 +9,9 @@
 #include <stdbool.h>
 #include "lex.h"
 
-typedef enum SemanticNode {
-    // nodes that require new environment
-    class_specifier = 950,
-    compound_statement = 510,
-    selection_statement = 530,
-    iteration_statement = 550,
-    function_definition = 900,
-
-    // nodes that require adding to environment
-    // function_definiton previously defined
-    // class_specifier also previously defined
-    init_declarator = 770,
-    parameter_declarator = 890,
-} SemanticNode;
-
 void* sem_malloc(int size, bool zero);
+
+/* TYPES AND ENVIRONS SECTION */
 
 typedef enum btype{
         int_type,
@@ -65,7 +52,7 @@ typedef struct environ {
     struct environ *up; // parent
     // only way I could figure to implement block definitions
     // I know they aren't required but seemed fake w/o them
-    short nkids, ksize;
+    short nkids, ksize, depth;
     struct environ **kids; 
 } environ;
 
@@ -79,7 +66,8 @@ type_el* mk_type_el(btype t, type_el *s, type_el *n);
 void free_type_list(type_el* head);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
 void free_table_list(table_el *head);
-environ* mk_environ(environ* parent);
+environ* mk_environ(environ* parent,int depth);
+bool add_env_child(environ *parent);
 void free_environ(environ *target);
 unsigned long env_hash(char *s);
 
@@ -88,6 +76,26 @@ environ* GetGlobal();
 static environ* curr_env;
 environ* CurrEnv();
 static env_el* env_stack;
+void PrintCurrEnv();
 void PushCurrEnv();
 environ* PopEnv();
+
+/* TREE TRAVERSALS SECTION */
+
+typedef enum SemanticNode {
+    // nodes that require new environment
+    class_specifier = 950,
+    compound_statement = 510,
+    selection_statement = 530,
+    iteration_statement = 550,
+    function_definition = 900,
+
+    // nodes that require adding to environment
+    // function_definiton previously defined
+    // class_specifier also previously defined
+    init_declarator = 770,
+    parameter_declarator = 890,
+} SemanticNode;
+
+
 #endif	

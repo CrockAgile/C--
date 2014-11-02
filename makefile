@@ -1,16 +1,16 @@
-# Makefile for 120++ 
+# Makefile for 120 
 # Jeff Crocker
 
 CC=gcc
 CFLAGS=-c -g
 TARNAME=hw3.tar
 
-120++:	120++.o lex.yy.o lib.o 120gram.tab.o
-	$(CC) -o 120++ 120++.o lex.yy.o lib.o 120gram.tab.o 
-	cp 120++ ./examples/120++
+120:	120.o lex.yy.o lib.o 120gram.tab.o
+	$(CC) -o 120 120.o lex.yy.o lib.o 120gram.tab.o 
+	cp 120 ./examples/120
 
-120++.o: 120++.c 120gram.tab.h
-	$(CC) $(CFLAGS) -Wall 120++.c
+120.o: 120.c 120gram.tab.h
+	$(CC) $(CFLAGS) -Wall 120.c
 
 120gram.tab.o:	120gram.tab.c
 	$(CC) $(CFLAGS) 120gram.tab.c
@@ -28,7 +28,7 @@ lib.o: lex.c parse.c semantics.c 120gram.tab.h lex.h parse.h semantics.h
 	$(CC) $(CFLAGS) -Wall lib.c
 
 clean:
-	rm -f *.o 120++ lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
+	rm -f *.o 120 lex.yy.c 120gram.output 120gram.tab.c 120gram.tab.h
 
 tar: clean
 	tar -cvf $(TARNAME) . \

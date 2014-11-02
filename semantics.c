@@ -54,11 +54,12 @@ void free_table_list(table_el *head) {
     }
 }
 
-environ* mk_environ(environ *parent) {
+environ* mk_environ(environ *parent, int depth) {
     environ *new = sem_malloc(sizeof(environ),1);
     new->locals = sem_malloc(S_SIZE * sizeof(table_el*),1);
     new->up = parent;
     new->ksize = ENV_KIDS;
+    new->depth = depth;
     new->kids = sem_malloc(ENV_KIDS * sizeof(environ*),1);
     return new;
 }
@@ -69,7 +70,7 @@ bool add_env_child(environ *parent) {
 
     if ( parent->nkids < parent->ksize ) { // under max size
         parent->nkids++;
-        parent->kids[parent->nkids] = mk_environ(parent);
+        parent->kids[parent->nkids] = mk_environ(parent,parent->depth + 1);
     }
     else { // grow the array
         short old_size = parent->ksize;
@@ -117,7 +118,7 @@ environ* GetGlobal() {
         return GlobalEnviron;
     // 'GLOBAL' environ is special case environ
     // that has no parent, i.e. root
-    return mk_environ(NULL);
+    return mk_environ(NULL,0);
 }
 
 environ* CurrEnv() {
@@ -125,6 +126,12 @@ environ* CurrEnv() {
         return curr_env;
     curr_env = GetGlobal();
     return curr_env;
+}
+
+void PrintCurrEnv() {
+    int i;
+    for (i=0; i<S_SIZE; i++) {
+    }
 }
 
 void PushCurrEnv() {
