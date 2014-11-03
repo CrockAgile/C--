@@ -46,6 +46,7 @@
 #include "parse.h"
 
 extern token yytoken;
+extern int yylex();
 YYSTYPE root = NULL;
 
 static void yyerror(char *s);

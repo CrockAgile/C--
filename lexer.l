@@ -55,6 +55,9 @@ int namespace_std = 0;
 %x string
 %x chara
 
+%option noinput
+%option nounput
+%option noyy_top_state
 %option yylineno
 %option stack
 
