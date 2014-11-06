@@ -73,11 +73,12 @@ bool environ_insert(environ *e, token *to, btype ty, bool c, bool d);
 bool add_env_child(environ *parent);
 void free_environ(environ *target);
 
-static environ* GlobalEnviron;
+environ* GlobalEnviron;
 environ* GetGlobal();
-static environ* curr_env;
+environ* curr_env;
 environ* CurrEnv();
-static env_el* env_stack;
+env_el* env_stack;
+void PrintEnvirons();
 void PrintCurrEnv();
 void PushCurrEnv();
 environ* PopEnv();
@@ -88,17 +89,17 @@ typedef enum SemanticNode {
     // nodes that require only new environment
     selection_statement = 530,
     iteration_statement = 550,
+    compound_statement = 510,
     // nodes that require adding to table
     init_declarator = 770,
     parameter_declarator = 890,
     // nodes that require both new env, and adding
     class_specifier = 950,
-    compound_statement = 510,
     function_definition = 900,
 
 } SemanticNode;
 
-void preorder_semantics(struct prodrule *p); 
-void postorder_semantics(struct prodrule *p);
+void preorder_semantics(struct prodrule*); 
+void postorder_semantics(struct prodrule*);
 void semantic_traversal(struct pnode*);
 #endif	

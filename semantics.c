@@ -167,17 +167,30 @@ environ* CurrEnv() {
     return curr_env;
 }
 
+void PrintEnvirons() {
+}
+
 void PrintCurrEnv() {
     int i;
+    table_el *res;
+    environ *curr = CurrEnv();
+    printf("%d: ",curr->depth);
     for (i=0; i<S_SIZE; i++) {
+        res = curr->locals[i];
+        if (res)
+            printf("'%d,%s' ", i, res->tok->text);
     }
+    printf("\n");
 }
 
 void PushCurrEnv() {
     env_el *new = sem_malloc(sizeof(env_el),0);
-    new->env = curr_env;
+    environ *curr = CurrEnv();
+    new->env = curr;
     new->next = env_stack;
     env_stack = new;
+
+    curr_env = mk_environ(curr,curr->depth+1);
 }
 
 environ* PopEnv() {
@@ -185,6 +198,8 @@ environ* PopEnv() {
     env_stack = env_stack->next;
     environ *res = del->env;
     free(del);
+
+    curr_env = res;
     return res;
 }
 
@@ -193,12 +208,25 @@ environ* PopEnv() {
 void preorder_semantics(struct prodrule *p){
     switch(p->code / 10) {
         case compound_statement:
-            printf("yea!\n");
+            PushCurrEnv();
+            printf("hello!\n");
+            break;
+        case init_declarator:
+            printf("pre %d\n",p->code);
+            break;
     }
 }
 
 void postorder_semantics(struct prodrule *p){
     switch(p->code / 10) {
+        case compound_statement:
+            PrintCurrEnv();
+            PopEnv();
+            printf("goodbye.\n");
+            break;
+        case init_declarator:
+            printf("post %d\n",p->code);
+            break;
     }
 }
 

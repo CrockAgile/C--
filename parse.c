@@ -50,7 +50,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
     for ( x = 0; x < kids; x++ ) {
         struct pnode *kid = va_arg(args,struct pnode*);
         new_pnode->kids[x] = kid;
-        if (kid)
+        if (kid) // assign parent
             new_pnode->kids[x]->par = new_pnode;
     }
     va_end( args ); 
