@@ -205,27 +205,25 @@ environ* PopEnv() {
 
 /* TREE TRAVERSALS SECTION */
 
-void preorder_semantics(struct prodrule *p){
+void preorder_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case compound_statement:
             PushCurrEnv();
             printf("hello!\n");
             break;
-        case init_declarator:
-            printf("pre %d\n",p->code);
+        case simple_declarator:
+            pre_simple_declare(n);
             break;
+
     }
 }
 
-void postorder_semantics(struct prodrule *p){
+void postorder_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case compound_statement:
             PrintCurrEnv();
             PopEnv();
             printf("goodbye.\n");
-            break;
-        case init_declarator:
-            printf("post %d\n",p->code);
             break;
     }
 }
@@ -235,11 +233,15 @@ void semantic_traversal(struct pnode *p) {
     if(!p) return;
     // prodrules are maintained in linked list
     for (curr=p->prule; curr; curr=curr->next)
-        preorder_semantics(curr);
+        preorder_semantics(curr,p);
 
     for (i = 0; i < p->nkids; i++)
         semantic_traversal(p->kids[i]);
 
     for (curr=p->prule; curr; curr=curr->next)
-        postorder_semantics(curr);
+        postorder_semantics(curr,p);
+}
+
+void pre_simple_declare(struct pnode *p){
+    btype base = p->kids[0]->t->code;
 }

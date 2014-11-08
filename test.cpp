@@ -2,25 +2,13 @@
 
 using namespace std;
 
-class Foo {
-private:
-    int width;
-public:
-    bool setWidth(int width);
-};
+//void foo(int x){
+//    cout << "foo is " << x << endl;
+//}
 
-void foo(){
-    cout << "foo here" << endl;
-}
-
-int main(int argc, char **argv)
+int main()
 {
-    foo();
-    int x = 10;
-    {
-	    int x = 20;
-    }
-    Foo b;
+    int **x, y = 10;
 
     return 0;
 }

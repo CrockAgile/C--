@@ -82,33 +82,30 @@ struct pnode* create_pnode(token* curr_yytoken) {
 }
 
 void treeprint(struct pnode *p, int depth) {
-    int i = 0;
-    char *last, *first;
+    int i;
+    char *curr;
     if (p == NULL) { // epsilon reduces I make the child ptr NULL
         printf("%*s epsilon expression\n", depth*2, " ");
         return;
     }
 
     if (p->t) { // 'original text' (type code)
-        printf("%*s '%s' (%d)\n", depth*2, " ", p->t->text, p->t->code);
+        printf("%*s '%s'\n", depth*2, " ", p->t->text);
     }
     else { // print "abridged" version of $$ = $1 chains
-        humanreadable(p->prule,&last);
         struct prodrule* lastprod = p->prule;
+        humanreadable(lastprod,&curr);
+        printf("%*s %s", depth*2, " ", curr);
         while(lastprod->next) {
-            i++;
             lastprod = lastprod->next;
+            free(curr);
+            humanreadable(lastprod,&curr);
+            printf(" %s",curr);
         }
-        humanreadable(lastprod,&first);
+        free(curr);
+        printf("\n");
         // print only detailed version if more than 1 transition
-        if(i > 0) {
-            printf("%*s %s <-%d %s : %d\n", depth*2, " ", last,i,first,p->nkids);
-        }
-        else {
-            printf("%*s %s : %d\n", depth*2, " ", last,p->nkids);
-        }
-        free(last);
-        free(first);
+        //printf("%*s %s <-%d %s : %d\n", depth*2, " ", last,i,first,p->nkids);
     }
     for (i = 0; i < p->nkids; i++)
         treeprint(p->kids[i], depth+1);

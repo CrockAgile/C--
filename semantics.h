@@ -14,12 +14,12 @@ void* sem_malloc(int size, bool zero);
 /* TYPES AND ENVIRONS SECTION */
 
 typedef enum btype{
-        int_type,
-        bool_type,
-        void_type,
-        char_type,
-        double_type,
-        class_type,
+        int_type = 321,
+        bool_type = 295,
+        void_type = 352,
+        char_type = 299,
+        double_type = 307,
+        class_type = 300,
         // complicated linked types
         pointer_type,
         function_type,
@@ -92,6 +92,7 @@ typedef enum SemanticNode {
     compound_statement = 510,
     // nodes that require adding to table
     init_declarator = 770,
+    simple_declarator = 610,
     parameter_declarator = 890,
     // nodes that require both new env, and adding
     class_specifier = 950,
@@ -99,7 +100,9 @@ typedef enum SemanticNode {
 
 } SemanticNode;
 
-void preorder_semantics(struct prodrule*); 
-void postorder_semantics(struct prodrule*);
+void preorder_semantics(struct prodrule*, struct pnode*); 
+void postorder_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
+
+void pre_simple_declare(struct pnode*);
 #endif	

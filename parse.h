@@ -27,7 +27,7 @@ struct pnode {
     token *t;
 };
 
-struct pnode *alcnode(int rule, int kids, ...);
+struct pnode* alcnode(int rule, int kids, ...);
 struct pnode* create_pnode(token* curr_yytoken);
 
 // prints tree in depth format with
