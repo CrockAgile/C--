@@ -29,9 +29,11 @@ typedef enum btype{
 // type element
 typedef struct type_el {
     btype type; // basic types
+    int size;
     struct type_el *sub; // sub-lvls
     struct type_el *next;
 } type_el;
+
 
 struct environ;
 
@@ -65,11 +67,13 @@ typedef struct env_el {
 unsigned long env_hash(char *s);
 type_el* mk_type_el(btype t, type_el *s, type_el *n);
 void free_type_list(type_el* head);
+void print_type(type_el*);
+void print_type_list(type_el *head);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
 void free_table_list(table_el *head);
 environ* mk_environ(environ* parent,int depth);
 table_el* environ_lookup(environ *e, char *key);
-bool environ_insert(environ *e, token *to, btype ty, bool c, bool d);
+bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d);
 bool add_env_child(environ *parent);
 void free_environ(environ *target);
 
@@ -104,5 +108,7 @@ void preorder_semantics(struct prodrule*, struct pnode*);
 void postorder_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
 
+void insert_var(struct pnode *p, btype ty);
 void pre_simple_declare(struct pnode*);
+void pre_direct_decl(struct pnode*, type_el*);
 #endif	

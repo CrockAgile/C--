@@ -792,7 +792,7 @@ void humanreadable(struct prodrule* prule, char **dest) {
     return;
 }
 
-struct pnode* single_child(struct pnode* des, int code) {
+struct pnode* only_child(struct pnode* des, int code) {
     struct prodrule* head = des->prule;
     struct prodrule* new = (struct prodrule*)malloc(sizeof(struct prodrule));
     if(!new)

@@ -2,11 +2,13 @@
 *** test.cpp ***
   translation_unit rule 1 declaration_seq_opt rule 2 declare_seq rule 1 declare rule 2 function_definition rule 2
    'int'
-   declarator rule 1 direct_declarator rule 5
-     'main'
-     '('
-     epsilon expression
-     ')'
+   declarator rule 1
+     direct_declarator rule 5
+       direct_declarator rule 1
+         'main'
+       '('
+       epsilon expression
+       ')'
    epsilon expression
    function_body rule 1 compound_stmt rule 1
      '{'
@@ -14,19 +16,26 @@
        stmt_sequence rule 1 statement rule 7 declare_stmt rule 1 block_declare rule 1 simple_declare rule 1
          'int'
          init_decl_list rule 2
-           init_decl_list rule 1 init_decl rule 1
-             declarator rule 2
-               '*'
+           init_decl_list rule 1
+             init_decl rule 1
                declarator rule 2
                  '*'
-                 'x'
-             epsilon expression
+                 declarator rule 2
+                   '*'
+                   declarator rule 1
+                     direct_declarator rule 1
+                       'x'
+               epsilon expression
            ','
            init_decl rule 1
-             'y'
-             initializer_opt rule 2 initializer rule 1
-               '='
-               '10'
+             declarator rule 1
+               direct_declarator rule 6
+                 direct_declarator rule 1
+                   'y'
+                 '['
+                 '4'
+                 ']'
+             epsilon expression
          ';'
        statement rule 6 jump_stmt rule 3
          'return'
@@ -34,7 +43,7 @@
          ';'
      '}'
 hello!
-321
-set to 321
+pre_dir_decl called on code 7801
+pre_dir_decl called on code 7801
 1: 
 goodbye.

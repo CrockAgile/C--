@@ -48,6 +48,41 @@ void free_type_list(type_el* head) {
     }
 }
 
+void print_type(type_el *curr) {
+    switch( curr->type ) {
+        case class_type:
+            printf("class");
+            break;
+        case pointer_type:
+            printf("*");
+            break;
+        case function_type:
+            printf("func");
+            break;
+        case array_type:
+            printf("[]");
+            break;
+        case int_type:
+            printf("int");
+            break;
+        default:
+            printf(" default %d",curr->type);
+    }
+}
+
+void print_type_list(type_el *head) {
+    type_el* sub;
+    while( head ) {
+       print_type(head);
+       sub = head->sub; 
+       while( sub ) {
+           print_type(sub);
+           sub = sub->next;
+       }
+       head = head->next;
+    }
+}
+
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
     table_el *new = sem_malloc(sizeof(table_el),1);
     new->tok = t; new->type = ty; new->par_env = p; new->next = n;
@@ -78,9 +113,10 @@ environ* mk_environ(environ *parent, int depth) {
 
 table_el* environ_lookup(environ *e, char *key) {
     table_el* res = e->locals[env_hash(key)];
+    printf("%s hashed to %lu\n",key,env_hash(key));
     if (res) {
-        while (res->next) {
-            if (strcmp(key,res->tok->text)) {
+        while (res) {
+            if (!strcmp(key,res->tok->text)) {
                 return res;
             }
             res = res->next;
@@ -89,7 +125,7 @@ table_el* environ_lookup(environ *e, char *key) {
     return NULL;
 }
 
-bool environ_insert(environ *e, token *to, btype ty, bool c, bool d) {
+bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     unsigned long index = env_hash(to->text);
     table_el** des = &(e->locals[index]);
     // if already in table, error
@@ -97,13 +133,10 @@ bool environ_insert(environ *e, token *to, btype ty, bool c, bool d) {
         fprintf(stderr,"Double declaration of %s\n",to->text);
         exit(3);
     }
-    // make new type list
-    type_el* newtype = sem_malloc(sizeof(type_el),1);
-    newtype->type = ty;
     // make new table element
     table_el* new = sem_malloc(sizeof(table_el),1);
     new->tok = to;
-    new->type = newtype;
+    new->type = ty;
     new->cons = c; new->defd = d;
     // prepend to list of hash collisions
     new->next = *des;
@@ -177,8 +210,10 @@ void PrintCurrEnv() {
     printf("%d: ",curr->depth);
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
-        if (res)
-            printf("'%d,%s' ", i, res->tok->text);
+        if (res) {
+            printf(" %d,%s,", i, res->tok->text);
+            print_type_list(res->type);
+        }
     }
     printf("\n");
 }
@@ -242,6 +277,37 @@ void semantic_traversal(struct pnode *p) {
         postorder_semantics(curr,p);
 }
 
-void pre_simple_declare(struct pnode *p){
+void insert_var(struct pnode *p, btype ty) {
+    struct pnode *decl = p->kids[0];
+    bool init = false;
+    type_el *newtype, *subtype = NULL;
+    if (p->kids[1])
+        init = true;
+
+    while( decl->prule->code == 7802 ) {
+        subtype = mk_type_el(pointer_type,NULL,subtype);
+        decl = decl->kids[1];
+    }
+    newtype = mk_type_el(ty,subtype,NULL);
+    pre_direct_decl(decl,newtype);
+    //environ_insert(CurrEnv(),decl->kids[0]->t,newtype,false,init);
+}
+
+void pre_simple_declare(struct pnode *p) {
     btype base = p->kids[0]->t->code;
+    struct pnode *init_list = p->kids[1];
+    while(init_list->prule->code == 7602) {
+        insert_var(init_list->kids[2],base);
+        init_list = init_list->kids[0];
+    }
+    insert_var(init_list->kids[0],base);
+}
+
+void pre_direct_decl(struct pnode* p, type_el* t) {
+    printf("pre_dir_decl called on code %d\n",p->prule->code);
+    switch(p->prule->code) {
+        case 7906:
+            printf("array\n");
+            break;
+    }
 }

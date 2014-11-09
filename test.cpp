@@ -8,7 +8,7 @@ using namespace std;
 
 int main()
 {
-    int **x, y = 10;
-
+    int **x, y[4];
+    //int **x, **y, z = 3;
     return 0;
 }

@@ -40,7 +40,7 @@ char* craft_readable(char* base, int prodrule);
 // gigantic switch statement that derives human readable format
 // based on production code.
 void humanreadable(struct prodrule* , char **dest);
-struct pnode* single_child(struct pnode* des, int code);
+struct pnode* only_child(struct pnode* des, int code);
 
 // global for hashtable of names
 token_el **nametable;
