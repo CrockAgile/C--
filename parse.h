@@ -62,5 +62,7 @@ root_el *treelist_head, *treelist_tail;
 void treelist_append(char *file, struct pnode *added);
 void print_treelist(root_el *head);
 void free_treelist(root_el *head);
+// function ptrs? i must be fancy
+void treelist_call(void(*f)(struct pnode*));
 
 #endif

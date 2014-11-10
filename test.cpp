@@ -6,9 +6,12 @@ using namespace std;
 //    cout << "foo is " << x << endl;
 //}
 
+int x;
+
 int main()
 {
-    int **x, y[4];
-    //int **x, **y, z = 3;
-    return 0;
+    int **c[3][2], **y[2];
+    {
+        int x;
+    }
 }

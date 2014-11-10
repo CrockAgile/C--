@@ -12,38 +12,32 @@
    epsilon expression
    function_body rule 1 compound_stmt rule 1
      '{'
-     stmt_seq_opt rule 2 stmt_sequence rule 2
-       stmt_sequence rule 1 statement rule 7 declare_stmt rule 1 block_declare rule 1 simple_declare rule 1
-         'int'
-         init_decl_list rule 2
-           init_decl_list rule 1
-             init_decl rule 1
-               declarator rule 2
-                 '*'
-                 declarator rule 2
-                   '*'
-                   declarator rule 1
-                     direct_declarator rule 1
-                       'x'
-               epsilon expression
-           ','
-           init_decl rule 1
+     stmt_seq_opt rule 2 stmt_sequence rule 1 statement rule 7 declare_stmt rule 1 block_declare rule 1 simple_declare rule 1
+       'int'
+       init_decl_list rule 1
+         init_decl rule 1
+           declarator rule 2
+             '*'
              declarator rule 1
                direct_declarator rule 6
                  direct_declarator rule 1
-                   'y'
+                   'argv'
                  '['
-                 '4'
+                 '2'
                  ']'
-             epsilon expression
-         ';'
-       statement rule 6 jump_stmt rule 3
-         'return'
-         '0'
-         ';'
+           initializer_opt rule 2 initializer rule 1
+             '='
+             initializer_clause rule 2
+               '{'
+               initializer_list rule 2
+                 'NULL'
+                 ','
+                 'NULL'
+               epsilon expression
+               '}'
+       ';'
      '}'
 hello!
-pre_dir_decl called on code 7801
 pre_dir_decl called on code 7801
 1: 
 goodbye.

@@ -29,7 +29,7 @@ typedef enum btype{
 // type element
 typedef struct type_el {
     btype type; // basic types
-    int size;
+    int elements;
     struct type_el *sub; // sub-lvls
     struct type_el *next;
 } type_el;
@@ -74,7 +74,7 @@ void free_table_list(table_el *head);
 environ* mk_environ(environ* parent,int depth);
 table_el* environ_lookup(environ *e, char *key);
 bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d);
-bool add_env_child(environ *parent);
+environ* add_env_child(environ *parent);
 void free_environ(environ *target);
 
 environ* GlobalEnviron;
@@ -82,8 +82,8 @@ environ* GetGlobal();
 environ* curr_env;
 environ* CurrEnv();
 env_el* env_stack;
+void print_environ(environ *t);
 void PrintEnvirons();
-void PrintCurrEnv();
 void PushCurrEnv();
 environ* PopEnv();
 
@@ -108,7 +108,8 @@ void preorder_semantics(struct prodrule*, struct pnode*);
 void postorder_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
 
-void insert_var(struct pnode *p, btype ty);
-void pre_simple_declare(struct pnode*);
-void pre_direct_decl(struct pnode*, type_el*);
+void pre_init_list(btype,struct pnode *i);
+void pre_init_declarator(btype, struct pnode*);
+type_el* pre_declarator(struct pnode*,token**);
+bool pre_optional_init(struct pnode*);
 #endif	

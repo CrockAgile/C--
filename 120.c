@@ -7,6 +7,7 @@
 
 extern token yytoken;
 extern YYSTYPE root;
+extern root_el *treelist_head, *treelist_tail;
 FILE* yyin;
 
 int parsetree_setup(int,char**);
@@ -18,7 +19,8 @@ int main(int argc, char** argv) {
     // have parse trees available to work with
         print_treelist(treelist_head);
     }
-    semantic_traversal(root);
+    treelist_call(semantic_traversal); // call on each tree via func ptr
+    free_environ(GetGlobal());
     parsetree_teardown();
     return 0;
 }

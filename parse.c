@@ -90,7 +90,11 @@ void treeprint(struct pnode *p, int depth) {
     }
 
     if (p->t) { // 'original text' (type code)
-        printf("%*s '%s'\n", depth*2, " ", p->t->text);
+        if(p->prule) {
+            printf("%*s '%s' prule:%d\n", depth*2, " ", p->t->text,p->prule->code);
+        } else {
+            printf("%*s '%s' \n", depth*2, " ", p->t->text);
+        }
     }
     else { // print "abridged" version of $$ = $1 chains
         struct prodrule* lastprod = p->prule;
@@ -895,6 +899,13 @@ void treelist_append(char *file, struct pnode *added) {
         treelist_head = new;
     }
     treelist_tail = new;
+}
+
+void treelist_call(void(*f)(struct pnode*)) {
+    root_el* curr;
+    for ( curr=treelist_head; curr != NULL; curr = curr->next) {
+        (*f)(curr->p);
+    }
 }
 
 void print_treelist(root_el *head) {

@@ -29,13 +29,14 @@ unsigned long env_hash(char *s) {
 
 
 type_el* mk_type_el(btype t, type_el *s, type_el *n) {
-    type_el *new = sem_malloc(sizeof(type_el),0);
-    new->type = t; new->sub = s; new->next = n;
+    type_el *new = sem_malloc(sizeof(type_el),0);// -1 indicates elems N/A
+    new->type = t; new->sub = s; new->next = n; new->elements = -1;
     return new;
 }
 
 // lisp flashbacks
 void free_type_list(type_el* head) {
+    if (!head) return;
     type_el *prev, *curr = head;
     type_el *subp, *subc = head->sub;
     while( (prev = curr) ) {
@@ -98,6 +99,7 @@ void free_table_list(table_el *head) {
         free_type_list(prev->type);
         free_type_list(prev->param_types);
         free_environ(prev->chl_env);
+        free(prev);
     }
 }
 
@@ -113,7 +115,6 @@ environ* mk_environ(environ *parent, int depth) {
 
 table_el* environ_lookup(environ *e, char *key) {
     table_el* res = e->locals[env_hash(key)];
-    printf("%s hashed to %lu\n",key,env_hash(key));
     if (res) {
         while (res) {
             if (!strcmp(key,res->tok->text)) {
@@ -144,69 +145,62 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     return 1;
 }
 
-bool add_env_child(environ *parent) {
-    if  (!parent)
-        return 0;
+environ* add_env_child(environ *parent) {
+    short nkids = parent->nkids;
+    environ *new;
+    if (!parent) return NULL;
 
-    if ( parent->nkids < parent->ksize ) { // under max size
-        parent->nkids++;
-        parent->kids[parent->nkids] = mk_environ(parent,parent->depth + 1);
+    if ( nkids == parent->ksize ) {// at max capacity
+        parent->kids = realloc(parent->kids,nkids*2 *sizeof(environ*));
+        if (!parent->kids) exit(3);
+        parent->ksize = 2*nkids; // update with new sizes
     }
-    else { // grow the array
-        short old_size = parent->ksize;
-        short new_size = old_size * 2; // double in size
-        // really should put a ceiling on size TODO
-        // TODO use realloc cause thats what it's for!
-        environ **old = parent->kids;
-        environ **new = sem_malloc(new_size * sizeof(environ*),1);
-        memcpy(new,old,old_size * sizeof(environ*));
-        parent->ksize = new_size;
-        free(parent->kids);
-        parent->kids = new;
-    }
-    return 1;
+    new = mk_environ(parent,parent->depth+1);
+    parent->kids[parent->nkids++] = new;
+    return new;
 }
 
 void free_environ(environ *target) {
+    if (!target) return;
     int i;
     short nkids;
     environ *child;
-    for (i=0; i<S_SIZE; i++)
-        free_table_list(target->locals[i]);
+    table_el *l;
+    for (i=0; i<S_SIZE; i++){
+        l = target->locals[i];
+        if (l) free_table_list(l);
+    }
     // dont free parent, handled in tree traversal
     nkids = target->nkids; // save for future compares
-    for (i=0; i<nkids; i++) {
+    for (i=0; i<=nkids; i++) {
         child = target->kids[i];
         if (child) {
             free_environ(child);
         }
     }
-    // now that all taken indexes freed
+    // now that all occupied indexes freed
     free(target->kids);
+    free(target->locals);
+    free(target);
 }
 
 environ* GetGlobal() {
-    if (GlobalEnviron) // singleton?
-        return GlobalEnviron;
+    if (!GlobalEnviron) // singleton?
+        GlobalEnviron = mk_environ(NULL,0);
     // 'GLOBAL' environ is special case environ
-    // that has no parent, i.e. root
-    return mk_environ(NULL,0);
+    // that has no parent and depth 0, i.e. root
+    return GlobalEnviron;
 }
 
 environ* CurrEnv() {
-    if (curr_env)
-        return curr_env;
-    curr_env = GetGlobal();
+    if (!curr_env)
+        curr_env = GetGlobal();
     return curr_env;
 }
 
-void PrintEnvirons() {
-}
-
-void PrintCurrEnv() {
+void print_environ(environ *curr) {
     int i;
     table_el *res;
-    environ *curr = CurrEnv();
     printf("%d: ",curr->depth);
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
@@ -216,16 +210,20 @@ void PrintCurrEnv() {
         }
     }
     printf("\n");
+
+}
+
+void PrintEnvirons() {
 }
 
 void PushCurrEnv() {
     env_el *new = sem_malloc(sizeof(env_el),0);
-    environ *curr = CurrEnv();
-    new->env = curr;
+    environ *old_curr = CurrEnv();
+    new->env = old_curr;
     new->next = env_stack;
     env_stack = new;
 
-    curr_env = mk_environ(curr,curr->depth+1);
+    curr_env = add_env_child(old_curr);
 }
 
 environ* PopEnv() {
@@ -241,24 +239,25 @@ environ* PopEnv() {
 /* TREE TRAVERSALS SECTION */
 
 void preorder_semantics(struct prodrule *p, struct pnode* n){
+    btype bt;
     switch(p->code / 10) {
         case compound_statement:
             PushCurrEnv();
-            printf("hello!\n");
+            printf("creating new scope\n");
             break;
         case simple_declarator:
-            pre_simple_declare(n);
+            bt = n->kids[0]->t->code;
+            pre_init_list(bt,n->kids[1]);
             break;
-
     }
 }
 
 void postorder_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case compound_statement:
-            PrintCurrEnv();
+            printf("popping scope level ");
+            print_environ(CurrEnv());
             PopEnv();
-            printf("goodbye.\n");
             break;
     }
 }
@@ -275,39 +274,59 @@ void semantic_traversal(struct pnode *p) {
 
     for (curr=p->prule; curr; curr=curr->next)
         postorder_semantics(curr,p);
+
 }
 
-void insert_var(struct pnode *p, btype ty) {
-    struct pnode *decl = p->kids[0];
-    bool init = false;
-    type_el *newtype, *subtype = NULL;
-    if (p->kids[1])
-        init = true;
-
-    while( decl->prule->code == 7802 ) {
-        subtype = mk_type_el(pointer_type,NULL,subtype);
-        decl = decl->kids[1];
+void pre_init_list(btype bt, struct pnode *i) {
+    // post order (kind of) traverse init list
+    if (i->prule->code == 7602) {
+        pre_init_list(bt,i->kids[0]);
+        pre_init_declarator(bt,i->kids[2]);
+    } else {
+        pre_init_declarator(bt,i->kids[0]);
     }
-    newtype = mk_type_el(ty,subtype,NULL);
-    pre_direct_decl(decl,newtype);
-    //environ_insert(CurrEnv(),decl->kids[0]->t,newtype,false,init);
 }
 
-void pre_simple_declare(struct pnode *p) {
-    btype base = p->kids[0]->t->code;
-    struct pnode *init_list = p->kids[1];
-    while(init_list->prule->code == 7602) {
-        insert_var(init_list->kids[2],base);
-        init_list = init_list->kids[0];
-    }
-    insert_var(init_list->kids[0],base);
+void pre_init_declarator(btype bt, struct pnode* i) {
+    token* to = NULL;
+    type_el* inittype = pre_declarator(i->kids[0],&to);
+    inittype = mk_type_el(bt,inittype,NULL);
+    bool defined = pre_optional_init(i->kids[1]);
+    environ_insert(CurrEnv(),to,inittype,false,defined);
+    //TODO int size = pre_optional_init(i->kids[1]);
+    //printf("btype: %d , typel: %d\n",bt,inittype->type);
 }
 
-void pre_direct_decl(struct pnode* p, type_el* t) {
-    printf("pre_dir_decl called on code %d\n",p->prule->code);
-    switch(p->prule->code) {
-        case 7906:
-            printf("array\n");
+type_el* pre_declarator(struct pnode* d,token** t) {
+    // recursively build type linked list
+    switch(d->prule->code) {
+        case 7802: // append pointer type to type list
+            return mk_type_el(
+                    pointer_type,
+                    NULL,
+                    pre_declarator(d->kids[1],t));
             break;
+        case 7801: // skipped elements
+        case 7901:
+            return pre_declarator(d->kids[0],t);
+            break;
+        case 7906: // append array type to type list
+            //TODO size = *(int*)(d->kids[2]->t->lval);
+            return mk_type_el(
+                    array_type,
+                    NULL,
+                    pre_declarator(d->kids[0],t));
+            break;
+        case 8301:
+            *t = d->t; // found token
+            return NULL;
+        default:
+            printf("error, hit unexpected prodrule %d\n",d->prule->code);
+            return NULL;
     }
+}
+bool pre_optional_init(struct pnode* c) {
+    if (c == NULL)
+        return false;
+    return true;
 }
