@@ -244,9 +244,12 @@ environ* PopEnv() {
 
 /* TREE TRAVERSALS SECTION */
 
-void preorder_semantics(struct prodrule *p, struct pnode* n){
+void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
+        case class_specifier:
+            PushCurrEnv();
+            break;
         case compound_statement:
             PushCurrEnv();
             break;
@@ -262,8 +265,9 @@ void preorder_semantics(struct prodrule *p, struct pnode* n){
     }
 }
 
-void postorder_semantics(struct prodrule *p, struct pnode* n){
+void post_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
+        case class_specifier:
         case compound_statement:
             PopEnv();
             break;
@@ -277,13 +281,13 @@ void semantic_traversal(struct pnode *p) {
     nkids = p->nkids;
     // prodrules are maintained in linked list
     for (curr=p->prule; curr; curr=curr->next)
-        preorder_semantics(curr,p);
+        pre_semantics(curr,p);
 
     for (i = 0; i < nkids; i++)
         semantic_traversal(p->kids[i]);
 
     for (curr=p->prule; curr; curr=curr->next)
-        postorder_semantics(curr,p);
+        post_semantics(curr,p);
 }
 
 void pre_init_list(btype bt, struct pnode *i) {
@@ -300,10 +304,8 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
-    //printf("%s is defined? %d\n",to->text,defined);
     environ_insert(CurrEnv(),to,inittype,false,defined);
     //TODO int size = pre_optional_init(i->kids[1]);
-    //printf("btype: %d , typel: %d\n",bt,inittype->type);
 }
 
 type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
@@ -322,7 +324,7 @@ type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
                     pre_declarator(d->kids[0],ty,t));
             break;
         case 7906: // append array type to type list
-            //TODO size = *(int*)(d->kids[2]->t->lval);
+            //TODO set the size of the array
             return mk_type_el(
                     array_type,
                     NULL,

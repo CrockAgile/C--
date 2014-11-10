@@ -471,7 +471,7 @@ block_declaration:
 
 simple_declaration:
 	  decl_specifier_seq init_declarator_list ';' { $$ = alcnode(6201,3,$1,$2,$3); }
-	/*|  decl_specifier_seq ';' { $$ = alcnode(6202,2,$1,$2); }*/
+	|  decl_specifier_seq ';' { $$ = alcnode(16202,2,$1,$2); }
 	;
 
 decl_specifier:

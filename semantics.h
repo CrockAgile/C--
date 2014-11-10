@@ -103,8 +103,8 @@ typedef enum SemanticNode {
 
 } SemanticNode;
 
-void preorder_semantics(struct prodrule*, struct pnode*); 
-void postorder_semantics(struct prodrule*, struct pnode*);
+void pre_semantics(struct prodrule*, struct pnode*); 
+void post_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
 
 void pre_init_list(btype,struct pnode *i);

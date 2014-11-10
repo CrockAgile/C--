@@ -790,6 +790,9 @@ void humanreadable(struct prodrule* prule, char **dest) {
     case 157:
      *dest = craft_readable("type_id_list_opt" ,prule->code);
         break;
+    case 162:
+     *dest = craft_readable("decl_specifier_seq" ,prule->code);
+        break;
     default:
         printf("Unrecognized production rule.\n");
     }

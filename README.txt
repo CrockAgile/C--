@@ -6,6 +6,10 @@ TODOs:
     Prepopulate Symbol Table
 	- cin,cout,endl,string,fstream?
 
+    Classes
+        - public vs private
+        - member var/funcs/classes ?
+
     Connect Child Environs to func/class entries
 
     Add all "precursor" cases for compound statements
