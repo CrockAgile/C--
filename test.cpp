@@ -1,10 +1,7 @@
 #include <iostream>
 
 using namespace std;
-
-//void foo(int x){
-//    cout << "foo is " << x << endl;
-//}
+void foo();
 int main() {
     for (int i; ; ) {
         8;
@@ -13,4 +10,7 @@ int main() {
     {
         int i;
     }
+}
+void foo(){
+    cout << "foo" << endl;
 }

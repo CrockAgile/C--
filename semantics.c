@@ -58,13 +58,16 @@ void print_type(type_el *curr) {
             printf("*");
             break;
         case function_type:
-            printf("func");
+            printf("()");
             break;
         case array_type:
             printf("[]");
             break;
         case int_type:
             printf("int");
+            break;
+        case void_type:
+            printf("void");
             break;
         default:
             printf(" default %d",curr->type);
@@ -129,7 +132,8 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     unsigned long index = env_hash(to->text);
     table_el** des = &(e->locals[index]);
     // if already in table, error
-    if (environ_lookup(e,to->text)) {
+    table_el *res = environ_lookup(e,to->text);
+    if (res && res->defd ) {
         fprintf(stderr,"Double declaration of %s\n",to->text);
         exit(3);
     }
@@ -205,7 +209,7 @@ void print_environ(environ *curr) {
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
         if (res) {
-            printf(" %d,%s,", i, res->tok->text);
+            printf(" %d,%d,%s,", i,res->defd,res->tok->text);
             print_type_list(res->type);
         }
     }
@@ -244,6 +248,7 @@ void preorder_semantics(struct prodrule *p, struct pnode* n){
             PushCurrEnv();
             break;
         case simple_declaration:
+        case function_definition:
             bt = n->kids[0]->t->code;
             pre_init_list(bt,n->kids[1]);
             break;
@@ -289,6 +294,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     type_el* inittype = pre_declarator(i->kids[0],&to);
     inittype = mk_type_el(bt,inittype,NULL);
     bool defined = pre_optional_init(i->kids[1]);
+    printf("%s is defined? %d\n",to->text,defined);
     environ_insert(CurrEnv(),to,inittype,false,defined);
     //TODO int size = pre_optional_init(i->kids[1]);
     //printf("btype: %d , typel: %d\n",bt,inittype->type);
@@ -303,9 +309,11 @@ type_el* pre_declarator(struct pnode* d,token** t) {
                     NULL,
                     pre_declarator(d->kids[1],t));
             break;
-        case 7801: // skipped elements
-        case 7901:
-            return pre_declarator(d->kids[0],t);
+        case 7905: // function prototype
+            return mk_type_el(
+                    function_type,
+                    NULL,
+                    pre_declarator(d->kids[0],t));
             break;
         case 7906: // append array type to type list
             //TODO size = *(int*)(d->kids[2]->t->lval);
@@ -317,6 +325,10 @@ type_el* pre_declarator(struct pnode* d,token** t) {
         case 8301:
             *t = d->t; // found token
             return NULL;
+        case 7801: // skipped elements
+        case 7901:
+            return pre_declarator(d->kids[0],t);
+            break;
         default:
             printf("error, hit unexpected prodrule %d\n",d->prule->code);
             return NULL;
