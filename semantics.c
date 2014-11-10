@@ -98,7 +98,6 @@ void free_table_list(table_el *head) {
         // tokens are freed in parse cleanup
         free_type_list(prev->type);
         free_type_list(prev->param_types);
-        free_environ(prev->chl_env);
         free(prev);
     }
 }
@@ -199,9 +198,10 @@ environ* CurrEnv() {
 }
 
 void print_environ(environ *curr) {
-    int i;
+    if (!curr) return;
+    int i, nkids;
     table_el *res;
-    printf("%d: ",curr->depth);
+    printf("%*s%d: ",curr->depth*2, " ",curr->depth);
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
         if (res) {
@@ -210,10 +210,9 @@ void print_environ(environ *curr) {
         }
     }
     printf("\n");
-
-}
-
-void PrintEnvirons() {
+    nkids = curr->nkids;
+    for (i=0;i<=nkids;i++)
+        print_environ(curr->kids[i]);
 }
 
 void PushCurrEnv() {
@@ -243,7 +242,6 @@ void preorder_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case compound_statement:
             PushCurrEnv();
-            printf("creating new scope\n");
             break;
         case simple_declarator:
             bt = n->kids[0]->t->code;
@@ -255,8 +253,6 @@ void preorder_semantics(struct prodrule *p, struct pnode* n){
 void postorder_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case compound_statement:
-            printf("popping scope level ");
-            print_environ(CurrEnv());
             PopEnv();
             break;
     }

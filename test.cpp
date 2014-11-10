@@ -13,5 +13,11 @@ int main()
     int **c[3][2], **y[2];
     {
         int x;
+        {
+            int x;
+        }
+    }
+    {
+        int x;
     }
 }

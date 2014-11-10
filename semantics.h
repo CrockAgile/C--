@@ -45,7 +45,7 @@ typedef struct table_el {
     // needed by Funcs, and Classes
     type_el *param_types;
     struct environ *par_env;
-    struct environ *chl_env;
+    short childnum;
     struct table_el *next;
 } table_el;
 
@@ -83,7 +83,6 @@ environ* curr_env;
 environ* CurrEnv();
 env_el* env_stack;
 void print_environ(environ *t);
-void PrintEnvirons();
 void PushCurrEnv();
 environ* PopEnv();
 

@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
         print_treelist(treelist_head);
     }
     treelist_call(semantic_traversal); // call on each tree via func ptr
+    print_environ(GetGlobal());
     free_environ(GetGlobal());
     parsetree_teardown();
     return 0;
