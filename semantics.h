@@ -95,7 +95,7 @@ typedef enum SemanticNode {
     compound_statement = 510,
     // nodes that require adding to table
     init_declarator = 770,
-    simple_declarator = 610,
+    simple_declaration = 620,
     parameter_declarator = 890,
     // nodes that require both new env, and adding
     class_specifier = 950,

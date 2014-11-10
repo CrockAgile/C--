@@ -6,15 +6,13 @@ TODOs:
     Prepopulate Symbol Table
 	- cin,cout,endl,string
 
-    Symbol Table Scope
-	- Find grammar Blocks
-	- Stack of name tables
+    Add all "precursor" cases for compound statements
+        - functions
+        - classes
+        - for loop
 
-    Type Checking
-	- Write out 120++ cases following Coursera Notation
-	- Should leaves be built with types if possible? (ICON prob, not decl)
-	- Two Phases
-	    - Top to Bot, then Bot leaves up
+    Improve Symbol Environs
+        - initialized variables
 
     Improve Lexical Errors
         - Line Numbers

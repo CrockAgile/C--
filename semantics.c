@@ -243,7 +243,7 @@ void preorder_semantics(struct prodrule *p, struct pnode* n){
         case compound_statement:
             PushCurrEnv();
             break;
-        case simple_declarator:
+        case simple_declaration:
             bt = n->kids[0]->t->code;
             pre_init_list(bt,n->kids[1]);
             break;
@@ -259,18 +259,19 @@ void postorder_semantics(struct prodrule *p, struct pnode* n){
 }
 
 void semantic_traversal(struct pnode *p) {
-    struct prodrule *curr; int i;
+    struct prodrule *curr;
+    int i,nkids;
     if(!p) return;
+    nkids = p->nkids;
     // prodrules are maintained in linked list
     for (curr=p->prule; curr; curr=curr->next)
         preorder_semantics(curr,p);
 
-    for (i = 0; i < p->nkids; i++)
+    for (i = 0; i < nkids; i++)
         semantic_traversal(p->kids[i]);
 
     for (curr=p->prule; curr; curr=curr->next)
         postorder_semantics(curr,p);
-
 }
 
 void pre_init_list(btype bt, struct pnode *i) {
