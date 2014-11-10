@@ -89,7 +89,8 @@ void print_type_list(type_el *head) {
 
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
     table_el *new = sem_malloc(sizeof(table_el),1);
-    new->tok = t; new->type = ty; new->par_env = p; new->next = n;
+    new->tok = t; new->type = ty; new->par_env = p; 
+    new->next = n; new->childnum = -1; // -1 means no new environ
     // other elements zeroed from calloc
     return new;
 }
@@ -134,7 +135,8 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     // if already in table, error
     table_el *res = environ_lookup(e,to->text);
     if (res && res->defd ) {
-        fprintf(stderr,"Double declaration of %s\n",to->text);
+        fprintf(stderr,"error: redefination of %s on line %d\n",
+                to->text,to->lineno);
         exit(3);
     }
     // make new table element
@@ -291,8 +293,7 @@ void pre_init_list(btype bt, struct pnode *i) {
 
 void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
-    type_el* inittype = pre_declarator(i->kids[0],&to);
-    inittype = mk_type_el(bt,inittype,NULL);
+    type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
     printf("%s is defined? %d\n",to->text,defined);
     environ_insert(CurrEnv(),to,inittype,false,defined);
@@ -300,40 +301,46 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     //printf("btype: %d , typel: %d\n",bt,inittype->type);
 }
 
-type_el* pre_declarator(struct pnode* d,token** t) {
+type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
     // recursively build type linked list
     switch(d->prule->code) {
         case 7802: // append pointer type to type list
             return mk_type_el(
                     pointer_type,
                     NULL,
-                    pre_declarator(d->kids[1],t));
+                    pre_declarator(d->kids[1],ty,t));
             break;
         case 7905: // function prototype
             return mk_type_el(
                     function_type,
                     NULL,
-                    pre_declarator(d->kids[0],t));
+                    pre_declarator(d->kids[0],ty,t));
             break;
         case 7906: // append array type to type list
             //TODO size = *(int*)(d->kids[2]->t->lval);
             return mk_type_el(
                     array_type,
                     NULL,
-                    pre_declarator(d->kids[0],t));
+                    pre_declarator(d->kids[0],ty,t));
             break;
         case 8301:
             *t = d->t; // found token
             return NULL;
-        case 7801: // skipped elements
-        case 7901:
-            return pre_declarator(d->kids[0],t);
+        case 7801: 
+            return mk_type_el(
+                    ty,
+                    NULL,
+                    pre_declarator(d->kids[0],ty,t));
+            break;
+        case 7901: // skipped elements
+            return pre_declarator(d->kids[0],ty,t);
             break;
         default:
             printf("error, hit unexpected prodrule %d\n",d->prule->code);
             return NULL;
     }
 }
+// TODO actually initialize values
 bool pre_optional_init(struct pnode* c) {
     if (c == NULL)
         return false;

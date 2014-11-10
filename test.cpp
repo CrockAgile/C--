@@ -2,14 +2,8 @@
 
 using namespace std;
 void foo();
-int main() {
-    for (int i; ; ) {
-        8;
-    }
-    //int i;
-    {
-        int i;
-    }
+int main(int argc, char *argv[]) {
+    int x, *y[1], **z[2][3];
 }
 void foo(){
     cout << "foo" << endl;

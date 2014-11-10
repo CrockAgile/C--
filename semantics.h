@@ -109,6 +109,6 @@ void semantic_traversal(struct pnode*);
 
 void pre_init_list(btype,struct pnode *i);
 void pre_init_declarator(btype, struct pnode*);
-type_el* pre_declarator(struct pnode*,token**);
+type_el* pre_declarator(struct pnode*,btype,token**);
 bool pre_optional_init(struct pnode*);
 #endif	
