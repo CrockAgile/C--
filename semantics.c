@@ -207,12 +207,13 @@ void print_environ(environ *curr) {
     if (!curr) return;
     int i, nkids;
     table_el *res;
-    printf("%*s%d: ",curr->depth*2, " ",curr->depth);
+    printf("%*s%d:",curr->depth*2, " ",curr->depth);
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
         if (res) {
-            printf(" %d,%d,%s,", i,res->defd,res->tok->text);
+            printf(" '%s' (%d,%d,",res->tok->text,i,res->defd);
             print_type_list(res->type);
+            printf(") |");
         }
     }
     printf("\n");
@@ -244,15 +245,19 @@ environ* PopEnv() {
 /* TREE TRAVERSALS SECTION */
 
 void preorder_semantics(struct prodrule *p, struct pnode* n){
-    btype bt;
+    btype bt; token* to; type_el* types;
     switch(p->code / 10) {
         case compound_statement:
             PushCurrEnv();
             break;
         case simple_declaration:
-        case function_definition:
             bt = n->kids[0]->t->code;
             pre_init_list(bt,n->kids[1]);
+            break;
+        case function_definition:
+            bt = n->kids[0]->t->code;
+            types = pre_declarator(n->kids[1],bt,&to);
+            environ_insert(CurrEnv(),to,types,false,true);
             break;
     }
 }
@@ -295,7 +300,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
-    printf("%s is defined? %d\n",to->text,defined);
+    //printf("%s is defined? %d\n",to->text,defined);
     environ_insert(CurrEnv(),to,inittype,false,defined);
     //TODO int size = pre_optional_init(i->kids[1]);
     //printf("btype: %d , typel: %d\n",bt,inittype->type);

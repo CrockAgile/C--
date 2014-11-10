@@ -4,7 +4,9 @@ Last Edited: 10/22/2014
 
 TODOs:
     Prepopulate Symbol Table
-	- cin,cout,endl,string
+	- cin,cout,endl,string,fstream?
+
+    Connect Child Environs to func/class entries
 
     Add all "precursor" cases for compound statements
         - functions
