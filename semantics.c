@@ -90,7 +90,7 @@ void print_type_list(type_el *head) {
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
     table_el *new = sem_malloc(sizeof(table_el),1);
     new->tok = t; new->type = ty; new->par_env = p; 
-    new->next = n; new->childnum = -1; // -1 means no new environ
+    new->next = n; new->ch_env = NULL; // no child yet
     // other elements zeroed from calloc
     return new;
 }
@@ -232,6 +232,21 @@ void PushCurrEnv() {
     curr_env = add_env_child(old_curr);
 }
 
+void LinkCurrEnv(token *t) {
+    table_el *res;
+    env_el *new = sem_malloc(sizeof(env_el),0);
+    environ *n,*old_curr = CurrEnv();
+    new->env = old_curr;
+    new->next = env_stack;
+    env_stack = new;
+
+    n = add_env_child(old_curr);
+    res = environ_lookup(CurrEnv(),t->text);
+    res->ch_env = n; // link new child
+
+    curr_env = n;
+}
+
 environ* PopEnv() {
     env_el* del = env_stack;
     env_stack = env_stack->next;
@@ -247,15 +262,20 @@ environ* PopEnv() {
 void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
-        case class_specifier:
-            PushCurrEnv();
+        case member_declaration:
+            bt = n->kids[0]->t->code;
+            pre_decl_list(bt,n->kids[1]);
             break;
+        case class_specifier:
+            types = mk_type_el(class_type,NULL,NULL);
+            to = n->kids[0]->kids[1]->t;//spec->class_head->'name'
+            environ_insert(CurrEnv(),to,types,false,true);
         case compound_statement:
             PushCurrEnv();
             break;
         case simple_declaration:
             bt = n->kids[0]->t->code;
-            pre_init_list(bt,n->kids[1]);
+            pre_decl_list(bt,n->kids[1]);
             break;
         case function_definition:
             bt = n->kids[0]->t->code;
@@ -290,10 +310,11 @@ void semantic_traversal(struct pnode *p) {
         post_semantics(curr,p);
 }
 
-void pre_init_list(btype bt, struct pnode *i) {
+void pre_decl_list(btype bt, struct pnode *i) {
     // post order (kind of) traverse init list
-    if (i->prule->code == 7602) {
-        pre_init_list(bt,i->kids[0]);
+    int c = i->prule->code;
+    if (c == 7602 || c == 10002 ) {
+        pre_decl_list(bt,i->kids[0]);
         pre_init_declarator(bt,i->kids[2]);
     } else {
         pre_init_declarator(bt,i->kids[0]);

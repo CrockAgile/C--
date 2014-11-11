@@ -2,15 +2,8 @@
 
 using namespace std;
 class A {
-public:
-    int getX();
 private:
-    int x;
+    int x, **z[2][3];
 };
+int x, **z[2][3];
 //int main(int argc, char *argv[]) {
-int main() {
-    int x;
-    //int x, *y[1], **z[2][3];
-}
-void foo(){
-}

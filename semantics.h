@@ -34,7 +34,6 @@ typedef struct type_el {
     struct type_el *next;
 } type_el;
 
-
 struct environ;
 
 typedef struct table_el {
@@ -44,8 +43,7 @@ typedef struct table_el {
     bool cons, defd;
     // needed by Funcs, and Classes
     type_el *param_types;
-    struct environ *par_env;
-    short childnum;
+    struct environ *par_env, *ch_env;
     struct table_el *next;
 } table_el;
 
@@ -84,6 +82,7 @@ environ* CurrEnv();
 env_el* env_stack;
 void print_environ(environ *t);
 void PushCurrEnv();
+void LinkCurrEnv(token *t);
 environ* PopEnv();
 
 /* TREE TRAVERSALS SECTION */
@@ -97,6 +96,7 @@ typedef enum SemanticNode {
     init_declarator = 770,
     simple_declaration = 620,
     parameter_declarator = 890,
+    member_declaration = 990,
     // nodes that require both new env, and adding
     class_specifier = 950,
     function_definition = 900,
@@ -107,7 +107,7 @@ void pre_semantics(struct prodrule*, struct pnode*);
 void post_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
 
-void pre_init_list(btype,struct pnode *i);
+void pre_decl_list(btype,struct pnode *i);
 void pre_init_declarator(btype, struct pnode*);
 type_el* pre_declarator(struct pnode*,btype,token**);
 bool pre_optional_init(struct pnode*);

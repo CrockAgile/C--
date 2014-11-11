@@ -813,12 +813,12 @@ member_declaration:
 	;
 
 member_declarator_list:
-	member_declarator { $$ = only_child($1,10001) ; }
+	member_declarator { $$ = alcnode(10001,1,$1) ; }
 	| member_declarator_list ',' member_declarator { $$ = alcnode(10002,3,$1,$2,$3); }
 	;
 
 member_declarator:
-	| declarator { $$ = only_child($1,10101) ; }
+	| declarator { $$ = alcnode(10101,1,$1) ; }
 	| declarator pure_specifier { $$ = alcnode(10102,2,$1,$2); }
 	| declarator constant_initializer { $$ = alcnode(10103,2,$1,$2); }
 	| identifier ':' constant_expression { $$ = alcnode(10104,3,$1,$2,$3); }
