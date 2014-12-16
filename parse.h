@@ -8,6 +8,8 @@
 #define TABLESIZE 1000
 #define SUFF_SIZE 100
 
+extern int parse_cleanup;
+
 // yytoken business
 int update_yytoken(int, void*);
 int lval_update_yytoken(int, void*, char*);

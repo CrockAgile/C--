@@ -124,13 +124,11 @@ environ* mk_environ(environ *parent, int depth) {
 
 table_el* environ_lookup(environ *e, char *key) {
     table_el* res = e->locals[env_hash(key)];
-    if (res) {
-        while (res) {
-            if (!strcmp(key,res->tok->text)) {
-                return res;
-            }
-            res = res->next;
+    while (res) {
+        if (!strcmp(key,res->tok->text)) {
+            return res;
         }
+        res = res->next;
     }
     return NULL;
 }
@@ -174,8 +172,8 @@ environ* add_env_child(environ *parent) {
 }
 
 void free_environ(environ *target) {
-    if(iostream_cleanup) { // free cin/cout/endl
-      iostream_cleanup = 0;
+    if(sem_cleanup) { // artificial semantics need cleanup
+      sem_cleanup = 0;
       environ *gl = GetGlobal();
       token *t;
       t = environ_lookup(gl,"cin") -> tok;
@@ -183,6 +181,10 @@ void free_environ(environ *target) {
       t = environ_lookup(gl,"cout") -> tok;
       free(t);
       t = environ_lookup(gl,"endl") -> tok;
+      free(t);
+      t = environ_lookup(gl,"string") -> tok;
+      free(t);
+      t = environ_lookup(gl,"fstream") -> tok;
       free(t);
     }
     if (!target) return;
@@ -284,19 +286,26 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
       case start_state:
-        if ( !iostream_cleanup ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
-          iostream_included = 0;
-          iostream_cleanup = 1;
+        iostream_included = 0;
+        if ( include_success ) {
+          include_success = 0;
+          sem_cleanup = 1;
           token *cin_tok = mktoken(-1, "cin", 0, "iostream", "cin");
           type_el *tcin = mk_type_el(class_name,NULL,NULL);
-          environ_insert(CurrEnv(),cin_tok,tcin,false,true);
+          environ_insert(CurrEnv(),cin_tok,tcin,true,true);
           token *cout_tok = mktoken(-1, "cout", 0, "iostream", "cout");
           type_el *tout = mk_type_el(class_name,NULL,NULL);
-          environ_insert(CurrEnv(),cout_tok,tout,false,true);
+          environ_insert(CurrEnv(),cout_tok,tout,true,true);
           token *endl_tok = mktoken(-1, "endl", 0, "iostream", "\n");
           type_el *tendl = mk_type_el(char_type,NULL,NULL);
-          environ_insert(CurrEnv(),endl_tok,tendl,false,true);
-          // TODO environ_insert(CurrEnv(),to,inittype,false,defined);
+          environ_insert(CurrEnv(),endl_tok,tendl,true,true);
+          // TODO class inserts
+          token *string_tok = mktoken(-1, "string", 0, "iostream", "string");
+          type_el *string_type = mk_type_el(class_type,NULL,NULL);
+          environ_insert(CurrEnv(),string_tok,string_type,true,true);
+          token *fstream_tok = mktoken(-1, "fstream", 0, "iostream", "fstream");
+          type_el *fstream_type = mk_type_el(class_type,NULL,NULL);
+          environ_insert(CurrEnv(),fstream_tok,fstream_type,true,true);
         }
         break;
         case member_declaration:

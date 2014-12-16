@@ -55,6 +55,7 @@ void print_filestack();
 
 // linked list business
 int add_to_tail(token* yy_token);
+void print_token(token *t);
 void print_tokenlist(token_el* start);
 
 // helper functions

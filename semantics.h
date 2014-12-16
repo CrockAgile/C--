@@ -8,9 +8,9 @@
 
 #include <stdbool.h>
 #include "parse.h"
-extern int namespace_std;
+extern int include_success;
 extern int iostream_included;
-bool iostream_cleanup;
+extern int sem_cleanup;
 
 void* sem_malloc(int size, bool zero);
 

@@ -44,8 +44,9 @@ int string_included = 0;
 int fstream_included = 0;
 int cstring_included = 0;
 int iomanip_included = 0;
-
-int namespace_std = 0;
+int include_success = 0;
+int sem_cleanup = 0;
+int parse_cleanup = 0;
 
 %}
 
@@ -192,8 +193,12 @@ while			return update_yytoken(WHILE,NULL);
 
 "using"[\t ]*"namespace"[\t ]*"std"[\t ]*;  {
     if (iostream_included) {
-        namespace_std = 1;
-        //insert_name($2->t,265);
+        include_success = 1;
+        parse_cleanup = 1;
+        token* stok = mktoken(258, "string", 0, "iostream", "string");
+        if(!insert_name(stok,265)) free(stok);
+        stok = mktoken(258, "fstream", 0, "iostream", "fstream");
+        if(!insert_name(stok,265)) free(stok);
     }
 }
 

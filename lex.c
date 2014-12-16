@@ -103,6 +103,27 @@ int add_to_tail(token* curr_yytoken) {
     tokenlist_tail = added;
     return 1;
 }
+void print_token(token *t) {
+  printf("%-10d%-30s%-10d%-20s",
+  t->code,
+  t->text,
+  t->lineno,
+  t->filename
+  );
+  switch(t->code){
+    case INTEGER:
+    printf("%-30d",*(int*)(t->lval));
+    break;
+    case FLOATING:
+    printf("%-30f",*(float*)(t->lval));
+    break;
+    case STRING:
+    case CHARACTER:
+    printf("%-30s",(char*)(t->lval));
+    break;
+  }
+  printf("\n");
+}
 void print_tokenlist(token_el* start) {
 	printf("%-10s%-30s%-10s%-20s%-30s",
 		"Category",
@@ -117,25 +138,7 @@ void print_tokenlist(token_el* start) {
 	}
 	printf("\n");
     while(start) {
-        printf("%-10d%-30s%-10d%-20s",
-            start->t->code,
-            start->t->text,
-            start->t->lineno,
-            start->t->filename
-        );
-        switch(start->t->code){
-            case INTEGER:
-                printf("%-30d",*(int*)(start->t->lval));
-                break;
-            case FLOATING:
-                printf("%-30f",*(float*)(start->t->lval));
-                break;
-            case STRING:
-            case CHARACTER:
-                printf("%-30s",(char*)(start->t->lval));
-                break;
-        }
-        printf("\n");
+        print_token(start->t);
         start = start->next;
     }
 }

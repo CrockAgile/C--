@@ -674,6 +674,13 @@ int init_nametable() {
 void free_nametable() {
     int size = TABLESIZE, i;
     token_el *curr, *prev;
+    if(parse_cleanup) {
+      parse_cleanup = 0;
+      token *t = lookup_name("string")-> t;
+      free(t);
+      t = lookup_name("fstream")-> t;
+      free(t);
+    }
     for( i=0; i<size; ++i) {
         curr = nametable[i];
         while(curr) {
@@ -698,13 +705,11 @@ int insert_name(token *insert, int new_code) {
     unsigned long foo = hash_name(insert->text);
     token_el** des = &nametable[foo%TABLESIZE];
     token_el* res = *des;
-    if( res ) {
-        while( res->next ) { // collision does not guarantee identical
-            if( strcmp(insert->text, res->t->text) ) {
-                return 0;
-            }
-            res = res->next;
+    while( res ) { // collision does not guarantee identical
+        if( !strcmp(insert->text, res->t->text) ) {
+            return 0;
         }
+        res = res->next;
     }
     token_el* new = (token_el*)malloc(sizeof(token_el));
     new->t = insert;
