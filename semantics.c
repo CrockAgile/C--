@@ -141,8 +141,10 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     // if already in table, error
     table_el *res = environ_lookup(e,to->text);
     if (res) {
-        fprintf(stderr,"error: redefination of %s on line %d\n",
-                to->text,to->lineno);
+        fprintf(stderr,"error: redefinition of %s at %s:%d\n",
+                to->text,to->filename,to->lineno);
+        fprintf(stderr,"previous definition at %s:%d\n",
+                res->tok->filename,res->tok->lineno);
         exit(3);
     }
     // make new table element
@@ -282,16 +284,16 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
       case start_state:
-        if ( iostream_cleanup ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
+        if ( !iostream_cleanup ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
           iostream_included = 0;
           iostream_cleanup = 1;
-          token *cin_tok = mktoken(-1, "cin", -1, "iostream", "cin");
+          token *cin_tok = mktoken(-1, "cin", 0, "iostream", "cin");
           type_el *tcin = mk_type_el(class_name,NULL,NULL);
           environ_insert(CurrEnv(),cin_tok,tcin,false,true);
-          token *cout_tok = mktoken(-1, "cout", -1, "iostream", "cout");
+          token *cout_tok = mktoken(-1, "cout", 0, "iostream", "cout");
           type_el *tout = mk_type_el(class_name,NULL,NULL);
           environ_insert(CurrEnv(),cout_tok,tout,false,true);
-          token *endl_tok = mktoken(-1, "endl", -1, "iostream", "\n");
+          token *endl_tok = mktoken(-1, "endl", 0, "iostream", "\n");
           type_el *tendl = mk_type_el(char_type,NULL,NULL);
           environ_insert(CurrEnv(),endl_tok,tendl,false,true);
           // TODO environ_insert(CurrEnv(),to,inittype,false,defined);
