@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include "parse.h"
+extern int namespace_std;
 
 void* sem_malloc(int size, bool zero);
 

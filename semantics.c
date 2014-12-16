@@ -81,7 +81,7 @@ void print_type_list(type_el *head) {
     type_el* sub;
     while( head ) {
        print_type(head);
-       sub = head->sub; 
+       sub = head->sub;
        while( sub ) {
            print_type(sub);
            sub = sub->next;
@@ -92,7 +92,7 @@ void print_type_list(type_el *head) {
 
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
     table_el *new = sem_malloc(sizeof(table_el),1);
-    new->tok = t; new->type = ty; new->par_env = p; 
+    new->tok = t; new->type = ty; new->par_env = p;
     new->next = n; new->ch_env = NULL; // no child yet
     // other elements zeroed from calloc
     return new;
@@ -137,7 +137,7 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     table_el** des = &(e->locals[index]);
     // if already in table, error
     table_el *res = environ_lookup(e,to->text);
-    if (res && res->defd ) {
+    if (res) {
         fprintf(stderr,"error: redefination of %s on line %d\n",
                 to->text,to->lineno);
         exit(3);
@@ -193,8 +193,12 @@ void free_environ(environ *target) {
 }
 
 environ* GetGlobal() {
-    if (!GlobalEnviron) // singleton?
+    if (!GlobalEnviron) { // singleton?
         GlobalEnviron = mk_environ(NULL,0);
+        if ( namespace_std ) {
+            //insert cin/cout/string
+        }
+    }
     // 'GLOBAL' environ is special case environ
     // that has no parent and depth 0, i.e. root
     return GlobalEnviron;
@@ -360,7 +364,7 @@ type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
         case 8301:
             *t = d->t; // found token
             return NULL;
-        case 7801: 
+        case 7801:
             return mk_type_el(
                     ty,
                     NULL,

@@ -5,7 +5,7 @@
  * Adams, and Shea Newton.
  *
  * Based on Sandro Sigala's transcription of the ISO C++ 1996 draft standard.
- * 
+ *
  */
 
 /*	$Id: parser.y,v 1.3 1997/11/19 15:13:16 sandro Exp $	*/
@@ -671,7 +671,7 @@ direct_declarator:
 	| direct_declarator '[' constant_expression_opt ']' { $$ = alcnode(7906,4,$1,$2,$3,$4); }
 	| CLASS_NAME '('parameter_declaration_clause ')' { $$ = alcnode(7907,4,$1,$2,$3,$4); }
 	| CLASS_NAME COLONCOLON declarator_id '('parameter_declaration_clause ')' { $$ = alcnode(7908,6,$1,$2,$3,$4,$5,$6); }
-	| CLASS_NAME COLONCOLON CLASS_NAME '('parameter_declaration_clause ')' { $$ = alcnode(7909,6,$1,$2,$3,$4,$5,$6); } 
+	| CLASS_NAME COLONCOLON CLASS_NAME '('parameter_declaration_clause ')' { $$ = alcnode(7909,6,$1,$2,$3,$4,$5,$6); }
     | '(' declarator ')' { $$ = alcnode(7910,3,$1,$2,$3); }
 	;
 
@@ -1194,4 +1194,5 @@ type_error(struct pnode* doubled)
 {
     fprintf(stderr, "%s:%d: error: redefinition of 'class %s'\n",
         doubled->t->filename, doubled->t->lineno, doubled->t->text);
+    exit(3);
 }

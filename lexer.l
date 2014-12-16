@@ -190,7 +190,13 @@ while			return update_yytoken(WHILE,NULL);
 <include>"<cstring>"	cstring_included = 1; yy_pop_state();
 <include>"<iomanip>"	iomanip_included = 1; yy_pop_state();
 
-"using"[\t ]*"namespace"[\t ]*"std"[\t ]*;   namespace_std = 1;
+"using"[\t ]*"namespace"[\t ]*"std"[\t ]*;  {
+    if (iostream_included) {
+        namespace_std = 1;
+        //insert_name($2->t,265);
+    }
+}
+
 
 <INITIAL><<EOF>> {
 		if( --include_stack_ctr < 0) {
@@ -236,7 +242,7 @@ while			return update_yytoken(WHILE,NULL);
 	\n		|
 	<<EOF>>	{
                 lexerr("unterminated string constant");
-                yy_pop_state(); 
+                yy_pop_state();
                 return lval_update_yytoken(STRING,strdup(""),"");
             }
 	\\		|

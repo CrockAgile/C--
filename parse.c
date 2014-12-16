@@ -43,7 +43,8 @@ struct pnode *alcnode(int rule, int kids, ...) {
     new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
 
-    new_pnode->kids = (struct pnode**)malloc(kids * sizeof(struct pnode*));
+    new_pnode->kids = (struct pnode**)malloc((kids + 1) * sizeof(struct pnode*));
+    new_pnode->kids[kids] = NULL;
     if(!new_pnode->kids) return NULL;
     int x;
     va_start( args, kids );
@@ -53,7 +54,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
         if (kid) // assign parent
             new_pnode->kids[x]->par = new_pnode;
     }
-    va_end( args ); 
+    va_end( args );
     new_pnode->t = NULL;
     return new_pnode;
 }
@@ -91,7 +92,17 @@ void treeprint(struct pnode *p, int depth) {
 
     if (p->t) { // 'original text' (type code)
         if(p->prule) {
-            printf("%*s '%s' prule:%d\n", depth*2, " ", p->t->text,p->prule->code);
+          struct prodrule* pr = p->prule;
+          humanreadable(pr,&curr);
+          printf("%*s '%s' prule:%d ", depth*2, " ", p->t->text,p->prule->code);
+          while(pr->next) {
+            pr = pr->next;
+            free(curr);
+            humanreadable(pr,&curr);
+            printf(" %s", curr);
+          }
+          free(curr);
+          printf("\n");
         } else {
             printf("%*s '%s' \n", depth*2, " ", p->t->text);
         }
@@ -298,7 +309,7 @@ void freetree(struct pnode *p) {
  * handler_seq_opt 15500
  * assign_expr_opt 15600
  * type_id_list_opt 15700
-*/ 
+*/
 
 char* craft_readable(char* base, int prodrule) {
     int s = strlen(base);
@@ -308,7 +319,7 @@ char* craft_readable(char* base, int prodrule) {
         suff_len++;
     }
     suffix = prodrule % SUFF_SIZE;
-    char* buf = (char*)malloc(s + suff_len + 1); 
+    char* buf = (char*)malloc(s + suff_len + 1);
     if (!buf)
         exit(2);
     strcpy(buf,base);
@@ -929,5 +940,3 @@ void free_treelist(root_el *head) {
     }
     treelist_tail = NULL;
 }
-
-
