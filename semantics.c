@@ -117,13 +117,14 @@ void free_table_list(table_el *head) {
     }
 }
 
-environ* mk_environ(environ *parent, int depth) {
+environ* mk_environ(environ *parent, char *s, int depth) {
     environ *new = sem_malloc(sizeof(environ),1);
     new->locals = sem_malloc(S_SIZE * sizeof(table_el*),1);
     new->up = parent;
     new->ksize = ENV_KIDS;
     new->depth = depth;
     new->kids = sem_malloc(ENV_KIDS * sizeof(environ*),1);
+    new->name = s;
     return new;
 }
 
@@ -171,7 +172,7 @@ environ* add_env_child(environ *parent) {
         if (!parent->kids) exit(3);
         parent->ksize = 2*nkids; // update with new sizes
     }
-    new = mk_environ(parent,parent->depth+1);
+    new = mk_environ(parent,"tmp",parent->depth+1);
     parent->kids[parent->nkids++] = new;
     return new;
 }
@@ -217,7 +218,7 @@ void free_environ(environ *target) {
 
 environ* GetGlobal() {
     if (!GlobalEnviron) { // singleton?
-        GlobalEnviron = mk_environ(NULL,0);
+        GlobalEnviron = mk_environ(NULL,"Global",0);
 
     }
     // 'GLOBAL' environ is special case environ
@@ -235,7 +236,7 @@ void print_environ(environ *curr) {
     if (!curr) return;
     int i, nkids;
     table_el *res;
-    printf("%*s%d:",curr->depth*2, " ",curr->depth);
+    printf("%*s%s:",(curr->depth+1)*2, " ",curr->name);
     for (i=0; i<S_SIZE; i++) {
         res = curr->locals[i];
         if (res) {
@@ -439,17 +440,17 @@ bool pre_optional_init(struct pnode* c) {
 
 void param_decls(struct pnode *p, type_el **head) {
   struct prodrule *curr;
-  type_el *new;
+  type_el *new, *c = *head;
   int i;
   if (!p) return;
   for(curr=p->prule; curr; curr=curr->next) {
     new = param_decl(curr,p);
     if (new) {
       new = mk_type_el(new->type, new->sib, new->next);
-      if (*head) {
-        while((*head)->sib)
-          *head = (*head)->sib;
-        (*head)->sib = new;
+      if (c) {
+        while(c->sib)
+          c = c->sib;
+        c->sib = new;
       }
       else {
         *head = new;

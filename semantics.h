@@ -58,6 +58,7 @@ typedef struct environ {
     // I know they aren't required but seemed fake w/o them
     short nkids, ksize, depth;
     struct environ **kids;
+    char *name;
 } environ;
 
 // for a stack of environ references
@@ -73,7 +74,7 @@ void print_type(type_el*,type_el*);
 void print_type_list(type_el *head, type_el *p);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
 void free_table_list(table_el *head);
-environ* mk_environ(environ* parent,int depth);
+environ* mk_environ(environ* parent,char *s, int depth);
 table_el* environ_lookup(environ *e, char *key);
 table_el* environ_insert(environ *e, token *to, type_el *ty, bool c, bool d);
 environ* add_env_child(environ *parent);
