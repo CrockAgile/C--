@@ -69,6 +69,9 @@ void print_type(type_el *curr) {
         case void_type:
             printf("void");
             break;
+        case class_name:
+            printf("class_instance");
+            break;
         default:
             printf(" default %d",curr->type);
     }
@@ -270,6 +273,8 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
             types = mk_type_el(class_type,NULL,NULL);
             to = n->kids[0]->kids[1]->t;//spec->class_head->'name'
             environ_insert(CurrEnv(),to,types,false,true);
+            LinkCurrEnv(to);
+            break;
         case compound_statement:
             PushCurrEnv();
             break;
@@ -325,6 +330,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
+    printf("def? %d -> nkids: %d\n",defined,i->nkids);
     environ_insert(CurrEnv(),to,inittype,false,defined);
     //TODO int size = pre_optional_init(i->kids[1]);
 }

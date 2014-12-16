@@ -20,6 +20,7 @@ typedef enum btype{
         char_type = 299,
         double_type = 307,
         class_type = 300,
+        class_name = 265,
         // complicated linked types
         pointer_type,
         function_type,
