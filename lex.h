@@ -31,6 +31,8 @@ struct token_elem {
     struct token_elem* next;
 };
 
+token* mktoken(int, char*, int, char*, void*);
+
 typedef struct token_elem token_el;
 
 struct file_elem {

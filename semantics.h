@@ -55,7 +55,7 @@ typedef struct environ {
     // only way I could figure to implement block definitions
     // I know they aren't required but seemed fake w/o them
     short nkids, ksize, depth;
-    struct environ **kids; 
+    struct environ **kids;
 } environ;
 
 // for a stack of environ references
@@ -95,6 +95,7 @@ typedef enum SemanticNode {
     iteration_statement = 550,
     compound_statement = 510,
     // nodes that require adding to table
+    start_state = 140,
     init_declarator = 770,
     simple_declaration = 620,
     parameter_declarator = 890,
@@ -105,7 +106,7 @@ typedef enum SemanticNode {
 
 } SemanticNode;
 
-void pre_semantics(struct prodrule*, struct pnode*); 
+void pre_semantics(struct prodrule*, struct pnode*);
 void post_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
 
@@ -113,4 +114,4 @@ void pre_decl_list(btype,struct pnode *i);
 void pre_init_declarator(btype, struct pnode*);
 type_el* pre_declarator(struct pnode*,btype,token**);
 bool pre_optional_init(struct pnode*);
-#endif	
+#endif

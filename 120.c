@@ -34,7 +34,7 @@ int parsetree_setup(int argc,char **argv) {
             case 'v': // verbose mode to print tree
                 verbose_mode = 1;
                 break;
-        } 
+        }
 
     if (!init_nametable()) {
         fprintf(stderr,"Failed to initialize nametable\n");
@@ -62,6 +62,7 @@ void parsetree_teardown() {
 void call_parsing(char* filename) {
     int parse_result;
     yytoken.filename = filename;
+    printf("opening: %s\n",filename);
     yyin = fopen(filename,"r");
     parse_result = yyparse();
     if ( parse_result == 1 ) {

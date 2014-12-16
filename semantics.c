@@ -72,6 +72,9 @@ void print_type(type_el *curr) {
         case class_name:
             printf("class_instance");
             break;
+        case char_type:
+            printf("char");
+            break;
         default:
             printf(" default %d",curr->type);
     }
@@ -195,9 +198,7 @@ void free_environ(environ *target) {
 environ* GetGlobal() {
     if (!GlobalEnviron) { // singleton?
         GlobalEnviron = mk_environ(NULL,0);
-        if ( namespace_std ) {
-            //insert cin/cout/string
-        }
+
     }
     // 'GLOBAL' environ is special case environ
     // that has no parent and depth 0, i.e. root
@@ -269,6 +270,20 @@ environ* PopEnv() {
 void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
+      case start_state:
+        if ( namespace_std ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
+          token *cin_tok = mktoken(-1, "cin", -1, "iostream", "cin");
+          type_el *tcin = mk_type_el(class_name,NULL,NULL);
+          environ_insert(CurrEnv(),cin_tok,tcin,false,true);
+          token *cout_tok = mktoken(-1, "cout", -1, "iostream", "cout");
+          type_el *tout = mk_type_el(class_name,NULL,NULL);
+          environ_insert(CurrEnv(),cout_tok,tout,false,true);
+          token *endl_tok = mktoken(-1, "endl", -1, "iostream", "\n");
+          type_el *tendl = mk_type_el(char_type,NULL,NULL);
+          environ_insert(CurrEnv(),endl_tok,tendl,false,true);
+          // TODO environ_insert(CurrEnv(),to,inittype,false,defined);
+        }
+        break;
         case member_declaration:
             bt = n->kids[0]->t->code;
             pre_decl_list(bt,n->kids[1]);
@@ -296,6 +311,20 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
 
 void post_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
+        case start_state:
+            if(namespace_std) { // free cin/cout/endl
+              environ *gl = GetGlobal();
+              table_el *tl = environ_lookup(gl,"cin");
+              token *t = tl->tok;
+              free(t);
+              tl = environ_lookup(gl,"cout");
+              t = tl->tok;
+              free(t);
+              tl = environ_lookup(gl,"endl");
+              t = tl->tok;
+              free(t);
+            }
+            break;
         case class_specifier:
         case compound_statement:
             PopEnv();
@@ -334,7 +363,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
-    printf("def? %d -> nkids: %d\n",defined,i->nkids);
+    // TODO printf("def? %d -> nkids: %d\n",defined,i->nkids);
     environ_insert(CurrEnv(),to,inittype,false,defined);
     //TODO int size = pre_optional_init(i->kids[1]);
 }

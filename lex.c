@@ -6,6 +6,21 @@ extern char* yytext;
 extern YYSTYPE yylval;
 extern YYSTYPE root;
 
+token* mktoken(int c, char* t, int ln , char* fn, void* lval) {
+  token *nt = malloc(sizeof(token));
+  nt->code = c; nt->text = t; nt->lineno = ln;
+  nt->filename = fn; nt->lval = lval;
+  return nt;
+}
+
+// struct s_token {
+//   int code;
+//   char* text;
+//   int lineno;
+//   char* filename;
+//   void* lval;
+// };
+
 void type_insert(char *name,int code) {
     name_insert *new = malloc(sizeof(name_insert));
     if(!new)
@@ -162,5 +177,3 @@ void escape_char(char* src, char* dest) {
             break;
     }
 }
-
-
