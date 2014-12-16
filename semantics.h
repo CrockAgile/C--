@@ -34,7 +34,7 @@ typedef enum btype{
 typedef struct type_el {
     btype type; // basic types
     int elements;
-    struct type_el *sub; // sub-lvls
+    struct type_el *sib;
     struct type_el *next;
 } type_el;
 
@@ -69,13 +69,13 @@ typedef struct env_el {
 unsigned long env_hash(char *s);
 type_el* mk_type_el(btype t, type_el *s, type_el *n);
 void free_type_list(type_el* head);
-void print_type(type_el*);
-void print_type_list(type_el *head);
+void print_type(type_el*,type_el*);
+void print_type_list(type_el *head, type_el *p);
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n);
 void free_table_list(table_el *head);
 environ* mk_environ(environ* parent,int depth);
 table_el* environ_lookup(environ *e, char *key);
-bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d);
+table_el* environ_insert(environ *e, token *to, type_el *ty, bool c, bool d);
 environ* add_env_child(environ *parent);
 void free_environ(environ *target);
 
@@ -108,6 +108,7 @@ typedef enum SemanticNode {
 
 } SemanticNode;
 
+table_el* func_loc;
 void pre_semantics(struct prodrule*, struct pnode*);
 void post_semantics(struct prodrule*, struct pnode*);
 void semantic_traversal(struct pnode*);
@@ -116,4 +117,6 @@ void pre_decl_list(btype,struct pnode *i);
 void pre_init_declarator(btype, struct pnode*);
 type_el* pre_declarator(struct pnode*,btype,token**);
 bool pre_optional_init(struct pnode*);
+void param_decls(struct pnode*, type_el** h);
+type_el* param_decl(struct prodrule*, struct pnode*);
 #endif

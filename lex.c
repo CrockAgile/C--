@@ -122,7 +122,7 @@ void print_token(token *t) {
     printf("%-30s",(char*)(t->lval));
     break;
   }
-  printf("\n");
+  putchar('\n');
 }
 void print_tokenlist(token_el* start) {
 	printf("%-10s%-30s%-10s%-20s%-30s",
@@ -132,11 +132,11 @@ void print_tokenlist(token_el* start) {
 		"Filename",
 		"Lval");
 	int i;
-	printf("\n");
+	putchar('\n');
 	for (i = 0; i < 9; i++) {
 		printf("----------");
 	}
-	printf("\n");
+	putchar('\n');
     while(start) {
         print_token(start->t);
         start = start->next;

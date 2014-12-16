@@ -30,26 +30,24 @@ unsigned long env_hash(char *s) {
 
 type_el* mk_type_el(btype t, type_el *s, type_el *n) {
     type_el *new = sem_malloc(sizeof(type_el),0);// -1 indicates elems N/A
-    new->type = t; new->sub = s; new->next = n; new->elements = -1;
+    new->type = t; new->sib = s; new->next = n; new->elements = -1;
     return new;
 }
 
 // lisp flashbacks
 void free_type_list(type_el* head) {
-    if (!head) return;
-    type_el *prev, *curr = head;
-    type_el *subp, *subc = head->sub;
-    while( (prev = curr) ) {
-        curr = curr->next;
-        while( (subp = subc) ) {
-            subc = subc->next;
-            free(subp);
-        }
-        free(prev);
-    }
+  if (!head) return;
+  type_el *prev;
+
+  while(head) {
+    prev = head;
+    head = head->next;
+    free(prev);
+  }
+
 }
 
-void print_type(type_el *curr) {
+void print_type(type_el *curr, type_el *p) {
     switch( curr->type ) {
         case class_type:
             printf("class");
@@ -58,7 +56,9 @@ void print_type(type_el *curr) {
             printf("*");
             break;
         case function_type:
-            printf("()");
+            putchar('(');
+            print_type_list(p,NULL);
+            putchar(')');
             break;
         case array_type:
             printf("[]");
@@ -80,17 +80,16 @@ void print_type(type_el *curr) {
     }
 }
 
-void print_type_list(type_el *head) {
-    type_el* sub;
-    while( head ) {
-       print_type(head);
-       sub = head->sub;
-       while( sub ) {
-           print_type(sub);
-           sub = sub->next;
-       }
-       head = head->next;
-    }
+void print_type_list(type_el *head, type_el *params) {
+  if (!head) return;
+  type_el *curr;
+  for (curr=head; curr; curr = curr->next)
+    print_type(curr,params);
+
+  if (head->sib) {
+    putchar(',');
+    print_type_list(head->sib, params);
+  }
 }
 
 table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
@@ -103,11 +102,17 @@ table_el* mk_table_el(token *t, type_el *ty, environ *p, table_el *n) {
 
 void free_table_list(table_el *head) {
     table_el *prev, *curr = head;
+    type_el *parcurr, *parprev;
     while ( (prev = curr) ) {
         curr = curr->next;
         // tokens are freed in parse cleanup
         free_type_list(prev->type);
-        free_type_list(prev->param_types);
+        parcurr = prev->param_types;
+        while( (parprev = parcurr) ) {
+          parcurr = parcurr->sib;
+          free(parprev);
+        }
+
         free(prev);
     }
 }
@@ -133,7 +138,7 @@ table_el* environ_lookup(environ *e, char *key) {
     return NULL;
 }
 
-bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
+table_el* environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     unsigned long index = env_hash(to->text);
     table_el** des = &(e->locals[index]);
     // if already in table, error
@@ -153,7 +158,7 @@ bool environ_insert(environ *e, token *to, type_el *ty, bool c, bool d) {
     // prepend to list of hash collisions
     new->next = *des;
     *des = new;
-    return 1;
+    return new;
 }
 
 environ* add_env_child(environ *parent) {
@@ -235,11 +240,11 @@ void print_environ(environ *curr) {
         res = curr->locals[i];
         if (res) {
             printf(" '%s' (%d,%d,",res->tok->text,i,res->defd);
-            print_type_list(res->type);
+            print_type_list(res->type,res->param_types);
             printf(") |");
         }
     }
-    printf("\n");
+    putchar('\n');
     nkids = curr->nkids;
     for (i=0;i<=nkids;i++)
         print_environ(curr->kids[i]);
@@ -321,7 +326,11 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
             break;
         case compound_statement:
             PushCurrEnv();
-            // ParamList(n->par)
+            if (n->prule->code == 9101) {// function body
+              type_el *head = NULL;
+              param_decls(n->par->kids[1],&head);
+              func_loc->param_types = head;
+            }
             break;
         case simple_declaration:
             bt = n->kids[0]->t->code;
@@ -330,7 +339,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
         case function_definition:
             bt = n->kids[0]->t->code;
             types = pre_declarator(n->kids[1],bt,&to);
-            environ_insert(CurrEnv(),to,types,false,true);
+            func_loc = environ_insert(CurrEnv(),to,types,false,true);
             break;
     }
 }
@@ -426,4 +435,39 @@ bool pre_optional_init(struct pnode* c) {
     if (c == NULL)
         return false;
     return true;
+}
+
+void param_decls(struct pnode *p, type_el **head) {
+  struct prodrule *curr;
+  type_el *new;
+  int i;
+  if (!p) return;
+  for(curr=p->prule; curr; curr=curr->next) {
+    new = param_decl(curr,p);
+    if (new) {
+      new = mk_type_el(new->type, new->sib, new->next);
+      if (*head) {
+        while((*head)->sib)
+          *head = (*head)->sib;
+        (*head)->sib = new;
+      }
+      else {
+        *head = new;
+      }
+    }
+  }
+
+  for (i = 0; i < p->nkids; i++)
+    param_decls(p->kids[i],head);
+
+}
+
+type_el* param_decl(struct prodrule* pr, struct pnode* pn) {
+  btype bt; type_el* types = NULL; token *to;
+  if (pr->code/10 == parameter_declarator) {
+    bt = pn->kids[0]->t->code;
+    types = pre_declarator(pn->kids[1],bt,&to);
+    environ_insert(CurrEnv(),to,types,false,true);;
+  }
+  return types;
 }

@@ -102,7 +102,7 @@ void treeprint(struct pnode *p, int depth) {
             printf(" %s", curr);
           }
           free(curr);
-          printf("\n");
+          putchar('\n');
         } else {
             printf("%*s '%s' \n", depth*2, " ", p->t->text);
         }
@@ -118,7 +118,7 @@ void treeprint(struct pnode *p, int depth) {
             printf(" %s",curr);
         }
         free(curr);
-        printf("\n");
+        putchar('\n');
         // print only detailed version if more than 1 transition
         //printf("%*s %s <-%d %s : %d\n", depth*2, " ", last,i,first,p->nkids);
     }
