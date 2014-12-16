@@ -172,6 +172,17 @@ environ* add_env_child(environ *parent) {
 }
 
 void free_environ(environ *target) {
+    if(iostream_cleanup) { // free cin/cout/endl
+      iostream_cleanup = 0;
+      environ *gl = GetGlobal();
+      token *t;
+      t = environ_lookup(gl,"cin") -> tok;
+      free(t);
+      t = environ_lookup(gl,"cout") -> tok;
+      free(t);
+      t = environ_lookup(gl,"endl") -> tok;
+      free(t);
+    }
     if (!target) return;
     int i;
     short nkids;
@@ -271,7 +282,9 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
     btype bt; token* to; type_el* types;
     switch(p->code / 10) {
       case start_state:
-        if ( namespace_std ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
+        if ( iostream_cleanup ) { // mktoken(int c, char* t, int ln , char* fn, void* lval)
+          iostream_included = 0;
+          iostream_cleanup = 1;
           token *cin_tok = mktoken(-1, "cin", -1, "iostream", "cin");
           type_el *tcin = mk_type_el(class_name,NULL,NULL);
           environ_insert(CurrEnv(),cin_tok,tcin,false,true);
@@ -312,18 +325,6 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
 void post_semantics(struct prodrule *p, struct pnode* n){
     switch(p->code / 10) {
         case start_state:
-            if(namespace_std) { // free cin/cout/endl
-              environ *gl = GetGlobal();
-              table_el *tl = environ_lookup(gl,"cin");
-              token *t = tl->tok;
-              free(t);
-              tl = environ_lookup(gl,"cout");
-              t = tl->tok;
-              free(t);
-              tl = environ_lookup(gl,"endl");
-              t = tl->tok;
-              free(t);
-            }
             break;
         case class_specifier:
         case compound_statement:
