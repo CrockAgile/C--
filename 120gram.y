@@ -726,15 +726,15 @@ direct_abstract_declarator:
 
 parameter_declaration_clause:
 	  parameter_declaration_list ELLIPSIS { $$ = alcnode(8701,2,$1,$2); }
-	| parameter_declaration_list { $$ = only_child($1,8702) ; }
+  | parameter_declaration_list { $$ = alcnode(8702,1,$1); }
 	| ELLIPSIS { $$ = only_child($1,8703) ; }
 	| parameter_declaration_list ',' ELLIPSIS { $$ = alcnode(8704,3,$1,$2,$3); }
 	| { $$ = NULL ; }
 	;
 
 parameter_declaration_list:
-	parameter_declaration { $$ = only_child($1,8802) ; }
-	| parameter_declaration_list ',' parameter_declaration { $$ = alcnode(8801,3,$1,$2,$3); }
+	parameter_declaration { $$ = only_child($1,8801) ; }
+	| parameter_declaration_list ',' parameter_declaration { $$ = alcnode(8802,3,$1,$2,$3); }
 	;
 
 parameter_declaration:

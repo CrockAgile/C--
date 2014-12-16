@@ -290,6 +290,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
         if ( include_success ) {
           include_success = 0;
           sem_cleanup = 1;
+          // insert iostream instances
           token *cin_tok = mktoken(-1, "cin", 0, "iostream", "cin");
           type_el *tcin = mk_type_el(class_name,NULL,NULL);
           environ_insert(CurrEnv(),cin_tok,tcin,true,true);
@@ -299,7 +300,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
           token *endl_tok = mktoken(-1, "endl", 0, "iostream", "\n");
           type_el *tendl = mk_type_el(char_type,NULL,NULL);
           environ_insert(CurrEnv(),endl_tok,tendl,true,true);
-          // TODO class inserts
+          // insert iostream classes
           token *string_tok = mktoken(-1, "string", 0, "iostream", "string");
           type_el *string_type = mk_type_el(class_type,NULL,NULL);
           environ_insert(CurrEnv(),string_tok,string_type,true,true);
@@ -320,6 +321,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n){
             break;
         case compound_statement:
             PushCurrEnv();
+            // ParamList(n->par)
             break;
         case simple_declaration:
             bt = n->kids[0]->t->code;
@@ -375,9 +377,9 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0],bt,&to);
     bool defined = pre_optional_init(i->kids[1]);
-    // TODO printf("def? %d -> nkids: %d\n",defined,i->nkids);
+    // printf("def? %d -> nkids: %d\n",defined,i->nkids);
     environ_insert(CurrEnv(),to,inittype,false,defined);
-    //TODO int size = pre_optional_init(i->kids[1]);
+    // int size = pre_optional_init(i->kids[1]);
 }
 
 type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
@@ -396,7 +398,7 @@ type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
                     pre_declarator(d->kids[0],ty,t));
             break;
         case 7906: // append array type to type list
-            //TODO set the size of the array
+            // set the size of the array
             return mk_type_el(
                     array_type,
                     NULL,
@@ -419,7 +421,7 @@ type_el* pre_declarator(struct pnode* d,btype ty, token** t) {
             return NULL;
     }
 }
-// TODO actually initialize values
+
 bool pre_optional_init(struct pnode* c) {
     if (c == NULL)
         return false;

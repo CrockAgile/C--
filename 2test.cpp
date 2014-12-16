@@ -1,5 +1,4 @@
-#include <iostream>
-using namespace std;
-void bar() {
-    cout << "foo\n";
+int foo(int argc, char* argv[]) {
+    char* argv2[2];
+    return 0;
 }
