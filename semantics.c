@@ -122,10 +122,10 @@ void free_table_list(table_el *head) {
 }
 
 void free_types(type_el *curr) {
-  if (!curr) return;
-  if (curr->next) free_types(curr->next);
-  if (curr->sib) free_types(curr->sib);
-  free(curr);
+    if (!curr) return;
+    if (curr->next) free_types(curr->next);
+    if (curr->sib) free_types(curr->sib);
+    free(curr);
 }
 
 env* mk_environ(env *parent, char *s, int depth) {
@@ -160,6 +160,7 @@ env* child_env_lookup(env *e, char *key) {
 }
 
 table_el* environ_insert(env *e, token *to, type_el *ty, type_el *plist, bool c, bool d) {
+    if (!to->text) return NULL;
     unsigned long index = env_hash(to->text);
     table_el** des = &(e->locals[index]);
     table_el *res = environ_lookup(e, to->text);
@@ -234,8 +235,8 @@ void free_environ(env *target) {
     for (i = 0; i < S_SIZE; i++) {
         l = target->locals[i];
         if (l) {
-          free_types(l->type);
-          free_types(l->param_types);
+            free_types(l->type);
+            free_types(l->param_types);
         }
     }
     // dont free parent, handled in tree traversal
@@ -347,17 +348,17 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
                 environ_insert(CurrEnv(), cin_tok, tcin, NULL, true, true);
                 token *cout_tok = mktoken(-1, "cout", 0, "iostream", "cout");
                 type_el *tout = mk_type_el(class_instance, NULL, NULL);
-                environ_insert(CurrEnv(), cout_tok, tout, NULL,true, true);
+                environ_insert(CurrEnv(), cout_tok, tout, NULL, true, true);
                 token *endl_tok = mktoken(-1, "endl", 0, "iostream", "\n");
                 type_el *tendl = mk_type_el(char_type, NULL, NULL);
-                environ_insert(CurrEnv(), endl_tok, tendl, NULL,true, true);
+                environ_insert(CurrEnv(), endl_tok, tendl, NULL, true, true);
                 // insert iostream classes
                 token *string_tok = mktoken(-1, "string", 0, "iostream", "string");
                 type_el *string_type = mk_type_el(class_type, NULL, NULL);
-                environ_insert(CurrEnv(), string_tok, string_type, NULL,true, true);
+                environ_insert(CurrEnv(), string_tok, string_type, NULL, true, true);
                 token *fstream_tok = mktoken(-1, "fstream", 0, "iostream", "fstream");
                 type_el *fstream_type = mk_type_el(class_type, NULL, NULL);
-                environ_insert(CurrEnv(), fstream_tok, fstream_type, NULL,true, true);
+                environ_insert(CurrEnv(), fstream_tok, fstream_type, NULL, true, true);
             }
             break;
         case member_declaration:
@@ -367,7 +368,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
         case class_specifier:
             types = mk_type_el(class_type, NULL, NULL);
             to = n->kids[0]->kids[1]->t; //spec->class_head->'name'
-            environ_insert(CurrEnv(), to, types,NULL, false, true);
+            environ_insert(CurrEnv(), to, types, NULL, false, true);
             LinkCurrEnv(to);
             break;
         case compound_statement:
@@ -391,12 +392,12 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             types = pre_declarator(n->kids[1], bt, &to);
             t = DownFind(n, 8702);
             proto_type(t, &head);
-            func_loc = environ_insert(CurrEnv(), to, types,head, false, true);
+            func_loc = environ_insert(CurrEnv(), to, types, head, false, true);
             break;
         case param_decl_clause:
             head = NULL;
-            ddecl = UpFind(n,7905);
-            ident = DownFind(ddecl->kids[0],701);
+            ddecl = UpFind(n, 7905);
+            ident = DownFind(ddecl->kids[0], 701);
             id_table = environ_lookup(CurrEnv(), ident->t->text);
             proto_type(n, &head);
             id_table->param_types = head;
@@ -445,10 +446,11 @@ void pre_init_declarator(btype bt, struct pnode* i) {
     token* to = NULL;
     type_el* inittype = pre_declarator(i->kids[0], bt, &to);
     bool defined = pre_optional_init(i->kids[1]);
-    environ_insert(CurrEnv(), to, inittype, NULL,false, defined);
+    environ_insert(CurrEnv(), to, inittype, NULL, false, defined);
 }
 
 type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
+    if (!d) return mk_type_el(ty, NULL, NULL);
     // recursively build type linked list
     switch (d->prule->code) {
         case 7802: // append pointer type to type list
@@ -456,6 +458,12 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
                     pointer_type,
                     NULL,
                     pre_declarator(d->kids[1], ty, t));
+            break;
+        case 8001:
+            return mk_type_el(
+                    pointer_type,
+                    NULL,
+                    pre_declarator(d->par->kids[1], ty, t));
             break;
         case 7905: // function prototype
             return mk_type_el(
@@ -480,10 +488,11 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
                     pre_declarator(d->kids[0], ty, t));
             break;
         case 7901: // skipped elements
+        case 14602:
             return pre_declarator(d->kids[0], ty, t);
             break;
         default:
-            printf("error, hit unexpected prodrule %d\n", d->prule->code);
+            printf("ERROR, hit unexpected prodrule %d\n", d->prule->code);
             return NULL;
     }
 }
@@ -524,7 +533,7 @@ type_el* param_decl(struct prodrule* pr, struct pnode* pn) {
     if (pr->code / 10 == parameter_declarator) {
         bt = pn->kids[0]->t->code;
         types = pre_declarator(pn->kids[1], bt, &to);
-        environ_insert(CurrEnv(), to, types, NULL,false, true);
+        environ_insert(CurrEnv(), to, types, NULL, false, true);
     }
     return types;
 }
@@ -573,7 +582,7 @@ struct pnode *DownFind(struct pnode *c, int code) {
 }
 
 void proto_type(struct pnode *r, type_el **head) {
-    if(!r) return;
+    if (!r) return;
     struct prodrule *curr;
     type_el *c = *head, *new;
     int i;
@@ -602,7 +611,7 @@ type_el *indiv_protos(struct prodrule *pr, struct pnode *n) {
     if (pr->code / 10 == parameter_declarator) {
         bt = n->kids[0]->t->code;
         types = pre_declarator(n->kids[1], bt, &to);
-        environ_insert(CurrEnv(), to, types, NULL,false, true);
+        //        environ_insert(CurrEnv(), to, NULL, types,false, true);
     }
     return types;
 }
