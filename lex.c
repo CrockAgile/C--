@@ -6,11 +6,14 @@ extern char* yytext;
 extern YYSTYPE yylval;
 extern YYSTYPE root;
 
-token* mktoken(int c, char* t, int ln , char* fn, void* lval) {
-  token *nt = malloc(sizeof(token));
-  nt->code = c; nt->text = t; nt->lineno = ln;
-  nt->filename = fn; nt->lval = lval;
-  return nt;
+token* mktoken(int c, char* t, int ln, char* fn, void* lval) {
+    token *nt = malloc(sizeof (token));
+    nt->code = c;
+    nt->text = t;
+    nt->lineno = ln;
+    nt->filename = fn;
+    nt->lval = lval;
+    return nt;
 }
 
 // struct s_token {
@@ -21,9 +24,9 @@ token* mktoken(int c, char* t, int ln , char* fn, void* lval) {
 //   void* lval;
 // };
 
-void type_insert(char *name,int code) {
-    name_insert *new = malloc(sizeof(name_insert));
-    if(!new)
+void type_insert(char *name, int code) {
+    name_insert *new = malloc(sizeof (name_insert));
+    if (!new)
         exit(0);
     new->name = name;
     new->code = code;
@@ -32,8 +35,8 @@ void type_insert(char *name,int code) {
 }
 
 int push_file(int lineno) {
-    file_el* pushed = (file_el*)malloc(sizeof(file_el));
-    if(!pushed)
+    file_el* pushed = (file_el*) malloc(sizeof (file_el));
+    if (!pushed)
         return 0;
 
     pushed->filename = yytoken.filename;
@@ -54,8 +57,8 @@ int pop_file() {
     return resumed_line;
 }
 
-int delete_filestack(){
-    while( filestack_top ){
+int delete_filestack() {
+    while (filestack_top) {
         file_el* next = filestack_top->next;
         free(filestack_top->filename);
         free(filestack_top);
@@ -67,18 +70,16 @@ int delete_filestack(){
 void print_filestack() {
     file_el* curr = filestack_top;
     printf("/***TOP***\n");
-    while( curr != NULL){
-        printf("%s:%d\n",curr->filename,curr->curr_line);
+    while (curr != NULL) {
+        printf("%s:%d\n", curr->filename, curr->curr_line);
         curr = curr->next;
     }
     printf("***BOT***/\n");
 }
 
-
-
 int add_to_tail(token* curr_yytoken) {
-    token* yytoken_copy = (token*)malloc(sizeof(token));
-    if(!yytoken_copy)
+    token* yytoken_copy = (token*) malloc(sizeof (token));
+    if (!yytoken_copy)
         return 0;
 
     yytoken_copy->code = curr_yytoken->code;
@@ -87,64 +88,65 @@ int add_to_tail(token* curr_yytoken) {
     yytoken_copy->filename = curr_yytoken->filename;
     yytoken_copy->lval = curr_yytoken->lval;
 
-    token_el* added = (token_el*)malloc(sizeof(token_el));
-    if(!added)
+    token_el* added = (token_el*) malloc(sizeof (token_el));
+    if (!added)
         return 0;
 
     added->t = yytoken_copy;
     added->next = NULL;
 
-    if(tokenlist_tail){
+    if (tokenlist_tail) {
         tokenlist_tail->next = added;
-    }
-    else{
+    } else {
         tokenlist_head = added;
     }
     tokenlist_tail = added;
     return 1;
 }
+
 void print_token(token *t) {
-  printf("%-10d%-30s%-10d%-20s",
-  t->code,
-  t->text,
-  t->lineno,
-  t->filename
-  );
-  switch(t->code){
-    case INTEGER:
-    printf("%-30d",*(int*)(t->lval));
-    break;
-    case FLOATING:
-    printf("%-30f",*(float*)(t->lval));
-    break;
-    case STRING:
-    case CHARACTER:
-    printf("%-30s",(char*)(t->lval));
-    break;
-  }
-  putchar('\n');
+    printf("%-10d%-30s%-10d%-20s",
+            t->code,
+            t->text,
+            t->lineno,
+            t->filename
+            );
+    switch (t->code) {
+        case INTEGER:
+            printf("%-30d", *(int*) (t->lval));
+            break;
+        case FLOATING:
+            printf("%-30f", *(float*) (t->lval));
+            break;
+        case STRING:
+        case CHARACTER:
+            printf("%-30s", (char*) (t->lval));
+            break;
+    }
+    putchar('\n');
 }
+
 void print_tokenlist(token_el* start) {
-	printf("%-10s%-30s%-10s%-20s%-30s",
-		"Category",
-		"Text",
-		"Lineno",
-		"Filename",
-		"Lval");
-	int i;
-	putchar('\n');
-	for (i = 0; i < 9; i++) {
-		printf("----------");
-	}
-	putchar('\n');
-    while(start) {
+    printf("%-10s%-30s%-10s%-20s%-30s",
+            "Category",
+            "Text",
+            "Lineno",
+            "Filename",
+            "Lval");
+    int i;
+    putchar('\n');
+    for (i = 0; i < 9; i++) {
+        printf("----------");
+    }
+    putchar('\n');
+    while (start) {
         print_token(start->t);
         start = start->next;
     }
 }
 
 void escape_char(char* src, char* dest) {
-    switch(src[1]){
+    switch (src[1]) {
         case '0':
             *dest = '\0';
             break;

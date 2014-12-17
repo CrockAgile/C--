@@ -12,9 +12,9 @@ typedef struct name_insert {
     struct name_insert *next;
 } name_insert;
 
-name_insert *qhead,*qtail;
+name_insert *qhead, *qtail;
 
-void type_insert(char*,int);
+void type_insert(char*, int);
 
 struct s_token {
     int code;

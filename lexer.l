@@ -81,7 +81,7 @@ double			return update_yytoken(DOUBLE,NULL);
 else			return update_yytoken(ELSE,NULL);
 extern			lexerr("extern not supported");
 false           return update_yytoken(FALSE,NULL);
-float			return update_yytoken(FLOAT,NULL);
+float			return update_yytoken(DOUBLE,NULL);
 for				return update_yytoken(FOR,NULL);
 if				return update_yytoken(IF,NULL);
 int				return update_yytoken(INT,NULL);

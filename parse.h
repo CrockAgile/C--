@@ -16,6 +16,7 @@ int lval_update_yytoken(int, void*, char*);
 
 // linked list of prodrules to save info
 // otherwise lost in $$ = $1
+
 struct prodrule {
     int code;
     struct prodrule *next;
@@ -41,7 +42,7 @@ void freetree(struct pnode *p);
 char* craft_readable(char* base, int prodrule);
 // gigantic switch statement that derives human readable format
 // based on production code.
-void humanreadable(struct prodrule* , char **dest);
+void humanreadable(struct prodrule*, char **dest);
 struct pnode* only_child(struct pnode* des, int code);
 
 // global for hashtable of names
@@ -49,9 +50,9 @@ token_el **nametable;
 int init_nametable();
 void free_nametable();
 unsigned long hash_name(char*);
-int insert_name( token*,int);
+int insert_name(token*, int);
 token_el* lookup_name(char*);
-int id_check(char*,int);
+int id_check(char*, int);
 
 typedef struct root_el {
     char *filename;
