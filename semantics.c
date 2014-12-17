@@ -113,19 +113,19 @@ table_el* mk_table_el(token *t, type_el *ty, env *p, table_el *n) {
 
 void free_table_list(table_el *head) {
     table_el *prev, *curr = head;
-    type_el *parcurr, *parprev;
     while ((prev = curr)) {
         curr = curr->next;
         // tokens are freed in parse cleanup
         free_type_list(prev->type);
-        parcurr = prev->param_types;
-        while ((parprev = parcurr)) {
-            parcurr = parcurr->sib;
-            free(parprev);
-        }
-
-        free(prev);
+        free_type_list(prev->param_types);
     }
+}
+
+void free_types(type_el *curr) {
+  if (!curr) return;
+  if (curr->next) free_types(curr->next);
+  if (curr->sib) free_types(curr->sib);
+  free(curr);
 }
 
 env* mk_environ(env *parent, char *s, int depth) {
@@ -233,7 +233,10 @@ void free_environ(env *target) {
     table_el *l;
     for (i = 0; i < S_SIZE; i++) {
         l = target->locals[i];
-        if (l) free_table_list(l);
+        if (l) {
+          free_types(l->type);
+          free_types(l->param_types);
+        }
     }
     // dont free parent, handled in tree traversal
     nkids = target->nkids; // save for future compares
@@ -499,7 +502,7 @@ void param_decls(struct pnode *p, type_el **head) {
     for (curr = p->prule; curr; curr = curr->next) {
         new = param_decl(curr, p);
         if (new) {
-            new = mk_type_el(new->type, new->sib, new->next);
+            //new = mk_type_el(new->type, new->sib, new->next);
             if (c) {
                 while (c->sib)
                     c = c->sib;
@@ -569,16 +572,6 @@ struct pnode *DownFind(struct pnode *c, int code) {
     return NULL;
 }
 
-void pre_proto(struct pnode *r) {
-    if (!r) return;
-    type_el *head = NULL;
-    struct pnode *ddecl = UpFind(r, 7905);
-    struct pnode *ident = DownFind(ddecl->kids[0], 701);
-    table_el *id_table = environ_lookup(CurrEnv(), ident->t->text);
-    proto_type(r, &head);
-    id_table->param_types = head;
-}
-
 void proto_type(struct pnode *r, type_el **head) {
     if(!r) return;
     struct prodrule *curr;
@@ -609,6 +602,7 @@ type_el *indiv_protos(struct prodrule *pr, struct pnode *n) {
     if (pr->code / 10 == parameter_declarator) {
         bt = n->kids[0]->t->code;
         types = pre_declarator(n->kids[1], bt, &to);
+        environ_insert(CurrEnv(), to, types, NULL,false, true);
     }
     return types;
 }

@@ -10,3 +10,4 @@ lex.yy.c
 120gram.output
 120gram.tab.c
 120gram.tab.h
+log.txt
