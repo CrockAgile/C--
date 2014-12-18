@@ -1,31 +1,24 @@
 #include <iostream>
-#include <cstdlib>
 using namespace std;
 
+double myfunc(double, double, double);
+double goof(double);
 
-int x = 12;
+int main() {
+    double x, y;
+    double z;
+    z = myfunc(x, y, y);
+    cout << "zed was " << z << endl;
+    return 0;
+}
 
-int main ()
-{
+double myfunc(double x, double y, double z) {
+    x = goof(2.0);
+    return x;
+}
 
-    if ( x < 12 )
-         ;
-    if ( x < 17 )
-         ;
-    if ( x < 122 )
-         ;
-    if ( x < 20000 )
-         ;
-
-
-
-    if ( x < 12 )
-         ;
-    else if ( x < 17 )
-         ;
-    else if ( x < 122 )
-         ;
-    else if ( x < 20000 )
-         ;
-
+double goof(double branflakes) {
+    double bf2 = branflakes + 2.0;
+    cout << "bf2 is " << bf2 << endl;
+    return goof(bf2);
 }

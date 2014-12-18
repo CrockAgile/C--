@@ -148,9 +148,9 @@ void free_table_list(table_el *head) {
 }
 
 void free_types(type_el *curr) {
-    if(!curr) return;
+    if (!curr) return;
     type_el *prev, *q = curr->sib;
-    while(curr){
+    while (curr) {
         prev = curr;
         curr = curr->next;
         free(prev);
@@ -216,7 +216,7 @@ table_el* environ_insert(env *e, token *to, type_el *ty, type_el *plist, bool c,
                     res->tok->filename, res->tok->lineno);
             exit(3);
         } else {
-            if (table_type_comp(new, res)) {
+            if (type_comp(new->type, res->type)) {
                 fprintf(stderr, "Overwriting %s from %d with %d\n", to->text,
                         res->tok->lineno, to->lineno);
             } else {
@@ -230,7 +230,6 @@ table_el* environ_insert(env *e, token *to, type_el *ty, type_el *plist, bool c,
         }
 
     }
-
     *des = new;
     return new;
 }
@@ -466,19 +465,20 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             environ_insert(CurrEnv(), to, types, head, false, true);
             ident = DownFind(n, 8301);
             LinkCurrEnv(ident->t);
-            t = DownFind(n, 8702);
-            proto_type(t, &head);
             break;
         case param_decl_clause:
             head = NULL;
             ddecl = UpFind(n, 7905);
             ident = DownFind(ddecl->kids[0], 701);
             ddecl = UpFind(n, 6002);
-            if (ddecl)
+            t = DownFind(n, 8702);
+            if (ddecl) {
                 id_table = environ_lookup(CurrEnv()->up, ident->t->text);
-            else
+                proto_type(t, &head, true);
+            } else {
                 id_table = environ_lookup(CurrEnv(), ident->t->text);
-            param_decls(n, &head);
+                proto_type(t, &head, false);
+            }
             id_table->param_types = head;
             break;
     }
@@ -496,9 +496,10 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
             if (id_table) {
                 n->type = id_table->type;
             } else {
-                fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
-                        n->t->filename, n->t->lineno, n->t->text);
-                exit(3);
+                //                print_environ(GetGlobal());
+                //                fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
+                //                        n->t->filename, n->t->lineno, n->t->text);
+                //                exit(3);
             }
             break;
     }
@@ -644,6 +645,7 @@ type_el* param_decl(struct prodrule* pr, struct pnode* pn) {
 }
 
 bool type_comp(type_el *a, type_el *b) {
+    if (!b && a) return false;
     while (a) {
         if (!b) return false;
         if (a->bt != b->bt) return false;
@@ -700,36 +702,37 @@ token *FindToken(struct pnode *c) {
     return NULL;
 }
 
-void proto_type(struct pnode *r, type_el **head) {
+void proto_type(struct pnode *r, type_el **head, bool ins) {
     if (!r) return;
     struct prodrule *curr;
     type_el *c = *head, *new;
     int i;
     for (curr = r->prule; curr; curr = curr->next) {
-        new = indiv_protos(curr, r);
+        new = indiv_protos(curr, r, ins);
         if (*head == NULL) {
             *head = new;
         } else {
             c = *head;
-            while ((c->next)) {
-                c = c->next;
+            while ((c->sib)) {
+                c = c->sib;
             }
-            c->next = new;
+            c->sib = new;
         }
     }
     for (i = 0; i < r->nkids; i++) {
-        proto_type(r->kids[i], head);
+        proto_type(r->kids[i], head, ins);
     }
 
 }
 
-type_el *indiv_protos(struct prodrule *pr, struct pnode *n) {
+type_el *indiv_protos(struct prodrule *pr, struct pnode *n, bool ins) {
     btype bt;
     type_el* types = NULL;
     token *to;
     if (pr->code / 10 == parameter_declarator) {
         bt = n->kids[0]->t->code;
         types = pre_declarator(n->kids[1], bt, &to);
+        if (ins) environ_insert(CurrEnv(), to, types, NULL, false, true);
     }
     return types;
 }
@@ -1041,6 +1044,46 @@ void expr_list_type(struct pnode *n) {
     n->type = cur;
 }
 
+asn_type(struct pnode *n) {
+    type_el *iter, *prev, *ret = copy_type_list(n->kids[2]->type);
+    iter = ret;
+    while (iter) {
+        prev = iter;
+        iter = iter->next;
+        if (iter->bt == function_type) {
+            free_type_list(iter);
+            prev->next = NULL;
+            break;
+        }
+    }
+    if (!compatible(n->kids[0]->type, ret)) {
+        type_err("assignment", n);
+    }
+    n->type = mk_type_el(int_type, NULL, NULL);
+    free_type_list(ret);
+}
+
+void check_ret(struct pnode *n) {
+    type_el *exp, *iter, *prev;
+    exp = copy_type_list(rec_environ_lookup(CurrEnv()->name)->type);
+    iter = exp;
+    if (!type_comp(exp, n->kids[1]->type)) {
+        while (iter) {
+            prev = iter;
+            iter = iter->next;
+            if (iter->bt == function_type) {
+                free_type_list(iter);
+                prev->next = NULL;
+                break;
+            }
+        }
+    }
+    if (!type_comp(exp, n->kids[1]->type)) {
+        type_err("return value", n);
+    }
+    free_type_list(exp);
+}
+
 void type_check(struct prodrule *p, struct pnode *n) {
     switch (p->code) {
         case mul_expr:
@@ -1104,10 +1147,7 @@ void type_check(struct prodrule *p, struct pnode *n) {
             n->type = mk_type_el(n->kids[0]->type->bt, NULL, NULL);
             break;
         case asn_expr:
-            if (!compatible(n->kids[0]->type, n->kids[2]->type)) {
-                type_err("assignment", n);
-            }
-            n->type = mk_type_el(int_type, NULL, NULL);
+            asn_type(n);
             break;
         case init_decl:
             init_type(n);
@@ -1117,6 +1157,9 @@ void type_check(struct prodrule *p, struct pnode *n) {
             break;
         case expr_list:
             expr_list_type(n);
+            break;
+        case ret_stm:
+            check_ret(n);
             break;
     }
 }
