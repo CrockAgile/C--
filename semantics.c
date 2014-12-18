@@ -501,8 +501,11 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
         case compound_statement:
         case class_name:
             if (n->prule->code != 9101) {// function body
-                PushCurrEnv();
+                PopEnv();
             }
+            break;
+        case function_definition:
+            PopEnv();
             break;
     }
     type_check(p, n);
