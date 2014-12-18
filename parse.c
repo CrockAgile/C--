@@ -129,12 +129,6 @@ void treeprint(struct pnode *p, int depth) {
     return;
 }
 
-void free_ptypes(type_el *curr) {
-    if (!curr) return;
-    if (curr->next) free_ptypes(curr->next);
-    if (curr->sib) free_ptypes(curr->sib);
-    free(curr);
-}
 
 void freetree(struct pnode *p) {
     if (!p) // null children guard
@@ -150,7 +144,6 @@ void freetree(struct pnode *p) {
             free(p->t->lval);
         free(p->t);
     }
-    if (p->type) free_ptypes(p->type);
     struct prodrule* curr = p->prule, *prev;
     while (curr) { // free prodrule stack
         prev = curr;
