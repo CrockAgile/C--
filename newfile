@@ -1,81 +1,3 @@
-opening: test.cpp
-
-*** test.cpp ***
-  translation_unit rule 1 declaration_seq_opt rule 2 declare_seq rule 2
-   declare_seq rule 1 declare rule 2 function_definition rule 2
-     'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-     declarator rule 1
-       direct_declarator rule 5
-         direct_declarator rule 1
-           'f' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-         '(' 
-         parameter_decl_clause rule 2
-           parameter_decl_list rule 1 parameter_decl rule 1
-             'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-             declarator rule 1
-               direct_declarator rule 1
-                 'val' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-         ')' 
-     epsilon expression
-     function_body rule 1 compound_stmt rule 1
-       '{' 
-       stmt_seq_opt rule 2 stmt_sequence rule 1 statement rule 6 jump_stmt rule 3
-         'return' 
-         '3.0' prule:14002  expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 3 floating_lit rule 1
-         ';' 
-       '}' 
-   declare rule 2 function_definition rule 2
-     'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-     declarator rule 1
-       direct_declarator rule 5
-         direct_declarator rule 1
-           'main' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-         '(' 
-         epsilon expression
-         ')' 
-     epsilon expression
-     function_body rule 1 compound_stmt rule 1
-       '{' 
-       stmt_seq_opt rule 2 stmt_sequence rule 2
-         stmt_sequence rule 2
-           stmt_sequence rule 2
-             stmt_sequence rule 1 statement rule 7 declare_stmt rule 1 block_declare rule 1 simple_declare rule 1
-               'float' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 13
-               init_decl_list rule 2
-                 init_decl_list rule 1
-                   init_decl rule 1
-                     declarator rule 1
-                       direct_declarator rule 1
-                         'g' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                     epsilon expression
-                 ',' 
-                 init_decl rule 1
-                   declarator rule 1
-                     direct_declarator rule 1
-                       'j' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                   epsilon expression
-               ';' 
-             statement rule 2 expr_stmt rule 1
-               expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 2
-                 'cout' prule:3501  add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                 '<<' 
-                 '"Enter a real number: "' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 4 string_lit rule 1
-               ';' 
-           statement rule 2 expr_stmt rule 1
-             expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 3
-               'cin' prule:3501  add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-               '>>' 
-               'g' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             ';' 
-         statement rule 4 selection_stmt rule 1
-           'if' 
-           '(' 
-           condition rule 1 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 3
-             'f' prule:2001  primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             '(' 
-             'g' prule:13502  expr_list rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             ')' 
-           ')' 
            statement rule 2 expr_stmt rule 1
              expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 2
                shift_expr rule 2
@@ -87,18 +9,8 @@ opening: test.cpp
                  add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 3
                    'f' prule:2001  primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
                    '(' 
-                   expression_list_opt rule 2 expr_list rule 2
-                     expr_list rule 2
-                       expr_list rule 2
-                         'g' prule:2101  assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                         ',' 
-                         'j' prule:4401  condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                       ',' 
-                       'j' prule:4401  condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                     ',' 
-                     'j' prule:4401  condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
+                   'g' prule:13502  expr_list rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
                    ')' 
                '<<' 
                'endl' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             ';' 
-       '}' 
+             

@@ -919,28 +919,28 @@ void arrow_type(struct pnode *n) {
 }
 
 void SL_type(struct pnode *n) {
-    //    if (n->kids[0]->type->bt != ofstream_type) {
-    //        type_err("<<", n);
-    //    }
-    //    switch (n->kids[2]->type->bt) {
-    //        case ofstream_type:
-    //        case ifstream_type:
-    //        case void_type:
-    //        case class_type:
-    //        case class_instance:
-    //        case array_type:
-    //        case function_type:
-    //            type_err("<<", n);
-    //            break;
-    //        case string_type:
-    //        case int_type:
-    //        case char_type:
-    //        case pointer_type:
-    //        case bool_type:
-    //        case double_type:
-    //            n->type = mk_type_el(ofstream_type, NULL, NULL);
-    //            break;
-    //    }
+        if (n->kids[0]->type->bt != ofstream_type) {
+            type_err("<<", n);
+        }
+        switch (n->kids[2]->type->bt) {
+            case ofstream_type:
+            case ifstream_type:
+            case void_type:
+            case class_type:
+            case class_instance:
+            case array_type:
+            case function_type:
+                type_err("<<", n);
+                break;
+            case string_type:
+            case int_type:
+            case char_type:
+            case pointer_type:
+            case bool_type:
+            case double_type:
+                n->type = mk_type_el(ofstream_type, NULL, NULL);
+                break;
+        }
 }
 
 void SR_type(struct pnode *n) {
@@ -1014,7 +1014,8 @@ void fcall_type(struct pnode *n) {
         iterf = iterf->sib;
         iterp = iterp->sib;
     }
-//    if (iterp) type_err("function call parameters", n);
+    if (iterp) type_err("function call parameters", n);
+    n->type = copy_type_list(res->type);
 }
 
 void expr_list_type(struct pnode *n) {
