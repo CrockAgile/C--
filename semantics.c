@@ -148,10 +148,14 @@ void free_table_list(table_el *head) {
 }
 
 void free_types(type_el *curr) {
-    if (!curr) return;
-    if (curr->next) free_types(curr->next);
-    if (curr->sib) free_types(curr->sib);
-    free(curr);
+    if(!curr) return;
+    type_el *prev, *q = curr->sib;
+    while(curr){
+        prev = curr;
+        curr = curr->next;
+        free(prev);
+    }
+    free_types(q);
 }
 
 env* mk_environ(env *parent, char *s, int depth) {
@@ -284,6 +288,7 @@ void free_environ(env *target) {
         }
     }
     // now that all occupied indexes freed
+    free(target->name);
     free(target->kids);
     free(target->locals);
     free(target);

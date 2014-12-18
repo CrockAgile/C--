@@ -150,7 +150,6 @@ void freetree(struct pnode *p) {
             free(p->t->lval);
         free(p->t);
     }
-    if (p->type) free_ptypes(p->type);
     struct prodrule* curr = p->prule, *prev;
     while (curr) { // free prodrule stack
         prev = curr;
