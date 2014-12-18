@@ -66,7 +66,9 @@ void print_type(type_el *curr, type_el *p) {
             putchar(')');
             break;
         case array_type:
-            printf("[]");
+            putchar('[');
+            printf("%d", curr-> elements);
+            putchar(']');
             break;
         case int_type:
             printf("int");
@@ -303,7 +305,7 @@ void PushCurrEnv() {
     curr_env = add_env_child(old_curr, name);
 }
 
-void LinkCurrEnv(token *t) {
+env* LinkCurrEnv(token *t) {
     table_el *res;
     env_el *new = sem_malloc(sizeof (env_el), 0);
     env *n, *old_curr = CurrEnv();
@@ -316,6 +318,7 @@ void LinkCurrEnv(token *t) {
     res->ch_env = n; // link new child
 
     curr_env = n;
+    return n;
 }
 
 env* PopEnv() {
@@ -371,8 +374,11 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             environ_insert(CurrEnv(), to, types, NULL, false, true);
             LinkCurrEnv(to);
             break;
+        case class_name:
+            t = DownFind(n->par->kids[1],8301); // instance name
+            LinkCurrEnv(t->t)->name = strdup(strcat(t->t->text," instance"));
+            break;
         case compound_statement:
-
             if (n->prule->code == 9101) {// function body
                 LinkCurrEnv(func_loc->tok);
                 type_el *head = NULL;
@@ -407,11 +413,11 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
 
 void post_semantics(struct prodrule *p, struct pnode* n) {
     switch (p->code / 10) {
-        case start_state:
-            break;
         case class_specifier:
         case compound_statement:
             PopEnv();
+            break;
+        case primary_exp:
             break;
     }
 }
@@ -450,6 +456,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
 }
 
 type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
+    type_el * tmp;
     if (!d) return mk_type_el(ty, NULL, NULL);
     // recursively build type linked list
     switch (d->prule->code) {
@@ -473,10 +480,12 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
             break;
         case 7906: // append array type to type list
             // set the size of the array
-            return mk_type_el(
+            tmp = mk_type_el(
                     array_type,
                     NULL,
                     pre_declarator(d->kids[0], ty, t));
+            tmp->elements = *(int*) (d->kids[2]->t->lval);
+            return tmp;
             break;
         case 8301:
             *t = d->t; // found token
@@ -492,8 +501,8 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
             return pre_declarator(d->kids[0], ty, t);
             break;
         default:
-            printf("ERROR, hit unexpected prodrule %d\n", d->prule->code);
-            return NULL;
+            printf("ERROR, hit unexpected prodrule while typing%d\n", d->prule->code);
+            exit(3);
     }
 }
 

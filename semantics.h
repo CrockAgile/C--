@@ -14,31 +14,6 @@ extern int sem_cleanup;
 
 void* sem_malloc(int size, bool zero);
 
-/* TYPES AND ENVIRONS SECTION */
-
-typedef enum btype {
-    int_type = 321,
-    bool_type = 295,
-    void_type = 352,
-    char_type = 299,
-    double_type = 307,
-    class_type = 300,
-    class_instance = 265,
-    // complicated linked types
-    pointer_type,
-    function_type,
-    array_type,
-} btype;
-
-// type element
-
-typedef struct type_el {
-    btype type; // basic types
-    int elements;
-    struct type_el *sib;
-    struct type_el *next;
-} type_el;
-
 struct env;
 
 typedef struct table_el {
@@ -89,7 +64,7 @@ env* CurrEnv();
 env_el* env_stack;
 void print_environ(env *t);
 void PushCurrEnv();
-void LinkCurrEnv(token *t);
+env* LinkCurrEnv(token *t);
 env* PopEnv();
 
 /* TREE TRAVERSALS SECTION */
@@ -108,7 +83,11 @@ typedef enum SemanticNode {
     member_declaration = 990,
     // nodes that require both new env, and adding
     class_specifier = 950,
+    class_name = 40,
     function_definition = 900,
+
+    // expressions / type checking
+    primary_exp = 150,
 
 } SemanticNode;
 

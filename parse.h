@@ -10,6 +10,31 @@
 
 extern int parse_cleanup;
 
+/* TYPES AND ENVIRONS SECTION */
+
+typedef enum btype {
+    int_type = 321,
+    bool_type = 295,
+    void_type = 352,
+    char_type = 299,
+    double_type = 307,
+    class_type = 300,
+    class_instance = 265,
+    // complicated linked types
+    pointer_type,
+    function_type,
+    array_type,
+} btype;
+
+// type element
+
+typedef struct type_el {
+    btype type; // basic types
+    int elements;
+    struct type_el *sib;
+    struct type_el *next;
+} type_el;
+
 // yytoken business
 int update_yytoken(int, void*);
 int lval_update_yytoken(int, void*, char*);
@@ -28,6 +53,7 @@ struct pnode {
     struct pnode **kids;
     struct pnode *par;
     token *t;
+    type_el *type;
 };
 
 struct pnode* alcnode(int rule, int kids, ...);
@@ -67,5 +93,7 @@ void print_treelist(root_el *head);
 void free_treelist(root_el *head);
 // function ptrs? i must be fancy
 void treelist_call(void(*f)(struct pnode*));
+
+
 
 #endif
