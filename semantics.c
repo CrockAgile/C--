@@ -446,14 +446,13 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
                     environ_lookup(CurrEnv()->up, t->t->text)->ch_env);
             break;
         case compound_statement:
-            if (n->prule->code == 9101) {// function body
-                LinkCurrEnv(func_loc->tok);
-                type_el *head = NULL;
-                param_decls(n->par->kids[1], &head);
-                CurrEnv()->name = func_loc->tok->text;
-            } else {
+            if (n->prule->code != 9101) {// function body
                 PushCurrEnv();
             }
+            //                LinkCurrEnv(func_loc->tok);
+            //                type_el *head = NULL;
+            //                param_decls(n->par->kids[1], &head);
+            //                CurrEnv()->name = func_loc->tok->text;
             break;
         case simple_declaration:
             bt = n->kids[0]->t->code;
@@ -463,16 +462,18 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             head = NULL;
             bt = n->kids[0]->t->code;
             types = pre_declarator(n->kids[1], bt, &to);
+            environ_insert(CurrEnv(), to, types, head, false, true);
+            ident = DownFind(n, 8301);
+            LinkCurrEnv(ident->t);
             t = DownFind(n, 8702);
             proto_type(t, &head);
-            func_loc = environ_insert(CurrEnv(), to, types, head, false, true);
             break;
         case param_decl_clause:
             head = NULL;
             ddecl = UpFind(n, 7905);
             ident = DownFind(ddecl->kids[0], 701);
-            id_table = environ_lookup(CurrEnv(), ident->t->text);
-            proto_type(n, &head);
+            id_table = environ_lookup(CurrEnv()->up, ident->t->text);
+            param_decls(n, &head);
             id_table->param_types = head;
             break;
     }
@@ -491,14 +492,17 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
             } else {
                 fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
                         n->t->filename, n->t->lineno, n->t->text);
-//                exit(3);
+                //                exit(3);
             }
             break;
     }
     switch (p->code / 10) {
         case class_specifier:
         case compound_statement:
-            PopEnv();
+        case class_name:
+            if (n->prule->code != 9101) {// function body
+                PushCurrEnv();
+            }
             break;
     }
     type_check(p, n);
@@ -915,28 +919,28 @@ void arrow_type(struct pnode *n) {
 }
 
 void SL_type(struct pnode *n) {
-    if (n->kids[0]->type->bt != ofstream_type) {
-        type_err("<<", n);
-    }
-    switch (n->kids[2]->type->bt) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case array_type:
-        case function_type:
-            type_err("<<", n);
-            break;
-        case string_type:
-        case int_type:
-        case char_type:
-        case pointer_type:
-        case bool_type:
-        case double_type:
-            n->type = mk_type_el(ofstream_type, NULL, NULL);
-            break;
-    }
+    //    if (n->kids[0]->type->bt != ofstream_type) {
+    //        type_err("<<", n);
+    //    }
+    //    switch (n->kids[2]->type->bt) {
+    //        case ofstream_type:
+    //        case ifstream_type:
+    //        case void_type:
+    //        case class_type:
+    //        case class_instance:
+    //        case array_type:
+    //        case function_type:
+    //            type_err("<<", n);
+    //            break;
+    //        case string_type:
+    //        case int_type:
+    //        case char_type:
+    //        case pointer_type:
+    //        case bool_type:
+    //        case double_type:
+    //            n->type = mk_type_el(ofstream_type, NULL, NULL);
+    //            break;
+    //    }
 }
 
 void SR_type(struct pnode *n) {
@@ -990,6 +994,41 @@ void init_type(struct pnode *n) {
         type_err("assignment", n);
     }
 
+}
+
+void fcall_type(struct pnode *n) {
+    table_el *res = rec_environ_lookup(n->kids[0]->t->text);
+    if (!res || (res->type->bt == function_type)) type_err("function call", n);
+    type_el *func = res->param_types, *param, *iterf, *iterp;
+    if (n->kids[2]) {
+        param = n->kids[2]->type;
+    } else {
+        param = mk_type_el(void_type, NULL, NULL);
+    }
+    iterf = func;
+    iterp = param;
+    while (iterf) {
+        if (!compatible(iterf, iterp)) {
+            type_err("function call parameters", n);
+        }
+        iterf = iterf->sib;
+        iterp = iterp->sib;
+    }
+//    if (iterp) type_err("function call parameters", n);
+}
+
+void expr_list_type(struct pnode *n) {
+    type_el *cur, *run;
+    if (n->kids[0]->t) {
+        cur = copy_type_list(n->kids[0]->type);
+    } else {
+        cur = n->kids[0]->type;
+    }
+    run = cur;
+    while (run->sib)
+        run = run->sib;
+    run->sib = copy_type_list(n->kids[2]->type);
+    n->type = cur;
 }
 
 void type_check(struct prodrule *p, struct pnode *n) {
@@ -1062,6 +1101,12 @@ void type_check(struct prodrule *p, struct pnode *n) {
             break;
         case init_decl:
             init_type(n);
+            break;
+        case fcall_expr:
+            fcall_type(n);
+            break;
+        case expr_list:
+            expr_list_type(n);
             break;
     }
 }

@@ -115,6 +115,8 @@ typedef enum ExprNode {
     inc_expr = 2012,
     asn_expr = 4402,
     init_decl = 7701,
+    fcall_expr = 2003,
+    expr_list = 2102,
 } ExprNode;
 
 table_el* func_loc;
