@@ -86,10 +86,29 @@ typedef enum SemanticNode {
     class_name = 40,
     function_definition = 900,
 
-    // expressions / type checking
-    primary_exp = 150,
-
 } SemanticNode;
+
+typedef enum ExprNode {
+    mul_expr = 3302,
+    div_expr = 3303,
+    mod_expr = 3304,
+    literal = 1501,
+    identifier = 701,
+    add_expr = 3402,
+    sub_expr = 3403,
+    SL_expr = 3502,
+    SR_expr = 3503,
+    LT_expr = 3602,
+    GT_expr = 3603,
+    LE_expr = 3604,
+    GE_expr = 3605,
+    EE_expr = 3702,
+    NE_expr = 3703,
+    OR_expr = 4202,
+    AND_expr = 4102,
+    NOT_expr = 2203,
+    par_expr = 1503,
+} ExprNode;
 
 table_el* func_loc;
 void pre_semantics(struct prodrule*, struct pnode*);
@@ -110,4 +129,7 @@ void pre_proto(struct pnode *r);
 void proto_type(struct pnode *r, type_el **head);
 type_el *indiv_protos(struct prodrule *pr, struct pnode *n);
 struct pnode *DownFind(struct pnode *c, int code);
+void type_check(struct prodrule *p, struct pnode *n);
+void multi_type(struct pnode *n);
+void assign_lit_type(struct prodrule *p, struct pnode *n);
 #endif

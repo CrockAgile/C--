@@ -30,7 +30,7 @@ unsigned long env_hash(char *s) {
 
 type_el* mk_type_el(btype t, type_el *s, type_el *n) {
     type_el *new = sem_malloc(sizeof (type_el), 0); // -1 indicates elems N/A
-    new->type = t;
+    new->bt = t;
     new->sib = s;
     new->next = n;
     new->elements = -1;
@@ -53,7 +53,7 @@ void free_type_list(type_el* head) {
 
 void print_type(type_el *curr, type_el *p) {
     if (!curr) return;
-    switch (curr->type) {
+    switch (curr->bt) {
         case class_type:
             printf("class");
             break;
@@ -86,7 +86,7 @@ void print_type(type_el *curr, type_el *p) {
             printf("double");
             break;
         default:
-            printf(" default %d", curr->type);
+            printf(" default %d", curr->bt);
     }
 }
 
@@ -150,6 +150,16 @@ table_el* environ_lookup(env *e, char *key) {
         res = res->next;
     }
     return NULL;
+}
+
+table_el* rec_environ_lookup(char *key) {
+    env* curr = CurrEnv();
+    table_el* res = NULL;
+    while ((!res) && (curr)) {
+        res = environ_lookup(curr, key);
+        curr = curr->up;
+    }
+    return res;
 }
 
 env* child_env_lookup(env *e, char *key) {
@@ -375,8 +385,8 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             LinkCurrEnv(to);
             break;
         case class_name:
-            t = DownFind(n->par->kids[1],8301); // instance name
-            LinkCurrEnv(t->t)->name = strdup(strcat(t->t->text," instance"));
+            t = DownFind(n->par->kids[1], 8301); // instance name
+            LinkCurrEnv(t->t)->name = strcat(strdup(t->t->text), " instance");
             break;
         case compound_statement:
             if (n->prule->code == 9101) {// function body
@@ -409,6 +419,17 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             id_table->param_types = head;
             break;
     }
+    switch (p->code) {
+        case literal:
+            assign_lit_type(p, n);
+            break;
+        case identifier:
+            id_table = rec_environ_lookup(n->t->text);
+            if (id_table) {
+                n->type = id_table->type;
+            }
+            break;
+    }
 }
 
 void post_semantics(struct prodrule *p, struct pnode* n) {
@@ -417,9 +438,8 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
         case compound_statement:
             PopEnv();
             break;
-        case primary_exp:
-            break;
     }
+    type_check(p, n);
 }
 
 void semantic_traversal(struct pnode *p) {
@@ -550,7 +570,7 @@ type_el* param_decl(struct prodrule* pr, struct pnode* pn) {
 bool type_comp(type_el *a, type_el *b) {
     while (a) {
         if (!b) return false;
-        if (a->type != b->type) return false;
+        if (a->bt != b->bt) return false;
         a = a->next;
         b = b->next;
     }
@@ -590,6 +610,19 @@ struct pnode *DownFind(struct pnode *c, int code) {
     return NULL;
 }
 
+token *FindToken(struct pnode *c) {
+    int i;
+    token *t;
+    if (c->t) {
+        return c->t;
+    }
+
+    for (i = 0; i < c->nkids; i++) {
+        t = FindToken(c->kids[i]);
+        if (t) return t;
+    }
+}
+
 void proto_type(struct pnode *r, type_el **head) {
     if (!r) return;
     struct prodrule *curr;
@@ -620,7 +653,182 @@ type_el *indiv_protos(struct prodrule *pr, struct pnode *n) {
     if (pr->code / 10 == parameter_declarator) {
         bt = n->kids[0]->t->code;
         types = pre_declarator(n->kids[1], bt, &to);
-        //        environ_insert(CurrEnv(), to, NULL, types,false, true);
     }
     return types;
+}
+
+void assign_lit_type(struct prodrule *p, struct pnode *n) {
+    switch (p->next->next->code) {
+        case 901:
+            n->type = mk_type_el(int_type, NULL, NULL);
+            break;
+        case 1001:
+            n->type = mk_type_el(char_type, NULL, NULL);
+            break;
+        case 1101:
+            n->type = mk_type_el(double_type, NULL, NULL);
+            break;
+        case 1201:
+            n->type = mk_type_el(string_type, NULL, NULL);
+            break;
+        case 1301:
+        case 1302:
+            n->type = mk_type_el(bool_type, NULL, NULL);
+            break;
+    }
+}
+
+void type_err(char *s, struct pnode *c) {
+    token *t = FindToken(c);
+    fprintf(stderr, "%s:%d error: invalid type for %s\n",
+            t->filename, t->lineno, s);
+    exit(3);
+}
+
+void multi_type(struct pnode *n) {
+    switch (n->type->bt) {
+        case void_type:
+        case class_type:
+        case class_instance:
+        case pointer_type:
+        case array_type:
+        case function_type:
+        case string_type:
+            type_err("multiplication", n);
+            break;
+        case int_type:
+        case bool_type:
+        case char_type:
+        case double_type:
+            break;
+    }
+}
+
+void mod_type(struct pnode *n) {
+    switch (n->type->bt) {
+        case void_type:
+        case class_type:
+        case class_instance:
+        case pointer_type:
+        case array_type:
+        case function_type:
+        case string_type:
+        case bool_type:
+        case double_type:
+            type_err("modular arithmetic", n);
+            break;
+        case int_type:
+        case char_type:
+            break;
+    }
+}
+
+void add_type(struct pnode *n) {
+    switch (n->type->bt) {
+        case void_type:
+        case class_type:
+        case class_instance:
+        case array_type:
+        case function_type:
+        case string_type:
+            type_err("addition", n);
+            break;
+        case int_type:
+        case char_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            break;
+    }
+}
+
+void SL_check(struct pnode *n) {
+
+}
+
+void SR_check(struct pnode *n) {
+
+}
+
+bool canBool(btype t) {
+    switch (t) {
+        case void_type:
+        case class_type:
+        case class_instance:
+        case array_type:
+        case function_type:
+            return false;
+            break;
+        case string_type:
+        case int_type:
+        case char_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            return true;
+            break;
+    }
+    return false;
+}
+
+void up_expr_type(struct pnode *n, char k) {
+    switch (k) {
+        case '*':
+        case '+':
+            if ((n->kids[0]->type->bt == double_type)
+                    || (n->kids[2]->type->bt == double_type)) {
+                n->type = mk_type_el(double_type, NULL, NULL);
+            } else {
+                n->type = mk_type_el(int_type, NULL, NULL);
+            }
+            break;
+        case '%':
+            n->type = mk_type_el(int_type, NULL, NULL);
+            break;
+    }
+}
+
+void type_check(struct prodrule *p, struct pnode *n) {
+    switch (p->code) {
+        case mul_expr:
+        case div_expr:
+            multi_type(n->kids[0]);
+            multi_type(n->kids[2]);
+            up_expr_type(n, '*');
+            break;
+        case mod_expr:
+            mod_type(n->kids[0]);
+            mod_type(n->kids[2]);
+            up_expr_type(n, '%');
+            break;
+        case add_expr:
+        case sub_expr:
+            add_type(n->kids[0]);
+            add_type(n->kids[2]);
+            up_expr_type(n, '+');
+            break;
+        case SL_expr:
+            SL_check(n);
+            break;
+        case SR_expr:
+            SR_check(n);
+            break;
+        case LT_expr:
+        case GT_expr:
+        case LE_expr:
+        case GE_expr:
+        case EE_expr:
+        case NE_expr:
+        case OR_expr:
+        case AND_expr:
+        case NOT_expr:
+            if (!(canBool(n->kids[0]->type->bt)))
+                type_err("boolean logic", n->kids[0]);
+            if (!canBool(n->kids[2]->type->bt))
+                type_err("boolean logic", n->kids[2]);
+            break;
+        case par_expr:
+            n->type = n->kids[1]->type;
+            break;
+    }
 }

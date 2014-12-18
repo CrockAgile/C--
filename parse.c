@@ -43,6 +43,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
     new_prule->code = rule;
     new_pnode->prule = new_prule;
     new_pnode->nkids = kids;
+    new_pnode->type = NULL;
 
     new_pnode->kids = (struct pnode**) malloc((kids + 1) * sizeof (struct pnode*));
     new_pnode->kids[kids] = NULL;
@@ -78,6 +79,7 @@ struct pnode* create_pnode(token* curr_yytoken) {
     new_pnode->prule = NULL;
     new_pnode->nkids = 0;
     new_pnode->kids = NULL;
+    new_pnode->type = NULL;
     new_pnode->t = yytoken_copy;
 
     return new_pnode;
@@ -141,6 +143,7 @@ void freetree(struct pnode *p) {
             free(p->t->lval);
         free(p->t);
     }
+//    TODO if (p->type) free(p->type);
     struct prodrule* curr = p->prule, *prev;
     while (curr) { // free prodrule stack
         prev = curr;

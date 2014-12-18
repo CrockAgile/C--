@@ -1,91 +1,15 @@
-opening: test.cpp
-
-*** test.cpp ***
-  translation_unit rule 1 declaration_seq_opt rule 2 declare_seq rule 2
-   declare_seq rule 2
-     declare_seq rule 1 declare rule 1 block_declare rule 1 simple_declare rule 1
-       'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-       init_decl_list rule 1
-         init_decl rule 1
-           declarator rule 2
-             '*' prule:8001 
-             declarator rule 1
-               direct_declarator rule 5
-                 direct_declarator rule 1
-                   'foo' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                 '(' 
-                 parameter_decl_clause rule 2
-                   parameter_decl_list rule 1 parameter_decl rule 1
-                     'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-                     declarator rule 1
-                       direct_declarator rule 1
-                         'x' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                 ')' 
-           epsilon expression
-       ';' 
-     declare rule 2 function_definition rule 2
-       'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-       declarator rule 1
-         direct_declarator rule 5
-           direct_declarator rule 1
-             'main' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
+     '{' 
+     stmt_seq_opt rule 2 stmt_sequence rule 1 statement rule 6 jump_stmt rule 3
+       'return' 
+       expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 2
+         multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 3
            '(' 
-           epsilon expression
-           ')' 
-       epsilon expression
-       function_body rule 1 compound_stmt rule 1
-         '{' 
-         stmt_seq_opt rule 2 stmt_sequence rule 1 statement rule 6 jump_stmt rule 3
-           'return' 
-           expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 4
+           expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 2
+             '3' prule:3301  pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 1 integer_lit rule 1
              '*' 
-             cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 3
-               '(' 
-               expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 3
-                 'foo' prule:2001  primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                 '(' 
-                 ''a'' prule:13502  expr_list rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 2 character_lit rule 1
-                 ')' 
-               ')' 
-           ';' 
-         '}' 
-   declare rule 2 function_definition rule 2
-     'int' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 8
-     declarator rule 2
-       '*' prule:8001 
-       declarator rule 1
-         direct_declarator rule 5
-           direct_declarator rule 1
-             'foo' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-           '(' 
-           parameter_decl_clause rule 2
-             parameter_decl_list rule 1 parameter_decl rule 1
-               'char' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 4
-               declarator rule 1
-                 direct_declarator rule 1
-                   'x' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
+             '7' prule:3201  cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 1 integer_lit rule 1
            ')' 
-     epsilon expression
-     function_body rule 1 compound_stmt rule 1
-       '{' 
-       stmt_seq_opt rule 2 stmt_sequence rule 1 statement rule 6 jump_stmt rule 3
-         'return' 
-         expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 2
-           '(' 
-           type_id rule 1
-             type_specifier_seq rule 1
-               'int' prule:6701  simple_type_specifier rule 8
-               epsilon expression
-             abstract_decl_opt rule 2 abstract_declarator rule 1
-               '*' prule:8001 
-               epsilon expression
-           ')' 
-           'x' prule:3101  unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-         ';' 
-       '}' 
-Overwriting foo from 1 with 7
-  Global: 'main' (874,1,int()) | 'foo' (905,1,*int()) |
-    main:
-    foo: 'x' (541,1,char) |
-
-RUN SUCCESSFUL (total time: 95ms)
+         '*' 
+         '2' prule:3201  cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 1 integer_lit rule 1
+       ';' 
+     '}'

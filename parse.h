@@ -13,6 +13,7 @@ extern int parse_cleanup;
 /* TYPES AND ENVIRONS SECTION */
 
 typedef enum btype {
+    string_type = 262,
     int_type = 321,
     bool_type = 295,
     void_type = 352,
@@ -29,7 +30,7 @@ typedef enum btype {
 // type element
 
 typedef struct type_el {
-    btype type; // basic types
+    btype bt; // basic types
     int elements;
     struct type_el *sib;
     struct type_el *next;
