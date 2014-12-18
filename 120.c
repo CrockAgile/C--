@@ -15,7 +15,7 @@ void parsetree_teardown();
 void call_parsing(char*);
 
 int main(int argc, char** argv) {
-    if (parsetree_setup(argc, argv) || true) {
+    if (parsetree_setup(argc, argv)) {
         // have parse trees available to work with
         print_treelist(treelist_head);
     }
