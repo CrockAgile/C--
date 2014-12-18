@@ -540,7 +540,7 @@ void param_decls(struct pnode *p, type_el **head) {
     for (curr = p->prule; curr; curr = curr->next) {
         new = param_decl(curr, p);
         if (new) {
-            //new = mk_type_el(new->type, new->sib, new->next);
+            new = mk_type_el(new->bt, new->sib, new->next);
             if (c) {
                 while (c->sib)
                     c = c->sib;
@@ -621,6 +621,7 @@ token *FindToken(struct pnode *c) {
         t = FindToken(c->kids[i]);
         if (t) return t;
     }
+    return NULL;
 }
 
 void proto_type(struct pnode *r, type_el **head) {
