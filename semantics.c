@@ -33,11 +33,29 @@ type_el* mk_type_el(btype t, type_el *s, type_el *n) {
     new->bt = t;
     new->sib = s;
     new->next = n;
-    new->elements = -1;
+    new->elems = -1;
     return new;
 }
 
-// lisp flashbacks
+type_el* copy_type_el(type_el *s) {
+    type_el *copy = mk_type_el(s->bt, NULL, NULL);
+    copy->elems = s->elems;
+    return copy;
+}
+
+type_el* copy_type_list(type_el *h) {
+    type_el *copy = NULL, *curr;
+    if (!h) return NULL;
+    copy = copy_type_el(h);
+    h = h->next;
+    curr = copy;
+    while (h) {
+        curr->next = copy_type_el(h);
+        curr = curr->next;
+        h = h->next;
+    }
+    return copy;
+}
 
 void free_type_list(type_el* head) {
     if (!head) return;
@@ -67,7 +85,7 @@ void print_type(type_el *curr, type_el *p) {
             break;
         case array_type:
             putchar('[');
-            printf("%d", curr-> elements);
+            if (curr->elems != -1) printf("%d", curr-> elems);
             putchar(']');
             break;
         case int_type:
@@ -84,6 +102,12 @@ void print_type(type_el *curr, type_el *p) {
             break;
         case double_type:
             printf("double");
+            break;
+        case ifstream_type:
+            printf("ifstream");
+            break;
+        case ofstream_type:
+            printf("ofstream");
             break;
         default:
             printf(" default %d", curr->bt);
@@ -341,6 +365,37 @@ env* PopEnv() {
     return res;
 }
 
+table_el *copy_table_el(table_el *o, env* c_env) {
+    table_el *new = mk_table_el(o->tok, copy_type_list(o->type), c_env, NULL);
+    new->cons = o->cons;
+    new->defd = false;
+    new->param_types = o->param_types;
+    new->par_env = c_env->up;
+    new->ch_env = NULL;
+    return new;
+}
+
+void copy_env_locals(env* s, env* d) {
+    int i;
+    table_el *l, *c, *res;
+    for (i = 0; i < S_SIZE; i++) {
+        l = s->locals[i];
+        if (l) {
+            c = copy_table_el(l, d);
+            res = environ_lookup(d, c->tok->text);
+            if (res) {
+                while (res->next)
+                    res = res->next;
+                res->next = c;
+            } else {
+                d->locals[env_hash(c->tok->text)] = c;
+            }
+        }
+
+    }
+
+}
+
 /* TREE TRAVERSALS SECTION */
 
 void pre_semantics(struct prodrule *p, struct pnode* n) {
@@ -357,10 +412,10 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
                 sem_cleanup = 1;
                 // insert iostream instances
                 token *cin_tok = mktoken(-1, "cin", 0, "iostream", "cin");
-                type_el *tcin = mk_type_el(class_instance, NULL, NULL);
+                type_el *tcin = mk_type_el(ifstream_type, NULL, NULL);
                 environ_insert(CurrEnv(), cin_tok, tcin, NULL, true, true);
                 token *cout_tok = mktoken(-1, "cout", 0, "iostream", "cout");
-                type_el *tout = mk_type_el(class_instance, NULL, NULL);
+                type_el *tout = mk_type_el(ofstream_type, NULL, NULL);
                 environ_insert(CurrEnv(), cout_tok, tout, NULL, true, true);
                 token *endl_tok = mktoken(-1, "endl", 0, "iostream", "\n");
                 type_el *tendl = mk_type_el(char_type, NULL, NULL);
@@ -385,8 +440,10 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             LinkCurrEnv(to);
             break;
         case class_name:
-            t = DownFind(n->par->kids[1], 8301); // instance name
+            t = DownFind(n->par->kids[1], 8301); // TODO instance name
             LinkCurrEnv(t->t)->name = strcat(strdup(t->t->text), " instance");
+            copy_env_locals(rec_environ_lookup(n->t->text)->ch_env,
+                    environ_lookup(CurrEnv()->up, t->t->text)->ch_env);
             break;
         case compound_statement:
             if (n->prule->code == 9101) {// function body
@@ -427,6 +484,10 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             id_table = rec_environ_lookup(n->t->text);
             if (id_table) {
                 n->type = id_table->type;
+            } else {
+                fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
+                        n->t->filename, n->t->lineno, n->t->text);
+                exit(3);
             }
             break;
     }
@@ -504,7 +565,8 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
                     array_type,
                     NULL,
                     pre_declarator(d->kids[0], ty, t));
-            tmp->elements = *(int*) (d->kids[2]->t->lval);
+            if (d->kids[2])
+                tmp->elems = *(int*) (d->kids[2]->t->lval);
             return tmp;
             break;
         case 8301:
@@ -681,13 +743,15 @@ void assign_lit_type(struct prodrule *p, struct pnode *n) {
 
 void type_err(char *s, struct pnode *c) {
     token *t = FindToken(c);
-    fprintf(stderr, "%s:%d error: invalid type for %s\n",
-            t->filename, t->lineno, s);
+    if (t) fprintf(stderr, "%s:%d error: invalid type for %s near token %s\n",
+            t->filename, t->lineno, s, t->text);
     exit(3);
 }
 
 void multi_type(struct pnode *n) {
     switch (n->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
         case void_type:
         case class_type:
         case class_instance:
@@ -707,6 +771,8 @@ void multi_type(struct pnode *n) {
 
 void mod_type(struct pnode *n) {
     switch (n->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
         case void_type:
         case class_type:
         case class_instance:
@@ -726,6 +792,8 @@ void mod_type(struct pnode *n) {
 
 void add_type(struct pnode *n) {
     switch (n->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
         case void_type:
         case class_type:
         case class_instance:
@@ -743,16 +811,10 @@ void add_type(struct pnode *n) {
     }
 }
 
-void SL_check(struct pnode *n) {
-
-}
-
-void SR_check(struct pnode *n) {
-
-}
-
 bool canBool(btype t) {
     switch (t) {
+        case ofstream_type:
+        case ifstream_type:
         case void_type:
         case class_type:
         case class_instance:
@@ -789,6 +851,147 @@ void up_expr_type(struct pnode *n, char k) {
     }
 }
 
+type_el* deref_type(type_el *h, struct pnode *n) {
+    type_el *p, *curr;
+    // if prefix pointer type
+    if (h->bt == pointer_type) {
+        p = h; // strip pointer type for result
+        h = h->next;
+        p->next = NULL;
+        free_type_list(p);
+        return h;
+    } else { // go looking for array type
+        curr = h;
+        while (curr->next) {
+            p = curr;
+            curr = curr->next;
+        }
+        if (curr->bt == array_type) {
+            p->next = NULL;
+            free_type_list(curr);
+            return h;
+        }
+    }
+    type_err("derefencing", n);
+    return NULL;
+}
+
+void index_type(struct pnode *n) {
+    table_el *id = rec_environ_lookup(n->kids[0]->t->text);
+    type_el *copy = copy_type_list(id->type);
+    copy = deref_type(copy, n);
+    n->type = copy;
+}
+
+void point_type(struct pnode *n) {
+    table_el *id = rec_environ_lookup(n->kids[1]->t->text);
+    type_el *copy = copy_type_list(id->type);
+    copy = deref_type(copy, n);
+    n->type = copy;
+}
+
+void dot_type(struct pnode *n) {
+    if (n->kids[0]->type->bt != class_instance) {
+        type_err("member accessing", n);
+    }
+    table_el *res;
+    env* class_env = rec_environ_lookup(n->kids[0]->t->text)-> ch_env;
+    res = environ_lookup(class_env, n->kids[2]->t->text);
+    n->type = copy_type_list(res->type);
+}
+
+void arrow_type(struct pnode *n) {
+    table_el *id = rec_environ_lookup(n->kids[0]->t->text);
+    type_el *copy = copy_type_list(id->type);
+    copy = deref_type(copy, n);
+    if (copy->bt == class_instance) {
+        id = environ_lookup(id->ch_env, n->kids[2]->t->text);
+        n->type = copy;
+    } else {
+        print_type_list(copy, NULL);
+        type_err("pointer member accessing", n);
+    }
+}
+
+void SL_type(struct pnode *n) {
+    if (n->kids[0]->type->bt != ofstream_type) {
+        type_err("<<", n);
+    }
+    switch (n->kids[2]->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
+        case void_type:
+        case class_type:
+        case class_instance:
+        case array_type:
+        case function_type:
+            type_err("<<", n);
+            break;
+        case string_type:
+        case int_type:
+        case char_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            n->type = mk_type_el(ofstream_type, NULL, NULL);
+            break;
+    }
+}
+
+void SR_type(struct pnode *n) {
+    if (n->kids[0]->type->bt != ifstream_type) {
+        type_err(">>", n);
+    }
+    switch (n->kids[2]->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
+        case void_type:
+        case class_type:
+        case class_instance:
+        case array_type:
+        case function_type:
+            type_err(">>", n);
+            break;
+        case string_type:
+        case int_type:
+        case char_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            n->type = mk_type_el(void_type, NULL, NULL);
+            break;
+    }
+}
+
+bool compatible(type_el *a, type_el *b) {
+    if (type_comp(a, b)) return true;
+    switch(a->bt) {
+        case double_type:
+            if((b->bt == int_type) || (b->bt == char_type)) return true;
+            break;
+        case int_type:
+            if((b->bt == double_type) || (b->bt == char_type)) return true;
+            break;
+        case char_type:
+            if((b->bt == int_type) || (b->bt == double_type)) return true;
+            break;
+    }
+    return false;
+}
+
+void init_type(struct pnode *n) {
+    if (!n->kids[1]) return;
+    struct type_el *id = DownFind(n,identifier)->type;
+    struct type_el *val = n->kids[1]->kids[1]->type;
+    if (compatible(id,val)) {
+        n->type = mk_type_el(int_type,NULL,NULL);
+    }
+    else {
+        type_err("assignment",n);
+    }
+    
+}
+
 void type_check(struct prodrule *p, struct pnode *n) {
     switch (p->code) {
         case mul_expr:
@@ -809,10 +1012,10 @@ void type_check(struct prodrule *p, struct pnode *n) {
             up_expr_type(n, '+');
             break;
         case SL_expr:
-            SL_check(n);
+            SL_type(n);
             break;
         case SR_expr:
-            SR_check(n);
+            SR_type(n);
             break;
         case LT_expr:
         case GT_expr:
@@ -830,6 +1033,33 @@ void type_check(struct prodrule *p, struct pnode *n) {
             break;
         case par_expr:
             n->type = n->kids[1]->type;
+            break;
+        case index_expr:
+            index_type(n);
+            break;
+        case point_expr:
+            point_type(n);
+            break;
+        case dot_expr:
+            dot_type(n);
+            break;
+        case arrow_expr:
+            arrow_type(n);
+            break;
+        case inc_expr:
+            if (!n->kids[0]->t || (n->kids[0]->type->bt != int_type)) {
+                type_err("incrementing", n);
+            }
+            n->type = mk_type_el(n->kids[0]->type->bt, NULL, NULL);
+            break;
+        case asn_expr:
+            if (!compatible(n->kids[0]->type, n->kids[2]->type)) {
+                type_err("assignment", n);
+            }
+            n->type = mk_type_el(int_type, NULL, NULL);
+            break;
+        case init_decl:
+            init_type(n);
             break;
     }
 }

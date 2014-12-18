@@ -201,7 +201,7 @@ postfix_expression:
 	| postfix_expression ARROW TEMPLATE id_expression { $$ = alcnode(2009,4,$1,$2,$3,$4); }
 	| postfix_expression ARROW COLONCOLON id_expression { $$ = alcnode(2010,4,$1,$2,$3,$4); }
 	| postfix_expression ARROW id_expression { $$ = alcnode(2011,3,$1,$2,$3); }
-	| postfix_expression PLUSPLUS { $$ = alcnode(2011,2,$1,$2); }
+	| postfix_expression PLUSPLUS { $$ = alcnode(2012,2,$1,$2); }
 	| postfix_expression MINUSMINUS { $$ = alcnode(2012,2,$1,$2); }
 	| DYNAMIC_CAST '<' type_id '>' '(' expression ')' { $$ = alcnode(2013,7,$1,$2,$3,$4,$5,$6,$7); }
 	| STATIC_CAST '<' type_id '>' '(' expression ')' { $$ = alcnode(2014,7,$1,$2,$3,$4,$5,$6,$7); }

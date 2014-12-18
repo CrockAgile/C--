@@ -25,13 +25,15 @@ typedef enum btype {
     pointer_type,
     function_type,
     array_type,
+    ofstream_type,
+    ifstream_type,
 } btype;
 
 // type element
 
 typedef struct type_el {
     btype bt; // basic types
-    int elements;
+    int elems;
     struct type_el *sib;
     struct type_el *next;
 } type_el;

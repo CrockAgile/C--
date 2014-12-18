@@ -108,6 +108,13 @@ typedef enum ExprNode {
     AND_expr = 4102,
     NOT_expr = 2203,
     par_expr = 1503,
+    index_expr = 2002,
+    point_expr = 2204,
+    dot_expr = 2007,
+    arrow_expr = 2011,
+    inc_expr = 2012,
+    asn_expr = 4402,
+    init_decl = 7701,
 } ExprNode;
 
 table_el* func_loc;
