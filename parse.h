@@ -49,7 +49,7 @@ struct prodrule {
     int code;
     struct prodrule *next;
 };
-
+struct address;
 struct pnode {
     struct prodrule *prule;
     int nkids;
@@ -57,6 +57,7 @@ struct pnode {
     struct pnode *par;
     token *t;
     type_el *type;
+    struct address *address;
 };
 
 struct pnode* alcnode(int rule, int kids, ...);

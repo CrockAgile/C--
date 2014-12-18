@@ -4,6 +4,7 @@
 
 #include "parse.h"
 #include "semantics.h"
+#include "tac.h"
 
 extern token yytoken;
 extern YYSTYPE root;
@@ -15,11 +16,10 @@ void parsetree_teardown();
 void call_parsing(char*);
 
 int main(int argc, char** argv) {
-    if (parsetree_setup(argc, argv)) {
-        // have parse trees available to work with
-        print_treelist(treelist_head);
-    }
+    parsetree_setup(argc, argv);
+    print_treelist(treelist_head);
     treelist_call(semantic_traversal); // call on each tree via func ptr
+    treelist_call(tac_traversal);
     print_environ(GetGlobal());
     //free_environ(GetGlobal());
     parsetree_teardown();
