@@ -476,6 +476,10 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             id_table->param_types = head;
             break;
     }
+}
+
+void post_semantics(struct prodrule *p, struct pnode* n) {
+    table_el *id_table;
     switch (p->code) {
         case literal:
             assign_lit_type(p, n);
@@ -487,13 +491,10 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             } else {
                 fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
                         n->t->filename, n->t->lineno, n->t->text);
-                exit(3);
+//                exit(3);
             }
             break;
     }
-}
-
-void post_semantics(struct prodrule *p, struct pnode* n) {
     switch (p->code / 10) {
         case class_specifier:
         case compound_statement:
@@ -965,15 +966,15 @@ void SR_type(struct pnode *n) {
 
 bool compatible(type_el *a, type_el *b) {
     if (type_comp(a, b)) return true;
-    switch(a->bt) {
+    switch (a->bt) {
         case double_type:
-            if((b->bt == int_type) || (b->bt == char_type)) return true;
+            if ((b->bt == int_type) || (b->bt == char_type)) return true;
             break;
         case int_type:
-            if((b->bt == double_type) || (b->bt == char_type)) return true;
+            if ((b->bt == double_type) || (b->bt == char_type)) return true;
             break;
         case char_type:
-            if((b->bt == int_type) || (b->bt == double_type)) return true;
+            if ((b->bt == int_type) || (b->bt == double_type)) return true;
             break;
     }
     return false;
@@ -981,15 +982,14 @@ bool compatible(type_el *a, type_el *b) {
 
 void init_type(struct pnode *n) {
     if (!n->kids[1]) return;
-    struct type_el *id = DownFind(n,identifier)->type;
+    struct type_el *id = DownFind(n, identifier)->type;
     struct type_el *val = n->kids[1]->kids[1]->type;
-    if (compatible(id,val)) {
-        n->type = mk_type_el(int_type,NULL,NULL);
+    if (compatible(id, val)) {
+        n->type = mk_type_el(int_type, NULL, NULL);
+    } else {
+        type_err("assignment", n);
     }
-    else {
-        type_err("assignment",n);
-    }
-    
+
 }
 
 void type_check(struct prodrule *p, struct pnode *n) {
@@ -1047,7 +1047,9 @@ void type_check(struct prodrule *p, struct pnode *n) {
             arrow_type(n);
             break;
         case inc_expr:
-            if (!n->kids[0]->t || (n->kids[0]->type->bt != int_type)) {
+            if (!n->kids[0]->t ||
+                    (n->kids[0]->type->bt != int_type) ||
+                    (n->kids[0]->type->bt != double_type)) {
                 type_err("incrementing", n);
             }
             n->type = mk_type_el(n->kids[0]->type->bt, NULL, NULL);
