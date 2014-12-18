@@ -1044,13 +1044,13 @@ void expr_list_type(struct pnode *n) {
     n->type = cur;
 }
 
-asn_type(struct pnode *n) {
+void asn_type(struct pnode *n) {
     type_el *iter, *prev, *ret = copy_type_list(n->kids[2]->type);
     iter = ret;
     while (iter) {
         prev = iter;
         iter = iter->next;
-        if (iter->bt == function_type) {
+        if ((iter) && (iter->bt == function_type)) {
             free_type_list(iter);
             prev->next = NULL;
             break;
