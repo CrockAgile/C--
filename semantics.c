@@ -220,7 +220,7 @@ table_el* environ_insert(env *e, token *to, type_el *ty, type_el *plist, bool c,
                         to->filename, to->lineno, to->text);
                 fprintf(stderr, "Previous definition located at %s:%d\n",
                         res->tok->filename, res->tok->lineno);
-                exit(3);
+                //                exit(3);
             }
 
         }
@@ -449,10 +449,6 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             if (n->prule->code != 9101) {// function body
                 PushCurrEnv();
             }
-            //                LinkCurrEnv(func_loc->tok);
-            //                type_el *head = NULL;
-            //                param_decls(n->par->kids[1], &head);
-            //                CurrEnv()->name = func_loc->tok->text;
             break;
         case simple_declaration:
             bt = n->kids[0]->t->code;
@@ -472,7 +468,11 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             head = NULL;
             ddecl = UpFind(n, 7905);
             ident = DownFind(ddecl->kids[0], 701);
-            id_table = environ_lookup(CurrEnv()->up, ident->t->text);
+            ddecl = UpFind(n, 6002);
+            if (ddecl)
+                id_table = environ_lookup(CurrEnv()->up, ident->t->text);
+            else
+                id_table = environ_lookup(CurrEnv(), ident->t->text);
             param_decls(n, &head);
             id_table->param_types = head;
             break;
@@ -480,6 +480,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
 }
 
 void post_semantics(struct prodrule *p, struct pnode* n) {
+
     table_el *id_table;
     switch (p->code) {
         case literal:
@@ -492,7 +493,7 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
             } else {
                 fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
                         n->t->filename, n->t->lineno, n->t->text);
-                //                exit(3);
+                exit(3);
             }
             break;
     }
@@ -922,28 +923,28 @@ void arrow_type(struct pnode *n) {
 }
 
 void SL_type(struct pnode *n) {
-        if (n->kids[0]->type->bt != ofstream_type) {
+    if (n->kids[0]->type->bt != ofstream_type) {
+        type_err("<<", n);
+    }
+    switch (n->kids[2]->type->bt) {
+        case ofstream_type:
+        case ifstream_type:
+        case void_type:
+        case class_type:
+        case class_instance:
+        case array_type:
+        case function_type:
             type_err("<<", n);
-        }
-        switch (n->kids[2]->type->bt) {
-            case ofstream_type:
-            case ifstream_type:
-            case void_type:
-            case class_type:
-            case class_instance:
-            case array_type:
-            case function_type:
-                type_err("<<", n);
-                break;
-            case string_type:
-            case int_type:
-            case char_type:
-            case pointer_type:
-            case bool_type:
-            case double_type:
-                n->type = mk_type_el(ofstream_type, NULL, NULL);
-                break;
-        }
+            break;
+        case string_type:
+        case int_type:
+        case char_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            n->type = mk_type_el(ofstream_type, NULL, NULL);
+            break;
+    }
 }
 
 void SR_type(struct pnode *n) {
