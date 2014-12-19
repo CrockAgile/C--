@@ -4,6 +4,7 @@
 
 #include "parse.h"
 #include "semantics.h"
+#include "tac.h"
 
 extern token yytoken;
 extern YYSTYPE root;

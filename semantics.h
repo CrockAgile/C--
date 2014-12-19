@@ -117,6 +117,7 @@ typedef enum ExprNode {
     init_decl = 7701,
     fcall_expr = 2003,
     expr_list = 2102,
+    ret_stm = 5703,
 } ExprNode;
 
 table_el* func_loc;
@@ -134,9 +135,8 @@ type_el* param_decl(struct prodrule*, struct pnode*);
 bool type_comp(type_el *, type_el *);
 bool table_type_comp(table_el*, table_el*);
 struct pnode *UpFind(struct pnode *c, int code);
-void pre_proto(struct pnode *r);
-void proto_type(struct pnode *r, type_el **head);
-type_el *indiv_protos(struct prodrule *pr, struct pnode *n);
+void proto_type(struct pnode *r, type_el **head, bool i);
+type_el *indiv_protos(struct prodrule *pr, struct pnode *n, bool i);
 struct pnode *DownFind(struct pnode *c, int code);
 void type_check(struct prodrule *p, struct pnode *n);
 void multi_type(struct pnode *n);
