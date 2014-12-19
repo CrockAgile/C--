@@ -112,7 +112,7 @@ while			return update_yytoken(WHILE,NULL);
 0{O}+{IS}?		lexerr("Octal not supported");
 
 {D}+{IS}?	{
-				int_ptr = (int*)malloc(sizeof(int));
+				int_ptr = (int*)calloc(1,sizeof(int));
                 if (!int_ptr)
                     exit(1);
 				*int_ptr = atoi(yytext);
@@ -122,7 +122,7 @@ while			return update_yytoken(WHILE,NULL);
 {D}*"."{D}+({E})?{FS}?	|
 {D}+"."{D}*({E})?{FS}?	|
 {D}+{E}{FS}?	{
-				float_ptr = (float*)malloc(sizeof(float));
+				float_ptr = (float*)calloc(1,sizeof(float));
                 if (!float_ptr)
                     exit(1);
 				*float_ptr = atof(yytext);
@@ -131,7 +131,7 @@ while			return update_yytoken(WHILE,NULL);
 
 
 '([^\\'])'	{
-				str_buf_ptr = (char*)malloc(strlen(yytext)+1);
+				str_buf_ptr = (char*)calloc(1,strlen(yytext)+1);
                 if (!str_buf_ptr)
                     exit(1);
 				strcpy(str_buf_ptr,yytext+1);
@@ -141,7 +141,7 @@ while			return update_yytoken(WHILE,NULL);
 
 '([^\\'])+' {
                 lexerr("Character constants cannot contain more than one character");
-                str_buf_ptr = malloc(strlen(yytext)+1);
+                str_buf_ptr = calloc(1,strlen(yytext)+1);
                 if (!str_buf_ptr)
                     exit(1);
                 strcpy(str_buf_ptr,yytext+1);
@@ -150,7 +150,7 @@ while			return update_yytoken(WHILE,NULL);
             }
 
 '\\.'		{
-				str_buf_ptr = (char*)malloc(4);
+				str_buf_ptr = (char*)calloc(1,4);
                 if (!str_buf_ptr)
                     exit(1);
 				strcpy(str_buf_ptr,yytext+1);

@@ -6,9 +6,9 @@
 #include <string.h>
 #include "semantics.h"
 
-void* sem_malloc(int size, bool zero) {
+void* sem_calloc(int size) {
     void* new;
-    zero ? (new = calloc(1, size)) : (new = malloc(size));
+    new = calloc(1, size);
     if (!new) {
         fprintf(stderr, "Memory allocation failed in Semantic Analysis\n");
         exit(3);
@@ -29,7 +29,7 @@ unsigned long env_hash(char *s) {
 }
 
 type_el* mk_type_el(btype t, type_el *s, type_el *n) {
-    type_el *new = sem_malloc(sizeof (type_el), 0); // -1 indicates elems N/A
+    type_el *new = sem_calloc(sizeof (type_el)); // -1 indicates elems N/A
     new->bt = t;
     new->sib = s;
     new->next = n;
@@ -127,7 +127,7 @@ void print_type_list(type_el *head, type_el *params) {
 }
 
 table_el* mk_table_el(token *t, type_el *ty, env *p, table_el *n) {
-    table_el *new = sem_malloc(sizeof (table_el), 1);
+    table_el *new = sem_calloc(sizeof (table_el));
     new->tok = t;
     new->type = ty;
     new->par_env = p;
@@ -159,12 +159,12 @@ void free_types(type_el *curr) {
 }
 
 env* mk_environ(env *parent, char *s, int depth) {
-    env *new = sem_malloc(sizeof (env), 1);
-    new->locals = sem_malloc(S_SIZE * sizeof (table_el*), 1);
+    env *new = sem_calloc(sizeof (env));
+    new->locals = sem_calloc(S_SIZE * sizeof (table_el*));
     new->up = parent;
     new->ksize = ENV_KIDS;
     new->depth = depth;
-    new->kids = sem_malloc(ENV_KIDS * sizeof (env*), 1);
+    new->kids = sem_calloc(ENV_KIDS * sizeof (env*));
     new->name = s;
     return new;
 }
@@ -216,15 +216,12 @@ table_el* environ_insert(env *e, token *to, type_el *ty, type_el *plist, bool c,
                     res->tok->filename, res->tok->lineno);
             exit(3);
         } else {
-            if (type_comp(new->type, res->type)) {
-                fprintf(stderr, "Overwriting %s from %d with %d\n", to->text,
-                        res->tok->lineno, to->lineno);
-            } else {
+            if (!type_comp(new->type, res->type)) {
                 fprintf(stderr, "%s:%d Definition of \"%s\" does not match prototype and 120++ does not support overloading\n",
                         to->filename, to->lineno, to->text);
                 fprintf(stderr, "Previous definition located at %s:%d\n",
                         res->tok->filename, res->tok->lineno);
-                //                exit(3);
+                exit(3);
             }
 
         }
@@ -329,7 +326,7 @@ void print_environ(env *curr) {
 }
 
 void PushCurrEnv() {
-    env_el *new = sem_malloc(sizeof (env_el), 0);
+    env_el *new = sem_calloc(sizeof (env_el));
     env *old_curr = CurrEnv();
     new->env = old_curr;
     new->next = env_stack;
@@ -338,14 +335,24 @@ void PushCurrEnv() {
     short temp, count = 0, nkids = old_curr->nkids;
     for (temp = nkids; temp > 0; temp /= 10)
         count++;
-    char *name = sem_malloc(sizeof (char) * (count + 7), 1);
+    char *name = sem_calloc(sizeof (char) * (count + 7));
     sprintf(name, "temp %hd", nkids);
     curr_env = add_env_child(old_curr, name);
 }
 
+void ChangeScope(char *k) {
+    changedScope = true;
+    env_el *new = sem_calloc(sizeof (env_el));
+    env *old_curr = CurrEnv();
+    new->env = old_curr;
+    new->next = env_stack;
+    env_stack = new;
+    curr_env = rec_environ_lookup(k)->ch_env;
+}
+
 env* LinkCurrEnv(token *t) {
     table_el *res;
-    env_el *new = sem_malloc(sizeof (env_el), 0);
+    env_el *new = sem_calloc(sizeof (env_el));
     env *n, *old_curr = CurrEnv();
     new->env = old_curr;
     new->next = env_stack;
@@ -353,6 +360,7 @@ env* LinkCurrEnv(token *t) {
 
     n = add_env_child(old_curr, t->text);
     res = environ_lookup(CurrEnv(), t->text);
+    print_environ(GetGlobal());
     res->ch_env = n; // link new child
 
     curr_env = n;
@@ -400,14 +408,49 @@ void copy_env_locals(env* s, env* d) {
 
 }
 
+token *FindToken(struct pnode *c) {
+    int i;
+    token *t;
+    if (c->t) {
+        return c->t;
+    }
+
+    for (i = 0; i < c->nkids; i++) {
+        t = FindToken(c->kids[i]);
+        if (t) return t;
+    }
+    return NULL;
+}
+
 /* TREE TRAVERSALS SECTION */
+
+void append_type(type_el* t, btype b) {
+    if (!t) return;
+    while ((t->next)) {
+        t = t->next;
+    }
+    t->next = mk_type_el(b, NULL, NULL);
+}
+
+void strip_type(type_el* t, btype b) {
+    type_el *prev;
+    while ((t) && (t->bt != b)) {
+        prev = t;
+        t = t->next;
+    }
+    if (!t) return;
+    t = t->next;
+    free_types(prev->next);
+    prev->next = t;
+}
 
 void pre_semantics(struct prodrule *p, struct pnode* n) {
     struct pnode *t, *ddecl, *ident;
     btype bt;
-    token* to;
-    type_el* types, *head; // *head =NULL; table_el *res;
-    table_el *id_table;
+    token* to = NULL;
+    type_el* types = NULL, *head = NULL;
+    table_el *id_table = NULL;
+    env* prev;
     switch (p->code / 10) {
         case start_state:
             iostream_included = 0;
@@ -434,8 +477,15 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             }
             break;
         case member_declaration:
-            bt = n->kids[0]->t->code;
-            pre_decl_list(bt, n->kids[1]);
+            if (n->kids[0]->t) {
+                bt = n->kids[0]->t->code;
+            } else {
+                bt = class_instance;
+            }
+            n = DownFind(n, 10001);
+            if (!n)
+                n = DownFind(n, 10002);
+            pre_decl_list(bt, n);
             break;
         case class_specifier:
             types = mk_type_el(class_type, NULL, NULL);
@@ -444,7 +494,7 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             LinkCurrEnv(to);
             break;
         case class_name:
-            t = DownFind(n->par->kids[1], 8301); // TODO instance name
+            t = DownFind(n->par->kids[1], 8301);
             LinkCurrEnv(t->t)->name = strcat(strdup(t->t->text), " instance");
             copy_env_locals(rec_environ_lookup(n->t->text)->ch_env,
                     environ_lookup(CurrEnv()->up, t->t->text)->ch_env);
@@ -459,15 +509,21 @@ void pre_semantics(struct prodrule *p, struct pnode* n) {
             pre_decl_list(bt, n->kids[1]);
             break;
         case function_definition:
-            head = NULL;
-            bt = n->kids[0]->t->code;
-            types = pre_declarator(n->kids[1], bt, &to);
-            environ_insert(CurrEnv(), to, types, head, false, true);
+            if (n->kids[0]->t) {
+                bt = n->kids[0]->t->code;
+                types = pre_declarator(n->kids[1], bt, &to);
+            } else {
+                bt = class_instance;
+                types = pre_declarator(n->kids[0], bt, &to);
+            }
             ident = DownFind(n, 8301);
-            LinkCurrEnv(ident->t);
+            environ_insert(CurrEnv(), to, types, head, false, true);
+            if (ident)
+                LinkCurrEnv(ident->t);
+            else
+                LinkCurrEnv(FindToken(n));
             break;
         case param_decl_clause:
-            head = NULL;
             ddecl = UpFind(n, 7905);
             ident = DownFind(ddecl->kids[0], 701);
             ddecl = UpFind(n, 6002);
@@ -496,22 +552,33 @@ void post_semantics(struct prodrule *p, struct pnode* n) {
             if (id_table) {
                 n->type = id_table->type;
             } else {
-                //                print_environ(GetGlobal());
-                //                fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
-                //                        n->t->filename, n->t->lineno, n->t->text);
-                //                exit(3);
+                if (n->par->prule->code == 2007) {
+
+                } else if (n->par->prule->code == 2011) {
+
+                } else {
+                    fprintf(stderr, "%s:%d Undeclared identifier '%s'\n",
+                            n->t->filename, n->t->lineno, n->t->text);
+                    exit(3);
+                }
             }
             break;
     }
     switch (p->code / 10) {
         case class_specifier:
-        case compound_statement:
         case class_name:
+            PopEnv();
+            break;
+        case compound_statement:
             if (n->prule->code != 9101) {// function body
                 PopEnv();
             }
             break;
         case function_definition:
+            if (changedScope) {
+                changedScope = false;
+                PopEnv();
+            }
             PopEnv();
             break;
     }
@@ -535,6 +602,7 @@ void semantic_traversal(struct pnode *p) {
 }
 
 void pre_decl_list(btype bt, struct pnode *i) {
+    if (!i) return;
     int c = i->prule->code;
     if (c == 7602 || c == 10002) {
         pre_decl_list(bt, i->kids[0]);
@@ -552,6 +620,7 @@ void pre_init_declarator(btype bt, struct pnode* i) {
 }
 
 type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
+    struct pnode *pn;
     type_el * tmp;
     if (!d) return mk_type_el(ty, NULL, NULL);
     // recursively build type linked list
@@ -597,8 +666,22 @@ type_el* pre_declarator(struct pnode* d, btype ty, token** t) {
         case 14602:
             return pre_declarator(d->kids[0], ty, t);
             break;
+        case 7907: // scope resolution TODO
+            *t = d->kids[0]->t;
+            pn = UpFind(d, 10001); // if in member_decl_list, no scope change
+            if (!pn) ChangeScope(d->kids[0]->t->text);
+            return mk_type_el(function_type, NULL, NULL);
+            break;
+        case 7908:
+        case 7909:
+            *t = d->kids[2]->t;
+            pn = UpFind(d, 10001); // if in member_decl_list, no scope change
+            if (!pn) ChangeScope(d->kids[0]->t->text);
+            return mk_type_el(function_type, NULL, NULL);
+            break;
         default:
-            printf("ERROR, hit unexpected prodrule while typing%d\n", d->prule->code);
+            fprintf(stderr, "ERROR, hit unexpected prodrule while adding type info%d\n",
+                    d->prule->code);
             exit(3);
     }
 }
@@ -684,20 +767,6 @@ struct pnode *DownFind(struct pnode *c, int code) {
     for (i = 0; i < c->nkids; i++) {
         d = DownFind(c->kids[i], code);
         if (d) return d;
-    }
-    return NULL;
-}
-
-token *FindToken(struct pnode *c) {
-    int i;
-    token *t;
-    if (c->t) {
-        return c->t;
-    }
-
-    for (i = 0; i < c->nkids; i++) {
-        t = FindToken(c->kids[i]);
-        if (t) return t;
     }
     return NULL;
 }
@@ -883,6 +952,12 @@ void dot_type(struct pnode *n) {
     table_el *res;
     env* class_env = rec_environ_lookup(n->kids[0]->t->text)-> ch_env;
     res = environ_lookup(class_env, n->kids[2]->t->text);
+    if (!res) {
+        token *t = FindToken(n);
+        if (t) fprintf(stderr, "%s:%d error: %s has no member %s\n",
+                t->filename, t->lineno, n->kids[0]->t->text, n->kids[2]->t->text);
+        exit(3);
+    }
     n->type = copy_type_list(res->type);
 }
 
@@ -892,7 +967,14 @@ void arrow_type(struct pnode *n) {
     copy = deref_type(copy, n);
     if (copy->bt == class_instance) {
         id = environ_lookup(id->ch_env, n->kids[2]->t->text);
-        n->type = copy;
+        if (!id) {
+            token *t = FindToken(n);
+            if (t) fprintf(stderr, "%s:%d error: %s has no member  %s\n",
+                    t->filename, t->lineno, n->kids[0]->t->text, n->kids[2]->t->text);
+            exit(3);
+        }
+        free_type_list(copy);
+        n->type = copy_type_list(id->type);
     } else {
         print_type_list(copy, NULL);
         type_err("pointer member accessing", n);
@@ -903,18 +985,27 @@ void SL_type(struct pnode *n) {
     if (n->kids[0]->type->bt != ofstream_type) {
         type_err("<<", n);
     }
-        switch (n->kids[2]->type->bt) {
-            default:
+    switch (n->kids[2]->type->bt) {
+        default:
+            type_err("<<", n);
+            break;
+        case char_type:
+            if (n->kids[2]->type->next != NULL) {
+                if (n->kids[2]->type->next->bt != array_type) {
+                    type_err("<<", n);
+                }
+            }
+            break;
+        case string_type:
+        case int_type:
+        case pointer_type:
+        case bool_type:
+        case double_type:
+            if (n->kids[2]->type->next != NULL) {
                 type_err("<<", n);
-                break;
-            case string_type:
-            case int_type:
-            case char_type:
-            case pointer_type:
-            case bool_type:
-            case double_type:
-                n->type = mk_type_el(ofstream_type, NULL, NULL);
-                break;
+            }
+            n->type = mk_type_el(ofstream_type, NULL, NULL);
+            break;
     }
 }
 
@@ -938,6 +1029,7 @@ void SR_type(struct pnode *n) {
 }
 
 bool compatible(type_el *a, type_el *b) {
+    if (type_comp(a, b)) return true;
     switch (a->bt) {
         case double_type:
             if ((b->bt == int_type) || (b->bt == char_type)) return true;
@@ -949,7 +1041,6 @@ bool compatible(type_el *a, type_el *b) {
             if ((b->bt == int_type) || (b->bt == double_type)) return true;
             break;
         default:
-            if (type_comp(a, b)) return true;
             break;
     }
     return false;
@@ -968,25 +1059,9 @@ void init_type(struct pnode *n) {
 }
 
 void fcall_type(struct pnode *n) {
-    table_el *res = rec_environ_lookup(n->kids[0]->t->text);
-    if (!res || (res->type->bt == function_type)) type_err("function call", n);
-    type_el *func = res->param_types, *param, *iterf, *iterp;
-    if (n->kids[2]) {
-        param = n->kids[2]->type;
-    } else {
-        param = mk_type_el(void_type, NULL, NULL);
-    }
-    iterf = func;
-    iterp = param;
-    while (iterf) {
-        if (!compatible(iterf, iterp)) {
-            type_err("function call parameters", n);
-        }
-        iterf = iterf->sib;
-        iterp = iterp->sib;
-    }
-    if (iterp) type_err("function call parameters", n);
-    n->type = copy_type_list(res->type);
+    type_el *res = copy_type_list(n->kids[0]->type);
+    strip_type(res, function_type);
+    n->type = res;
 }
 
 void expr_list_type(struct pnode *n) {
@@ -1004,17 +1079,7 @@ void expr_list_type(struct pnode *n) {
 }
 
 void asn_type(struct pnode *n) {
-    type_el *iter, *prev, *ret = copy_type_list(n->kids[2]->type);
-    iter = ret;
-    while (iter) {
-        prev = iter;
-        iter = iter->next;
-        if ((iter) && (iter->bt == function_type)) {
-            free_type_list(iter);
-            prev->next = NULL;
-            break;
-        }
-    }
+    type_el *ret = n->kids[2]->type;
     if (!compatible(n->kids[0]->type, ret)) {
         type_err("assignment", n);
     }
@@ -1023,21 +1088,10 @@ void asn_type(struct pnode *n) {
 }
 
 void check_ret(struct pnode *n) {
-    type_el *exp, *iter, *prev;
+    type_el *exp;
     exp = copy_type_list(rec_environ_lookup(CurrEnv()->name)->type);
-    iter = exp;
-    if (!type_comp(exp, n->kids[1]->type)) {
-        while (iter) {
-            prev = iter;
-            iter = iter->next;
-            if (iter->bt == function_type) {
-                free_type_list(iter);
-                prev->next = NULL;
-                break;
-            }
-        }
-    }
-    if (!type_comp(exp, n->kids[1]->type)) {
+    strip_type(exp, function_type);
+    if (!compatible(exp, n->kids[1]->type)) {
         type_err("return value", n);
     }
     free_type_list(exp);
@@ -1081,6 +1135,7 @@ void type_check(struct prodrule *p, struct pnode *n) {
                 type_err("boolean logic", n->kids[0]);
             if (!canBool(n->kids[2]->type->bt))
                 type_err("boolean logic", n->kids[2]);
+            n->type = mk_type_el(int_type,NULL,NULL);
             break;
         case par_expr:
             n->type = n->kids[1]->type;
@@ -1098,12 +1153,17 @@ void type_check(struct prodrule *p, struct pnode *n) {
             arrow_type(n);
             break;
         case inc_expr:
-            if (!n->kids[0]->t ||
-                    (n->kids[0]->type->bt != int_type) ||
-                    (n->kids[0]->type->bt != double_type)) {
-                type_err("incrementing", n);
+            if (n->kids[0]->t) {
+                switch (n->kids[0]->type->bt) {
+                    case int_type:
+                    case double_type:
+                        n->type = mk_type_el(n->kids[0]->type->bt, NULL, NULL);
+                        break;
+                    default:
+                        type_err("incrementing", n);
+                        break;
+                }
             }
-            n->type = mk_type_el(n->kids[0]->type->bt, NULL, NULL);
             break;
         case asn_expr:
             asn_type(n);

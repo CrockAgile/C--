@@ -17,12 +17,14 @@ void call_parsing(char*);
 int verbose;
 
 int main(int argc, char** argv) {
-    verbose = parsetree_setup(argc, argv);
+//    verbose = parsetree_setup(argc, argv);
+    verbose = true;
+    parsetree_setup(argc,argv);
     if(verbose) print_treelist(treelist_head);
     treelist_call(semantic_traversal); // call on each tree via func ptr
     if(verbose) print_environ(GetGlobal());
-    free_environ(GetGlobal());
-    parsetree_teardown();
+    //free_environ(GetGlobal());
+    //parsetree_teardown();
     return 0;
 }
 

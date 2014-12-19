@@ -1,38 +1,16 @@
-     function_body rule 1 compound_stmt rule 1
-       '{' 
-       stmt_seq_opt rule 2 stmt_sequence rule 2
-         stmt_sequence rule 2
-           stmt_sequence rule 1 statement rule 7 declare_stmt rule 1 block_declare rule 1 simple_declare rule 1
-             'double' prule:6401  declare_specifier rule 2 type_specifier rule 1 simple_type_specifier rule 13
-             init_decl_list rule 1
-               init_decl rule 1
-                 declarator rule 1
-                   direct_declarator rule 1
-                     'bf2' prule:8301  id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                 initializer_opt rule 2 initializer rule 1
-                   '=' 
-                   initializer_clause rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 2
-                     'branflakes' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                     '+' 
-                     '2.0' prule:3301  pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 3 floating_lit rule 1
-             ';' 
-           statement rule 2 expr_stmt rule 1
-             expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 2
-               shift_expr rule 2
-                 shift_expr rule 2
-                   'cout' prule:3501  add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-                   '<<' 
-                   '"bf2 is "' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 1 literal rule 4 string_lit rule 1
-                 '<<' 
-                 'bf2' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-               '<<' 
-               'endl' prule:3401  multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             ';' 
-         statement rule 6 jump_stmt rule 3
-           'return' 
-           expression_opt rule 2 expr rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 3
-             'goof' prule:2001  primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             '(' 
-             'bf2' prule:13502  expr_list rule 1 assign_expr rule 1 condition_expr rule 1 logic_or_expr rule 1 logic_and_expr rule 1 or_expr rule 1 xor_expr rule 1 and_expr rule 1 equal_expr rule 1 relation_expr rule 1 shift_expr rule 1 add_expr rule 1 multi_expr rule 1 pm_expr rule 1 cast_expr rule 1 unary_expr rule 1 postfix_expr rule 1 primary_expr rule 4 id_expr rule 1 unqualified_id rule 1 identifier rule 1
-             ')' 
-           ';' 
+
+int main(){
+
+    "This is /*not a comment*/"
+    /* This is a comment  */
+    /* C++ does not support /* nested comments */ */
+    /* This also contains a //nested comment */
+    
+    "Keep this string" // this is a comment "//... "
+    "This // is not a comment... "
+    KEEPTHIS; // Another comment
+    x = 1; // Also a comment, after x = 1;  
+    return 0; 
+}
+
+

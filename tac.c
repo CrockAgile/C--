@@ -59,7 +59,7 @@ void op_append(op *src, op *des) {
 }
 
 void pre_tac(struct pnode * n, int code) {
-    n->address = sem_malloc(sizeof(address),true);
+    n->address = sem_calloc(sizeof(address));
     switch (code) {
         case identifier:
         case literal:

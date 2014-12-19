@@ -35,7 +35,7 @@ int lval_update_yytoken(int code, void* lval, char* orig) {
 struct pnode *alcnode(int rule, int kids, ...) {
     va_list args;
 
-    struct pnode* new_pnode = (struct pnode*) malloc(sizeof (struct pnode));
+    struct pnode* new_pnode = (struct pnode*) calloc(1,sizeof (struct pnode));
     if (!new_pnode) return NULL;
 
     struct prodrule* new_prule = (struct prodrule*) calloc(1, sizeof (struct prodrule));
@@ -47,7 +47,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
     new_pnode->par = NULL;
     new_pnode->address = NULL;
 
-    new_pnode->kids = (struct pnode**) malloc((kids + 1) * sizeof (struct pnode*));
+    new_pnode->kids = (struct pnode**) calloc(1,(kids + 1) * sizeof (struct pnode*));
     new_pnode->kids[kids] = NULL;
     if (!new_pnode->kids) return NULL;
     int x;
@@ -64,7 +64,7 @@ struct pnode *alcnode(int rule, int kids, ...) {
 }
 
 struct pnode* create_pnode(token* curr_yytoken) {
-    token* yytoken_copy = (token*) malloc(sizeof (token));
+    token* yytoken_copy = (token*) calloc(1,sizeof (token));
     if (!yytoken_copy) return 0;
 
     yytoken_copy->code = curr_yytoken->code;
@@ -73,7 +73,7 @@ struct pnode* create_pnode(token* curr_yytoken) {
     yytoken_copy->filename = curr_yytoken->filename;
     yytoken_copy->lval = curr_yytoken->lval;
 
-    struct pnode *new_pnode = (struct pnode*) malloc(sizeof (struct pnode));
+    struct pnode *new_pnode = (struct pnode*) calloc(1,sizeof (struct pnode));
 
     if (!new_pnode)
         return 0;
@@ -166,7 +166,7 @@ char* craft_readable(char* base, int prodrule) {
         suff_len++;
     }
     suffix = prodrule % SUFF_SIZE;
-    char* buf = (char*) malloc(s + suff_len + 1);
+    char* buf = (char*) calloc(1,s + suff_len + 1);
     if (!buf)
         exit(2);
     strcpy(buf, base);
@@ -660,7 +660,7 @@ void humanreadable(struct prodrule* prule, char **dest) {
 struct pnode* only_child(struct pnode* des, int code) {
     if (!des) return NULL;
     struct prodrule* head = des->prule;
-    struct prodrule* new = (struct prodrule*) malloc(sizeof (struct prodrule));
+    struct prodrule* new = (struct prodrule*) calloc(1,sizeof (struct prodrule));
     if (!new)
         return des; // failure is tolerable
     new->code = code;
@@ -719,7 +719,7 @@ int insert_name(token *insert, int new_code) {
         }
         res = res->next;
     }
-    token_el* new = (token_el*) malloc(sizeof (token_el));
+    token_el* new = (token_el*) calloc(1,sizeof (token_el));
     new->t = insert;
     new->t->code = new_code;
     new->next = *des;
@@ -754,7 +754,7 @@ int id_check(char* s, int code) {
 // need linked list to maintain roots of trees
 
 void treelist_append(char *file, struct pnode *added) {
-    root_el *new = malloc(sizeof (root_el));
+    root_el *new = calloc(1,sizeof (root_el));
     if (!new)
         exit(1);
 

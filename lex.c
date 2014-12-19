@@ -7,7 +7,7 @@ extern YYSTYPE yylval;
 extern YYSTYPE root;
 
 token* mktoken(int c, char* t, int ln, char* fn, void* lval) {
-    token *nt = malloc(sizeof (token));
+    token *nt = calloc(1,sizeof (token));
     nt->code = c;
     nt->text = t;
     nt->lineno = ln;
@@ -25,7 +25,7 @@ token* mktoken(int c, char* t, int ln, char* fn, void* lval) {
 // };
 
 void type_insert(char *name, int code) {
-    name_insert *new = malloc(sizeof (name_insert));
+    name_insert *new = calloc(1,sizeof (name_insert));
     if (!new)
         exit(0);
     new->name = name;
@@ -35,7 +35,7 @@ void type_insert(char *name, int code) {
 }
 
 int push_file(int lineno) {
-    file_el* pushed = (file_el*) malloc(sizeof (file_el));
+    file_el* pushed = (file_el*) calloc(1,sizeof (file_el));
     if (!pushed)
         return 0;
 
@@ -78,7 +78,7 @@ void print_filestack() {
 }
 
 int add_to_tail(token* curr_yytoken) {
-    token* yytoken_copy = (token*) malloc(sizeof (token));
+    token* yytoken_copy = (token*) calloc(1,sizeof (token));
     if (!yytoken_copy)
         return 0;
 
@@ -88,7 +88,7 @@ int add_to_tail(token* curr_yytoken) {
     yytoken_copy->filename = curr_yytoken->filename;
     yytoken_copy->lval = curr_yytoken->lval;
 
-    token_el* added = (token_el*) malloc(sizeof (token_el));
+    token_el* added = (token_el*) calloc(1,sizeof (token_el));
     if (!added)
         return 0;
 

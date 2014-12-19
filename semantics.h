@@ -11,8 +11,9 @@
 extern int include_success;
 extern int iostream_included;
 extern int sem_cleanup;
+int changedScope;
 
-void* sem_malloc(int size, bool zero);
+void* sem_calloc(int size);
 
 struct env;
 
