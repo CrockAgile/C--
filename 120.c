@@ -13,14 +13,13 @@ FILE* yyin;
 int parsetree_setup(int, char**);
 void parsetree_teardown();
 void call_parsing(char*);
+int verbose;
 
 int main(int argc, char** argv) {
-    if (parsetree_setup(argc, argv)) {
-        // have parse trees available to work with
-        print_treelist(treelist_head);
-    }
+    verbose = parsetree_setup(argc, argv);
+    if(verbose) print_treelist(treelist_head);
     treelist_call(semantic_traversal); // call on each tree via func ptr
-    print_environ(GetGlobal());
+    if(verbose) print_environ(GetGlobal());
     free_environ(GetGlobal());
     parsetree_teardown();
     return 0;

@@ -755,15 +755,7 @@ void type_err(char *s, struct pnode *c) {
 
 void multi_type(struct pnode *n) {
     switch (n->type->bt) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case pointer_type:
-        case array_type:
-        case function_type:
-        case string_type:
+        default:
             type_err("multiplication", n);
             break;
         case int_type:
@@ -776,17 +768,7 @@ void multi_type(struct pnode *n) {
 
 void mod_type(struct pnode *n) {
     switch (n->type->bt) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case pointer_type:
-        case array_type:
-        case function_type:
-        case string_type:
-        case bool_type:
-        case double_type:
+        default:
             type_err("modular arithmetic", n);
             break;
         case int_type:
@@ -797,14 +779,7 @@ void mod_type(struct pnode *n) {
 
 void add_type(struct pnode *n) {
     switch (n->type->bt) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case array_type:
-        case function_type:
-        case string_type:
+        default:
             type_err("addition", n);
             break;
         case int_type:
@@ -818,13 +793,7 @@ void add_type(struct pnode *n) {
 
 bool canBool(btype t) {
     switch (t) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case array_type:
-        case function_type:
+        default:
             return false;
             break;
         case string_type:
@@ -923,13 +892,7 @@ void SL_type(struct pnode *n) {
             type_err("<<", n);
         }
         switch (n->kids[2]->type->bt) {
-            case ofstream_type:
-            case ifstream_type:
-            case void_type:
-            case class_type:
-            case class_instance:
-            case array_type:
-            case function_type:
+            default:
                 type_err("<<", n);
                 break;
             case string_type:
@@ -948,13 +911,7 @@ void SR_type(struct pnode *n) {
         type_err(">>", n);
     }
     switch (n->kids[2]->type->bt) {
-        case ofstream_type:
-        case ifstream_type:
-        case void_type:
-        case class_type:
-        case class_instance:
-        case array_type:
-        case function_type:
+        default:
             type_err(">>", n);
             break;
         case string_type:
@@ -969,7 +926,6 @@ void SR_type(struct pnode *n) {
 }
 
 bool compatible(type_el *a, type_el *b) {
-    if (type_comp(a, b)) return true;
     switch (a->bt) {
         case double_type:
             if ((b->bt == int_type) || (b->bt == char_type)) return true;
@@ -979,6 +935,9 @@ bool compatible(type_el *a, type_el *b) {
             break;
         case char_type:
             if ((b->bt == int_type) || (b->bt == double_type)) return true;
+            break;
+        default:
+            if (type_comp(a, b)) return true;
             break;
     }
     return false;
